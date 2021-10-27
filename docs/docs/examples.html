@@ -1,0 +1,458 @@
+<html><head><meta charset="utf-8"></meta><meta name="viewport" content="width=device-width, initial-scale=1"></meta><title>Code Examples</title><link rel="shortcut icon" type="image/x-icon" href="../favicon.ico"></link><script type="text/javascript" src="../scripts/theme.js"></script><script type="text/javascript" src="../scripts/searchData.js" defer="true"></script><script type="text/javascript" src="../scripts/scastieConfiguration.js" defer="true"></script><link rel="stylesheet" href="../styles/nord-light.css"></link><link rel="stylesheet" href="../styles/scalastyle.css"></link><link rel="stylesheet" href="../styles/colors.css"></link><link rel="stylesheet" href="../styles/dotty-icons.css"></link><link rel="stylesheet" href="../styles/diagram.css"></link><link rel="stylesheet" href="../styles/filter-bar.css"></link><link rel="stylesheet" href="../styles/code-snippets.css"></link><link rel="stylesheet" href="../styles/searchbar.css"></link><link rel="stylesheet" href="../styles/social-links.css"></link><link rel="stylesheet" href="../styles/ux.css"></link><link rel="stylesheet" href="../styles/versions-dropdown.css"></link><link rel="stylesheet" href="../styles/fontawesome.css"></link><script type="text/javascript" src="../hljs/highlight.pack.js" defer="true"></script><script type="text/javascript" src="../scripts/hljs-scala3.js" defer="true"></script><script type="text/javascript" src="../scripts/ux.js" defer="true"></script><script type="text/javascript" src="../scripts/common/component.js" defer="true"></script><script type="text/javascript" src="../scripts/common/utils.js" defer="true"></script><script type="text/javascript" src="../scripts/components/FilterBar.js" defer="true"></script><script type="text/javascript" src="../scripts/components/DocumentableList.js" defer="true"></script><script type="text/javascript" src="../scripts/components/Input.js" defer="true"></script><script type="text/javascript" src="../scripts/components/FilterGroup.js" defer="true"></script><script type="text/javascript" src="../scripts/components/Filter.js" defer="true"></script><script type="text/javascript" src="../scripts/searchbar.js" defer="true"></script><script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js" defer="true"></script><script type="text/javascript" src="https://d3js.org/d3.v6.min.js" defer="true"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/graphlib-dot@0.6.2/dist/graphlib-dot.min.js" defer="true"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dagre-d3/0.6.1/dagre-d3.min.js" defer="true"></script><script type="text/javascript" src="https://scastie.scala-lang.org/embedded.js" defer="true"></script><script type="text/javascript" src="../scripts/data.js" defer="true"></script><script>var pathToRoot = "../";</script></head><body><div id="container"><div id="leftColumn"><div id="logo"><span><div class="projectName">TinyScalaUtils</div></span><div id="version"><div class="versions-dropdown"><div onclick="dropdownHandler()" id="dropdown-button" class="dropdownbtn dropdownbtnactive"><div class="projectVersion">0.4.1</div><div id="dropdown-content" class="dropdown-content"><input type="text" placeholder="Search..." id="dropdown-input" onkeyup="filterFunction()"></input></div></div></div></div><div class="socials"></div></div><div id="paneSearch"></div><nav id="sideMenu2"><div class="ni expanded"><span class="nh expanded"><span class="ar"></span><a href="index.html"><span>TinyScalaUtils</span></a></span><div class="ni expanded"><span class="nh selected"><a href="examples.html"><span>Code Examples</span></a></span></div><div class="ni"><span class="nh "><span class="ar"></span><a href="../index.html"><span>API</span></a></span><div class="ni "><span class="nh "><a href="../tinyscalautils/assertions.html"><span class="micon pa"></span><span>tinyscalautils.assertions</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/control.html"><span class="micon pa"></span><span>tinyscalautils.control</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/io.html"><span class="micon pa"></span><span>tinyscalautils.io</span></a></span></div><div class="ni"><span class="nh "><span class="ar"></span><a href="../tinyscalautils/lang.html"><span class="micon pa"></span><span>tinyscalautils.lang</span></a></span><div class="ni "><span class="nh "><a href="../tinyscalautils/lang/InterruptibleConstructor.html"><span class="micon tr"></span><span>InterruptibleConstructor</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/lang/InterruptibleEquality.html"><span class="micon tr"></span><span>InterruptibleEquality</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/lang/StackOverflowException.html"><span class="micon cl"></span><span>StackOverflowException</span></a></span></div></div><div class="ni"><span class="nh "><span class="ar"></span><a href="../tinyscalautils/text.html"><span class="micon pa"></span><span>tinyscalautils.text</span></a></span><div class="ni "><span class="nh "><a href="../tinyscalautils/text/PrintingMode.html"><span class="micon tr"></span><span>PrintingMode</span></a></span></div></div><div class="ni"><span class="nh "><span class="ar"></span><a href="../tinyscalautils/threads.html"><span class="micon pa"></span><span>tinyscalautils.threads</span></a></span><div class="ni "><span class="nh "><a href="../tinyscalautils/threads/Executors.html"><span class="micon cl"></span><span>Executors</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/threads/Executors$.html"><span class="micon ob"></span><span>Executors</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/threads/KeepThreadsFactory.html"><span class="micon cl"></span><span>KeepThreadsFactory</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/threads/KeepThreadsFactory$.html"><span class="micon ob"></span><span>KeepThreadsFactory</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/threads/MarkedThread.html"><span class="micon tr"></span><span>MarkedThread</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/threads/MarkedThreadsFactory.html"><span class="micon cl"></span><span>MarkedThreadsFactory</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/threads/MarkedThreadsFactory$.html"><span class="micon ob"></span><span>MarkedThreadsFactory</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/threads/StoppableThread.html"><span class="micon cl"></span><span>StoppableThread</span></a></span></div></div><div class="ni"><span class="nh "><span class="ar"></span><a href="../tinyscalautils/timing.html"><span class="micon pa"></span><span>tinyscalautils.timing</span></a></span><div class="ni "><span class="nh "><a href="../tinyscalautils/timing/SlowIterator$.html"><span class="micon ob"></span><span>SlowIterator</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/timing/SlowLazyList$.html"><span class="micon ob"></span><span>SlowLazyList</span></a></span></div><div class="ni "><span class="nh "><a href="../tinyscalautils/timing/SlowSource$.html"><span class="micon ob"></span><span>SlowSource</span></a></span></div></div></div></div></nav></div><div id="main"><div id="leftToggler"><span class="icon-toggler"></span></div><div id="scaladoc-searchBar"></div><main id="main-content"><div class="breadcrumbs"><a href="index.html">TinyScalaUtils</a>/<a href="examples.html">Code Examples</a></div><div id="content"><html>
+ <head></head>
+ <body>
+  <h1><a href="#code-examples" id="code-examples" class="anchor"></a>Code Examples</h1> 
+  <h2><a href="#package-lang" id="package-lang" class="anchor"></a>Package <code>lang</code></h2> 
+  <h3><a href="#unit" id="unit" class="anchor"></a><code>unit</code></h3> 
+  <p>A <code>unit</code> value is defined instead of the usual <code>()</code> token for improved readability, e.g.:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">f(((), ())) // hard to parse
+</span><span id="1" class="">
+</span><span id="2" class="">import tinyscalautils.lang.unit
+</span><span id="3" class="">
+</span><span id="4" class="">f((unit, unit)) // easier
+</span></code></pre>
+  </div> 
+  <h3><a href="#implies" id="implies" class="anchor"></a><code>implies</code></h3> 
+  <p>Logical implication:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">val s: IndexedSeq[Int] = ...
+</span><span id="1" class="">require(!s.indices.contains(i) || s(i) &gt; 0)
+</span><span id="2" class="">
+</span><span id="3" class="">import tinyscalautils.lang.implies
+</span><span id="4" class="">
+</span><span id="5" class="">require(s.indices.contains(i) implies s(i) &gt; 0)
+</span></code></pre>
+  </div> 
+  <p>The evaluation is short-circuited: RHS is evaluated only if LHS is true. Operator also available under the symbolic name <code>==&gt;</code>.</p> 
+  <h3><a href="#interruptibleconstructor--interruptibleequality" id="interruptibleconstructor--interruptibleequality" class="anchor"></a><code>InterruptibleConstructor</code> / <code>InterruptibleEquality</code></h3> 
+  <p>Checks the interrupted status of the current thread before instance creation and/or equality and hash code:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.lang.{ InterruptibleConstructor, InterruptibleEquality }
+</span><span id="1" class="">
+</span><span id="2" class="">class C extends InterruptibleConstructor, InterruptibleEquality
+</span><span id="3" class="">
+</span><span id="4" class="">val c = C() // throws InterruptedException if thread is interrupted
+</span><span id="5" class="">c == c // throws InterruptedException if thread is interrupted
+</span><span id="6" class="">c.## // throws InterruptedException if thread is interrupted
+</span></code></pre>
+  </div> 
+  <h2><a href="#package-control" id="package-control" class="anchor"></a>Package <code>control</code></h2> 
+  <h3><a href="#times" id="times" class="anchor"></a><code>times</code></h3> 
+  <p>This is the same <code>times</code> as in <code>Scalactic</code>:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.control.times
+</span><span id="1" class="">
+</span><span id="2" class="">3 times {
+</span><span id="3" class="">   println("Beetlejuice!")
+</span><span id="4" class="">}
+</span></code></pre>
+  </div> 
+  <h3><a href="#circular" id="circular" class="anchor"></a><code>circular</code></h3> 
+  <p>Produces an infinite collection of elements by continuously repeating a finite collection:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.control.circular
+</span><span id="1" class="">
+</span><span id="2" class="">val i: Iterator[Int] = List(1, 2, 3).circular
+</span><span id="3" class="">// i is an infinite iterator: 1,2,3,1,2,3,1,2,3,...
+</span><span id="4" class="">
+</span><span id="5" class="">i.take(10).toList // the list 1,2,3,1,2,3,1,2,3,1
+</span></code></pre>
+  </div> 
+  <h3><a href="#limitedstack--stackoverflowexception" id="limitedstack--stackoverflowexception" class="anchor"></a><code>limitedStack</code> / <code>StackOverflowException</code></h3> 
+  <p><code>StackOverflowException</code> can replace <code>StackOverflowError</code> where the latter would not adequately be caught:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.lang.StackOverflowException
+</span><span id="1" class="">import tinyscalautils.control.limitedStack
+</span><span id="2" class="">
+</span><span id="3" class="">def f(x: Int): Int = 1 + f(x + 1)
+</span><span id="4" class="">
+</span><span id="5" class="">val t = Try(f(0)) // dies with StackOverflowError, no usable t value
+</span><span id="6" class="">
+</span><span id="7" class="">val t = Try(limitedStack(f(0)))
+</span><span id="8" class="">t.isFailure // true
+</span><span id="9" class="">t.failed.get.isInstanceOf[StackOverflowException] // true
+</span></code></pre>
+  </div> 
+  <h3><a href="#interruptibly" id="interruptibly" class="anchor"></a><code>interruptibly</code></h3> 
+  <p>Checks the interrupted status of the current thread before running some code:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.control.interruptibly
+</span><span id="1" class="">
+</span><span id="2" class="">while true do interruptibly {
+</span><span id="3" class="">   x += 1
+</span><span id="4" class="">}
+</span></code></pre>
+  </div> 
+  <p>The infinite loops terminates with <code>InterruptedException</code> if the thread is interrupted.</p> 
+  <h3><a href="#stoppably" id="stoppably" class="anchor"></a><code>stoppably</code></h3> 
+  <p>Forces a task running thread to stop if it is not responsive to interrupts:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.control.stoppably
+</span><span id="1" class="">
+</span><span id="2" class="">val value = stoppably(2.0) {
+</span><span id="3" class="">   ... // code that may refuse to stop
+</span><span id="4" class="">}
+</span></code></pre>
+  </div> 
+  <p>The current thread is blocked until the task code finishes. If interrupted, <code>stoppably</code> does three things:</p> 
+  <ul> 
+   <li>throws <code>InterruptedException</code> (immediately);</li> 
+   <li>interrupts the thread that runs the task code (immediately);</li> 
+   <li>if that thread is still alive after 2 seconds, forcefully terminates it.</li> 
+  </ul> 
+  <h2><a href="#package-assertions" id="package-assertions" class="anchor"></a>Package <code>assertions</code></h2> 
+  <h3><a href="#require--requirestate" id="require--requirestate" class="anchor"></a><code>require</code> / <code>requireState</code></h3> 
+  <p>Simple precondition checking:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.assertions.require
+</span><span id="1" class="">
+</span><span id="2" class="">// Scala style:
+</span><span id="3" class="">require(cond, s"bad argument because ${someMethod()}")
+</span><span id="4" class="">
+</span><span id="5" class="">// Java style:
+</span><span id="6" class="">require(cond, "bad argument because %s", someMethod())
+</span></code></pre>
+  </div> 
+  <p>In either case, <code>someMethod()</code> is only evaluated if the condition is false.</p> 
+  <p>When a requirement fails, <code>require</code> throws <code>IllegalArgumentException</code> while <code>requireState</code> throws <code>IllegalStateException</code>.</p> 
+  <h3><a href="#checknonnull" id="checknonnull" class="anchor"></a><code>checkNonNull</code></h3> 
+  <p>A utility to help reject <code>null</code> with <code>IllegalArgumentException</code> instead of <code>NullPointerException</code>:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">require(str.nonEmpty, "string cannot be empty") // throws NPE if str is null, Java style
+</span><span id="1" class="">
+</span><span id="2" class="">import tinyscalautils.assertions.checkNonNull
+</span><span id="3" class="">
+</span><span id="4" class="">require(checkNonNull(str).nonEmpty, "string cannot be empty") // throws IllegalArgumentException on null or empty string
+</span></code></pre>
+  </div> 
+  <h2><a href="#package-text" id="package-text" class="anchor"></a>Package <code>text</code></h2> 
+  <h3><a href="#shortpad" id="shortpad" class="anchor"></a><code>short/pad</code></h3> 
+  <p>Shortens or pads strings:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.text.{ short, pad }
+</span><span id="1" class="">
+</span><span id="2" class="">val str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+</span><span id="3" class="">str.short // "ABCDEFGHIJKLMNOPQRSTUVWXYZabc..."
+</span><span id="4" class="">str.short(10) // "ABCDEFG..."
+</span><span id="5" class="">"X".pad(5) // "    X"
+</span><span id="6" class="">"X".pad(5, padding = '.') // "....X"
+</span></code></pre>
+  </div> 
+  <p>Note that standard method <code>padTo</code> pads strings <em>on the right</em>.</p> 
+  <h3><a href="#printfprintln" id="printfprintln" class="anchor"></a><code>printf/println</code></h3> 
+  <p>Adds thread and/or time information to print statements:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.text.{ println, timeMode }
+</span><span id="1" class="">   println("foo") // prints: at 13:02:13.207: foo
+</span><span id="2" class="">   
+</span><span id="3" class="">   import tinyscalautils.text.{ println, timeDemoMode }
+</span><span id="4" class="">   println("foo") // prints: at XX:XX:13.207: foo
+</span><span id="5" class="">   
+</span><span id="6" class="">   import tinyscalautils.text.{ println, threadMode }
+</span><span id="7" class="">   println("foo") // prints: main: foo
+</span><span id="8" class="">   
+</span><span id="9" class="">   import tinyscalautils.text.{ println, threadTimeMode }
+</span><span id="10" class="">   println("foo") // prints: main at 13:02:13.207: foo
+</span><span id="11" class="">   
+</span><span id="12" class="">   import tinyscalautils.text.{ println, threadTimeDemoMode }
+</span><span id="13" class="">   println("foo") // prints: main at XX:XX:13.207: foo
+</span><span id="14" class="">
+</span><span id="15" class="">   import tinyscalautils.text.{ println, standardMode }
+</span><span id="16" class="">   println("foo") // prints: foo
+</span><span id="17" class="">   
+</span><span id="18" class="">   import tinyscalautils.text.{ println, silentMode }
+</span><span id="19" class="">   println("foo") // prints nothing
+</span></code></pre>
+  </div> 
+  <p>Function <code>printf</code> works similarly.</p> 
+  <h2><a href="#package-timing" id="package-timing" class="anchor"></a>Package <code>timing</code></h2> 
+  <h3><a href="#sleep" id="sleep" class="anchor"></a><code>sleep</code></h3> 
+  <p>Suspends the running thread for a specified number of seconds:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.timing.{ getTime, sleep }
+</span><span id="1" class="">
+</span><span id="2" class="">sleep(3.0) // sleeps 3 seconds, starting from now
+</span><span id="3" class="">
+</span><span id="4" class="">val start = getTime()
+</span><span id="5" class="">... 
+</span><span id="6" class="">sleep(3.0, start) // sleeps 3 seconds, starting from start time
+</span></code></pre>
+  </div> 
+  <p>This last example won't sleep at all if more than 3 seconds have already elapsed since time <code>start</code>.</p> 
+  <p>This method <code>sleep</code> does not undershoot even if <code>Thread.sleep</code> does, and does not throw <code>InterruptedException</code>.</p> 
+  <h3><a href="#delay" id="delay" class="anchor"></a><code>delay</code></h3> 
+  <p>Delays returning a value:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.timing.delay
+</span><span id="1" class="">
+</span><span id="2" class="">val result = delay(3.0) {
+</span><span id="3" class="">   // code
+</span><span id="4" class="">}
+</span></code></pre>
+  </div> 
+  <p>This produces the same value as <code>code</code>, but takes 3 seconds (assuming the evaluation of <code>code</code> took less than 3 seconds). Like <code>sleep</code>, also exists in a <code>start</code> variant: <code>delay(3.0, start)(code)</code>.</p> 
+  <h3><a href="#timeof" id="timeof" class="anchor"></a><code>timeOf</code></h3> 
+  <p>The time it took to evaluate some code, in seconds:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.timing.timeOf
+</span><span id="1" class="">
+</span><span id="2" class="">val time = timeOf {
+</span><span id="3" class="">   // code
+</span><span id="4" class="">}
+</span></code></pre>
+  </div> 
+  <p>The value produced by the code, if any, is ignored.</p> 
+  <h3><a href="#timeit" id="timeit" class="anchor"></a><code>timeIt</code></h3> 
+  <p>The value produced by some code, and the time it took to compute it, as a pair:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.timing.timeIt
+</span><span id="1" class="">
+</span><span id="2" class="">val (value, time) = timeIt {
+</span><span id="3" class="">   // code
+</span><span id="4" class="">}
+</span></code></pre>
+  </div> 
+  <h3><a href="#slow" id="slow" class="anchor"></a><code>slow</code></h3> 
+  <p>A mechanism to slow down sources of values:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.timing.SlowIterator
+</span><span id="1" class="">
+</span><span id="2" class="">val i = Iterator.range(0, 1000)
+</span><span id="3" class="">
+</span><span id="4" class="">val sum = i.sum // 499500
+</span><span id="5" class="">val sum = i.slow(10.0).sum // 499500, but in about 10 seconds
+</span><span id="6" class="">
+</span><span id="7" class="">// first 10 elements delayed by about 1 second, then fast:
+</span><span id="8" class="">i.slow(10.0, delayedElements = 10)
+</span><span id="9" class="">
+</span><span id="10" class="">// first 100 elements delayed by about 0.1 second, then fast
+</span><span id="11" class="">i.slow(10.0, delayedElements = 100)
+</span><span id="12" class="">
+</span><span id="13" class="">// all elements delayed by about 0.001 second, then 9-second delay to finish
+</span><span id="14" class="">i.slow(10.0, delayedElements = 10_000)
+</span></code></pre>
+  </div> 
+  <p>Also available on <code>Source</code> and <code>LazyList</code>.</p> 
+  <h2><a href="#package-threads" id="package-threads" class="anchor"></a>Package <code>threads</code></h2> 
+  <h3><a href="#joined" id="joined" class="anchor"></a><code>joined</code></h3> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.threads.joined
+</span><span id="1" class="">
+</span><span id="2" class="">if thread.joined(3.0)
+</span><span id="3" class="">   then ... // thread is terminated (or never started)
+</span><span id="4" class="">   else ... // 3-second timeout; thread may still be running
+</span></code></pre>
+  </div> 
+  <h3><a href="#ortimeout" id="ortimeout" class="anchor"></a><code>orTimeout</code></h3> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.threads.{ orTimeout, completeOnTimeout } 
+</span><span id="1" class="">
+</span><span id="2" class="">val f: Future[Int] = ...
+</span><span id="3" class="">
+</span><span id="4" class="">// completes with value of f, or TimeoutException after 3 seconds
+</span><span id="5" class="">val f1: Future[Int] = f.orTimeout(3.0)
+</span><span id="6" class="">
+</span><span id="7" class="">// same, but executes cancelCode after the timeout
+</span><span id="8" class="">val f2: Future[Int] = f.orTimeout(3.0, cancelCode = ...)
+</span><span id="9" class="">
+</span><span id="10" class="">// completes with value of f, or of altCode if f times out after 3 seconds
+</span><span id="11" class="">// if f completes during the execution of altCode, the value of f is used
+</span><span id="12" class="">val f3: Future[Int] = f.completeOnTimeout(3.0)(altCode)
+</span><span id="13" class="">
+</span><span id="14" class="">// completes with value of f, or of altCode if f times out after 3 seconds
+</span><span id="15" class="">// if f completes during the execution of altCode, the value of altCode is used
+</span><span id="16" class="">val f4: Future[Int] = f.completeOnTimeout(3.0, strict = true)(altCode)
+</span></code></pre>
+  </div> 
+  <h3><a href="#executors" id="executors" class="anchor"></a><code>Executors</code></h3> 
+  <p>A facility to more easily create thread pools with customized thread factories and/or rejected execution handlers. All pools have type <code>ExecutionContextExecutorService</code> for easier use of both Java and Scala features.</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.threads.Executors
+</span><span id="1" class="">
+</span><span id="2" class="">// same as java.util.concurrent.Executors.newFixedThreadPool
+</span><span id="3" class="">val exec = Executors.newThreadPool(4)
+</span><span id="4" class="">
+</span><span id="5" class="">// sets a rejection policy
+</span><span id="6" class="">val exec = Executors.withRejectionPolicy(rejectionPolicy).newThreadPool(4)
+</span><span id="7" class="">
+</span><span id="8" class="">// sets a "discard" rejection policy
+</span><span id="9" class="">val exec = Executors.silent.newThreadPool(4)
+</span><span id="10" class="">
+</span><span id="11" class="">// sets a thread facyory
+</span><span id="12" class="">val exec = Executors.withFactory(threadFactory).newThreadPool(2)
+</span><span id="13" class="">
+</span><span id="14" class="">// sets a rejection policy and a thread factory
+</span><span id="15" class="">val exec = Executors
+</span><span id="16" class="">   .withRejectionPolicy(rejectionPolicy)
+</span><span id="17" class="">   .withFactory(threadFactory)
+</span><span id="18" class="">   .newThreadPool(4)
+</span><span id="19" class="">
+</span><span id="20" class="">// sets a thread factory and a rejection policy (equivalent as above)
+</span><span id="21" class="">val exec = Executors
+</span><span id="22" class="">   .withFactory(threadFactory)
+</span><span id="23" class="">   .withRejectionPolicy(rejectionPolicy)
+</span><span id="24" class="">   .newThreadPool(4)
+</span><span id="25" class="">
+</span><span id="26" class="">// same as java.util.concurrent.Executors.newCachedThreadPool
+</span><span id="27" class="">val exec = Executors.newUnlimitedThreadPool(60.0)
+</span><span id="28" class="">
+</span><span id="29" class="">// same as above, but terminates idle threads after 1 second instead of 1 minute
+</span><span id="30" class="">val exec = Executors.newUnlimitedThreadPool()
+</span><span id="31" class="">
+</span><span id="32" class="">// sets a rejection policy and a thread factory, as with newThreadPool
+</span><span id="33" class="">val exec = Executors
+</span><span id="34" class="">   .withRejectionPolicy(rejectionPolicy)
+</span><span id="35" class="">   .withFactory(threadFactory)
+</span><span id="36" class="">   .newUnlimitedThreadPool()
+</span></code></pre>
+  </div> 
+  <p>A <code>global</code> implicit is defined as an unlimited pool with a 1-second keep-alive time (and non-daemon threads):</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">given ExecutionContext = tinyscalautils.threads.Executors.global
+</span><span id="1" class="">
+</span><span id="2" class="">val f = Future { ... } // runs on global thread pool
+</span></code></pre>
+  </div> 
+  <h3><a href="#keepthreadsfactory" id="keepthreadsfactory" class="anchor"></a><code>KeepThreadsFactory</code></h3> 
+  <p>A thread factory that keeps a reference on all the threads it creates:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.threads.{ KeepThreadsFactory, Executors }
+</span><span id="1" class="">
+</span><span id="2" class="">val tf = KeepThreadsFactory()
+</span><span id="3" class="">val exec = Executors.withFactory(threadFactory).newUnlimitedThreadPool()
+</span><span id="4" class="">
+</span><span id="5" class="">// use the exec pool...
+</span><span id="6" class="">
+</span><span id="7" class="">val threads = tf.allThreads // all created threads so far, in order of creation
+</span></code></pre>
+  </div> 
+  <p>The collection returned by <code>allThreads</code> is live: threads newly created by the factory will be added to it. The factory can be reset: threads created before the reset are discarded.</p> 
+  <h3><a href="#markedthreadsfactory" id="markedthreadsfactory" class="anchor"></a><code>MarkedThreadsFactory</code></h3> 
+  <p>A cheaper alternative to <code>KeepThreadsFactory</code>: All the threads produced by the factory are distinguished by having type <code>MarkedThread</code>:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.threads.{ MarkedThreadsFactory, Executors }
+</span><span id="1" class="">
+</span><span id="2" class="">given exec: ExecutionContextExecutorService =
+</span><span id="3" class="">   Executors.withFactory(MarkedThreadsFactory).newThreadPool(4)
+</span><span id="4" class="">
+</span><span id="5" class="">val future = Future(Thread.currentThread())
+</span><span id="6" class="">val runner = Await.result(future, Duration.Inf)
+</span><span id="7" class="">runner.isInstanceOf[MarkedThread] // true
+</span></code></pre>
+  </div> 
+  <p>For convenience, an extension can be used to check for <code>MarkedThread</code> type:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.threads.isMarkedThread
+</span><span id="1" class="">
+</span><span id="2" class="">runner.isMarkedThread // true
+</span></code></pre>
+  </div> 
+  <h3><a href="#shutdownandwait" id="shutdownandwait" class="anchor"></a><code>shutdownAndWait</code></h3> 
+  <p>Combines <code>shutdown</code>, <code>shutdownNow</code> and <code>awaitTermination</code> in one method:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.threads.shutdownAndWait
+</span><span id="1" class="">
+</span><span id="2" class="">val exec: ExecutorService = ...
+</span><span id="3" class="">
+</span><span id="4" class="">if exec.shutdownAndWait(5.0)
+</span><span id="5" class="">   then // shutdown was invoked, and pool terminated within 5 seconds
+</span><span id="6" class="">   else // shutdown was invoked, but pool did not terminate within 5 seconds
+</span><span id="7" class="">
+</span><span id="8" class="">if exec.shutdownAndWait(5.0, force = true)
+</span><span id="9" class="">   then // shutdown was invoked, and pool terminated within 5 seconds
+</span><span id="10" class="">   else // shutdown was invoked, then after 5 seocnds, shutdownNow was invoked
+</span></code></pre>
+  </div> 
+  <h3><a href="#stoppablethread" id="stoppablethread" class="anchor"></a><code>StoppableThread</code></h3> 
+  <p>Threads that are forcibly stopped if not responsive to interrupts:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.threads.{ StoppableThread, newStoppableThread } 
+</span><span id="1" class="">
+</span><span id="2" class="">val thread = StoppableThread(task)
+</span><span id="3" class="">thread.start()
+</span><span id="4" class="">...
+</span><span id="5" class="">thread.interrupt() // interrupts thread; if still alive after 1 second, stops it.
+</span><span id="6" class="">
+</span><span id="7" class="">val thread = StoppableThread(task, delay = 5.0) // same, buts uses a 5-second delay
+</span><span id="8" class="">
+</span><span id="9" class="">val thread = newStoppableThread(delay = 5.0)(code) // alternate way for thread creation
+</span></code></pre>
+  </div> 
+  <p>When a thread is forcibly stopped, a message is logged by default. This can be turned off:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">val thread = StoppableThread(task, delay = 5.0, logging = false)
+</span></code></pre>
+  </div> 
+  <h3><a href="#newthreadnewstoppablethread" id="newthreadnewstoppablethread" class="anchor"></a><code>newThread</code>/<code>newStoppableThread</code></h3> 
+  <p>Kotlin-like functions for easier thread creation:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.threads.{ newThread, newStoppableThread } 
+</span><span id="1" class="">
+</span><span id="2" class="">val thread = newThread(name = "Joe", start = false, daemon = true) {
+</span><span id="3" class="">   // code
+</span><span id="4" class="">}   
+</span><span id="5" class="">
+</span><span id="6" class="">val thread = newStoppableThread(
+</span><span id="7" class="">   delay = 2.0,
+</span><span id="8" class="">   name = "Joe",
+</span><span id="9" class="">   start = false,
+</span><span id="10" class="">   daemon = true,
+</span><span id="11" class="">   logging = false
+</span><span id="12" class="">) {
+</span><span id="13" class="">   // code
+</span><span id="14" class="">}
+</span></code></pre>
+  </div> 
+  <p>All arguments have default values and are optional.</p> 
+  <h2><a href="#package-io" id="package-io" class="anchor"></a>Package <code>io</code></h2> 
+  <h3><a href="#listpaths" id="listpaths" class="anchor"></a><code>listPaths</code></h3> 
+  <p>The contents of a directory, as a list:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.io.listPaths
+</span><span id="1" class="">
+</span><span id="2" class="">for (path: Path &lt;- listPaths(dir)) do ...
+</span></code></pre>
+  </div> 
+  <p>A list is used instead of a stream so the directory can be closed.</p> 
+  <h3><a href="#listlines" id="listlines" class="anchor"></a><code>listLines</code></h3> 
+  <p>The contents of a UTF8 text file, as a list:</p> 
+  <div class="snippet">
+   <div class="buttons"></div>
+   <pre><code class="language-scala"><span id="0" class="">import tinyscalautils.io.listLines
+</span><span id="1" class="">
+</span><span id="2" class="">for (line: String &lt;- listLines(file)) do ...
+</span></code></pre>
+  </div> 
+  <p>A list is used instead of a stream so the file can be closed.</p> 
+ </body>
+</html></div></main><footer><div id="generated-by"><span class="footer-text">Generated by</span><a href="https://github.com/lampepfl/dotty/tree/master/scaladoc"><img src="../images/scaladoc_logo.svg" alt="scaladoc" class="scaladoc_logo"></img><img src="../images/scaladoc_logo_dark.svg" alt="scaladoc" class="scaladoc_logo_dark"></img></a></div><span id="footer-text">Copyright Michel Charpentier, 2022</span><div class="socials"><span class="footer-text"></span></div><div class="mode"><span class="footer-text">Mode</span><label id="theme-toggle" class="switch"><input type="checkbox"></input><span class="slider"></span></label></div><span class="go-to-top-icon"><a href="#container"><span class="icon-vertical_align_top"></span><span class="footer-text">Back to top</span></a></span></footer></div></div></body></html>
