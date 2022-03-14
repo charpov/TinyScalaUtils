@@ -1,6 +1,6 @@
 package tinyscalautils.java
 
-private class AssertionsScala:
+private final class AssertionsScala:
    def checkNonNull[A <: AnyRef](obj: A): A = tinyscalautils.assertions.checkNonNull(obj)
 
    def require(condition: Boolean, message: String, args: Array[Object]): Unit =

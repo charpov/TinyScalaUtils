@@ -1,7 +1,11 @@
 package tinyscalautils.java;
 
-/** Java wrappers for customized printing functions.
- * @see tinyscalautils.text.PrintingMode
+import java.nio.charset.Charset;
+
+/**
+ * Java wrappers for {@code text} package.
+ *
+ * @see tinyscalautils.text
  */
 public final class Text {
   private Text() {
@@ -102,5 +106,20 @@ public final class Text {
     public static void printf(String format, Object... arg) {
       tinyscalautils.text.TimeMode$.MODULE$.print(String.format(format, arg));
     }
+  }
+
+  private static final PrintoutScala printout = new PrintoutScala();
+
+  /** Note that, contrary to the Scala variant, this method sets {@code includeSystem} to true by default. */
+  public static String printout(Runnable code) {
+    return printout(false, true, Charset.defaultCharset(), code);
+  }
+
+  public static String printout(boolean includeErr, boolean includeSystem, Runnable code) {
+    return printout(includeErr, includeSystem, Charset.defaultCharset(), code);
+  }
+
+  public static String printout(boolean includeErr, boolean includeSystem, Charset charset, Runnable code) {
+    return printout.printout(code, includeErr, includeSystem, charset);
   }
 }

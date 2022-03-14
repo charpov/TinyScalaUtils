@@ -37,3 +37,13 @@ def stoppably[A](delay: Double = 1.0)(code: => A): A =
          runner.interrupt()
          throw e
    out.get
+
+/** Executes the given code in a stoppable thread.
+  *
+  * This is the shorter version of `stoppably` that uses a default delay.
+  *
+  * @since 1.0
+  */
+@throws[InterruptedException]
+@throws[IllegalArgumentException]("if delay is negative")
+def stoppably[A](code: => A): A = stoppably()(code)

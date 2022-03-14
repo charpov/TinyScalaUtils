@@ -153,6 +153,17 @@ require(checkNonNull(str).nonEmpty, "string cannot be empty") // throws IllegalA
 
 ## Package `text`
 
+### `StringLetters/CharLetters`
+
+All cap letters as strings or characters:
+
+```scala
+import StringLetters.*
+
+val list = List(A, B, C)
+assert(list.tail.head == B)
+```
+
 ### `short/pad`
 
 Shortens or pads strings:
@@ -197,6 +208,34 @@ Adds thread and/or time information to print statements:
 ```
 
 Function `printf` works similarly.
+
+### `printout`
+
+Captures the output of print statements into a string:
+
+```scala
+val str = printout {
+   Console.out.print("hello")
+   Console.err.println(" world")
+} // the string "hello"
+
+val str = printout(includeErr = true) {
+   Console.out.print("hello")
+   Console.err.println(" world")
+} // the string "hello world\n"   
+```
+
+By default, only `Console.out` (and `Predef.print` and `tinyscalautils.text.print`, which are based on it) is captured, but `System.out` and `System.err` are *not* captured.
+This can be changed with an option:
+
+```scala
+val str = printout(includeSystem = true) {
+   Console.out.print("hello")
+   System.out.println(" world")
+} // the string "hello world\n"   
+```
+
+Note that `System.out` and `System.err` are global variables, shared among threads, while `Console.out` can be different for different threads. 
 
 ## Package `timing`
 

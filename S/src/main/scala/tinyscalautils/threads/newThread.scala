@@ -16,6 +16,14 @@ def newThread[U](
     code: => U
 ): Thread = newFactoryThread(name, start, daemon, Thread(_), code)
 
+/** A Kotlin-like function to create threads.
+  *
+  * This is the short form of `newThread` that uses default values.
+  *
+  * @since 1.0
+  */
+def newThread[U](code: => U): Thread = newThread()(code)
+
 /** A Kotlin-like function to create stoppable threads.
   *
   * Empty names are ignored.
@@ -32,6 +40,14 @@ def newStoppableThread[U](
     code: => U
 ): Thread =
    newFactoryThread(name, start, daemon, StoppableThread(_, delay, logging), code)
+
+/** A Kotlin-like function to create stoppable threads.
+  *
+  * This is the short form of `newStoppableThread` that uses default values.
+  *
+  * @since 1.0
+  */
+def newStoppableThread[U](code: => U): Thread = newStoppableThread()(code)
 
 private def newFactoryThread[U](
     name: String,

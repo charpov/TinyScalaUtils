@@ -29,8 +29,7 @@ def println(arg: Any)(using mode: PrintingMode): Unit = printf("%s%n", arg)
   *
   * {{{ import tinyscalautils.printing.{ println, threadMode }
   *
-  * println("message")
-  * {{{
+  * println("message") }}}
   *
   * might produce `main: message`.
   *

@@ -10,9 +10,8 @@ import scala.math.Ordering.Implicits.infixOrderingOps
   *
   * @since 1.0
   */
-@tailrec def assertInOrder[A : Ordering](
-    list: List[A]
-)(using Prettifier, source.Position): Assertion =
+@tailrec
+def assertInOrder[A : Ordering](list: List[A])(using Prettifier, source.Position): Assertion =
    list match
       case first :: (more @ second :: _) =>
          assert(first <= second, ": out of order")

@@ -5,8 +5,16 @@ import java.util.MissingResourceException
 
 class ResourcesSuite extends AnyFunSuite:
 
-   test("findResource") {
-      val url = findResource("foo.txt")
+   given Class[ResourcesSuite] = classOf[ResourcesSuite]
+
+   test("findResource absolute") {
+      val url = getClass.findResource("/foo.txt")
       assert(url.getPath.endsWith("foo.txt"))
-      assertThrows[MissingResourceException](findResource("nonexisting"))
+      assertThrows[MissingResourceException](getClass.findResource("nonexisting"))
+   }
+
+   test("findResource relative") {
+      val url = getClass.findResource("rel.txt")
+      assert(url.getPath.endsWith("rel.txt"))
+      assertThrows[MissingResourceException](getClass.findResource("nonexisting"))
    }
