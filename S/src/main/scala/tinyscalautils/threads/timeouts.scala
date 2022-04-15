@@ -6,6 +6,7 @@ import scala.concurrent.{ ExecutionContext, Future, Promise }
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.util.Try
+import tinyscalautils.timing.toNanos
 
 extension [A](future: Future[A])
 
@@ -47,7 +48,7 @@ extension [A](future: Future[A])
          val promise = Promise[A]()
          val interrupt: Runnable =
             () => if promise.tryFailure(TimeoutException()) then exec.execute(() => cancelCode)
-         val timerFuture = timer.schedule(interrupt, (seconds * 1E9).round, NANOSECONDS)
+         val timerFuture = timer.schedule(interrupt, seconds.toNanos, NANOSECONDS)
          future.onComplete { result =>
             timerFuture.cancel(false)
             promise.tryComplete(result)
@@ -104,7 +105,7 @@ extension [A](future: Future[A])
       else
          val promise             = Promise[A]()
          val interrupt: Runnable = () => promise.completeWith(Future(fallbackCode))
-         val timerFuture         = timer.schedule(interrupt, (seconds * 1E9).round, NANOSECONDS)
+         val timerFuture         = timer.schedule(interrupt, seconds.toNanos, NANOSECONDS)
 
          future.onComplete { result =>
             timerFuture.cancel(false)
@@ -125,7 +126,7 @@ extension [A](future: Future[A])
          val promise        = Promise[A]()
          val interrupt: Runnable =
             () => if shouldComplete.getAndSet(false) then promise.completeWith(Future(fallbackCode))
-         val timerFuture = timer.schedule(interrupt, (seconds * 1E9).round, NANOSECONDS)
+         val timerFuture = timer.schedule(interrupt, seconds.toNanos, NANOSECONDS)
 
          future.onComplete { result =>
             timerFuture.cancel(false)

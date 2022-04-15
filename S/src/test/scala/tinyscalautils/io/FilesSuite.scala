@@ -2,20 +2,21 @@ package tinyscalautils.io
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.tagobjects.Slow
+import tinyscalautils.assertions.require
 
-import java.nio.file.{ Files, Path }
-import java.util
-import java.nio.file.AccessDeniedException
 import java.io.{ IOException, UncheckedIOException }
+import java.nio.file.{ AccessDeniedException, Files, Path }
+import java.util
 
 class FilesSuite extends AnyFunSuite:
-   assume(Path.of("").toAbsolutePath.getFileName.toString == "S")
+   require(Path.of("").toAbsolutePath.getFileName.toString == "S")
 
-   val files = Set("foo.txt", "bar.txt")
-   val dir   = Path.of("src", "test", "resources")
+   val files   = Set("foo.txt", "bar.txt")
+   val subdirs = Set("tinyscalautils")
+   val dir     = Path.of("src", "test", "resources")
 
    test("listPaths") {
-      assert(listPaths(dir).map(_.getFileName.toString).toSet == files)
+      assert(listPaths(dir).map(_.getFileName.toString).toSet == files ++ subdirs)
    }
 
    test("listPaths, errors") {

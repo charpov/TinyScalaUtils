@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Logger
 import scala.annotation.nowarn
 import scala.concurrent.duration.NANOSECONDS
+import tinyscalautils.timing.toNanos
 
 /** A stoppable thread.
   *
@@ -20,6 +21,7 @@ import scala.concurrent.duration.NANOSECONDS
   *
   * @since 1.0
   */
+@deprecated("Uses Thread.stop, which is deprecated. No replacement.", "1.0")
 class StoppableThread @throws[IllegalArgumentException]("if delay is negative") (
     task: Runnable,
     delay: Double = 1.0,
@@ -36,7 +38,7 @@ class StoppableThread @throws[IllegalArgumentException]("if delay is negative") 
          if isAlive then
             if logging then StoppableThread.logger.info(s"forcibly stopping thread $getName")
             stop(): @nowarn
-      timer.schedule(kill, (delay * 1E9).round, NANOSECONDS)
+      timer.schedule(kill, delay.toNanos, NANOSECONDS)
 
 private object StoppableThread:
    lazy private val logger = Logger.getLogger("tinyscalautils.threads")

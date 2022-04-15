@@ -40,7 +40,7 @@ private def delayNanos(nanos: Long, start: Long = getTime()): Unit =
   */
 def delay[A](seconds: Double, start: Long = getTime())(code: => A): A =
    val value = code
-   delayNanos((seconds * 1E9).round, start)
+   delayNanos(seconds.toNanos, start)
    value
 
 /** Pauses the calling thread for the specified amount of time.
@@ -55,7 +55,7 @@ def delay[A](seconds: Double, start: Long = getTime())(code: => A): A =
   *
   * @since 1.0
   */
-def sleep(seconds: Double, start: Long = getTime()): Unit = delayNanos((seconds * 1E9).round, start)
+def sleep(seconds: Double, start: Long = getTime()): Unit = delayNanos(seconds.toNanos, start)
 
 /** Adds a `slow` method to iterators. */
 // The given is needed because, as of 3.1, Scala cannot handle multiple extensions by the same name
@@ -83,7 +83,7 @@ given SlowIterator: AnyRef with
       def slow(seconds: Double, delayedElements: Int = 32): Iterator[A] =
          require(delayedElements > 0)
 
-         var remaining = (seconds * 1E9).round
+         var remaining = seconds.toNanos
          val delta     = remaining / delayedElements
          var delay     = 0L
 

@@ -30,6 +30,7 @@ def newThread[U](code: => U): Thread = newThread()(code)
   *
   * @since 1.0
   */
+@deprecated("Uses Thread.stop, which is deprecated. No replacement.", "1.0")
 def newStoppableThread[U](
     delay: Double = 1.0,
     name: String = "",
@@ -47,6 +48,7 @@ def newStoppableThread[U](
   *
   * @since 1.0
   */
+@deprecated("Uses Thread.stop, which is deprecated. No replacement.", "1.0")
 def newStoppableThread[U](code: => U): Thread = newStoppableThread()(code)
 
 private def newFactoryThread[U](

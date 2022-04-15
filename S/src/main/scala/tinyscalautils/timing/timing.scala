@@ -1,5 +1,7 @@
 package tinyscalautils.timing
 
+import scala.concurrent.{ ExecutionContext, Future }
+
 /** An alias for `System.nanoTime`.
   *
   * @since 1.0
@@ -38,3 +40,24 @@ def timeOf[U](code: => U): Double =
    code
    val nanos = getTime() - start
    nanos / 1E9
+
+extension [A](future: Future[A])
+   /** Adds duration (in seconds) to a future. Duration is calculated from the invocation of this
+     * method to the completion of the future.
+     *
+     * @return
+     *   a future of a pair (value, duration)
+     *
+     * @since 1.0
+     */
+   def zipWithDuration(using ExecutionContext): Future[(A, Double)] =
+      val start = getTime()
+      future.map { value =>
+         val end = getTime()
+         value -> (end - start) / 1E9
+      }
+end extension
+
+extension (seconds: Double)
+   /** Multiplies the double value by 1e9 then rounds. */
+   def toNanos: Long = (seconds * 1E9).round

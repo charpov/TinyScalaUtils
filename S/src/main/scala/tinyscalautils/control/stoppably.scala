@@ -26,6 +26,7 @@ import scala.util.{ Failure, Try }
   */
 @throws[InterruptedException]
 @throws[IllegalArgumentException]("if delay is negative")
+@deprecated("Uses Thread.stop, which is deprecated. No replacement.", "1.0")
 def stoppably[A](delay: Double = 1.0)(code: => A): A =
    var out: Try[A] = Failure(Error("fatal"))
    val runner = newStoppableThread(delay) {
@@ -46,4 +47,5 @@ def stoppably[A](delay: Double = 1.0)(code: => A): A =
   */
 @throws[InterruptedException]
 @throws[IllegalArgumentException]("if delay is negative")
+@deprecated("Uses Thread.stop, which is deprecated. No replacement.", "1.0")
 def stoppably[A](code: => A): A = stoppably()(code)

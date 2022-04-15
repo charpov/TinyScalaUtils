@@ -46,6 +46,16 @@ c == c // throws InterruptedException if thread is interrupted
 c.## // throws InterruptedException if thread is interrupted
 ```
 
+### `in`
+
+An infix operator that swaps the arguments of `contains`:
+
+```scala
+import tinyscalautils.lang.in
+
+value in (1 to 10) // same as (1 to 10) contains value
+```
+
 ## Package `control`
 
 ### `times`
@@ -102,23 +112,6 @@ while true do interruptibly {
 }   
 ```
 The infinite loops terminates with `InterruptedException` if the thread is interrupted.
-
-### `stoppably`
-
-Forces a task running thread to stop if it is not responsive to interrupts:
-
-```scala
-import tinyscalautils.control.stoppably
-
-val value = stoppably(2.0) {
-   ... // code that may refuse to stop
-}
-```
-The current thread is blocked until the task code finishes.
-If interrupted, `stoppably` does three things:
-  - throws `InterruptedException` (immediately);
-  - interrupts the thread that runs the task code (immediately);
-  - if that thread is still alive after 2 seconds, forcefully terminates it.
 
 ## Package `assertions`
 
@@ -298,6 +291,46 @@ val (value, time) = timeIt {
 }   
 ```
 
+### Timers
+
+Simple timers.
+Can be used explicitly:
+
+```scala
+import tinyscalautils.threads.Executors
+
+val timer = Executors.newTimer(size = 2)
+val future = timer.schedule(1.5) {
+   // code 
+}
+```
+
+or implicitly:
+
+```scala
+import tinyscalautils.threads.{ DelayedFuture, Executors }
+
+given Timer = Executors.newTimer(2)
+val future = DelayedFuture(1.5) {
+   // code
+}
+```
+
+Note that timers need to be explicitly shut down for their threads to terminate.
+
+### `zipWithDuration`
+
+Asynchronously adds duration to a future:
+
+```scala
+import tinyscalautils.timing.zipWithDuration
+
+val future: Future[String] = ...
+val f: Future[(String, Double)] = future.zipWithDuration
+```
+
+The second half of the pair is the duration (in seconds) between the invocation of `zipWithFuture` and the completion of `future`.
+
 ### `slow`
 
 A mechanism to slow down sources of values:
@@ -355,6 +388,17 @@ val f3: Future[Int] = f.completeOnTimeout(3.0)(altCode)
 // if f completes during the execution of altCode, the value of altCode is used
 val f4: Future[Int] = f.completeOnTimeout(3.0, strict = true)(altCode)
 ```
+
+### `zipWithDuration`
+
+```scala
+import tinyscalautils.timing.zipWithDuration
+
+val f: Future[String] = ...
+val tf: Future[(String, Double)] = f.zipWithDuration
+```
+
+The second half of the pair is the duration, in seconds, between the call to `zipWithDuration` and the completion of `f`.
 
 ### `Executors`
 

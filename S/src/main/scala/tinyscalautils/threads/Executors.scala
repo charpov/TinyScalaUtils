@@ -1,12 +1,13 @@
 package tinyscalautils.threads
 
 import net.jcip.annotations.Immutable
+import tinyscalautils.assertions.*
 
 import java.util.concurrent.*
 import scala.concurrent.duration.{ Duration, NANOSECONDS }
 import scala.concurrent.{ Await, ExecutionContext, ExecutionContextExecutorService, Future }
 import scala.util.control.NonFatal
-import tinyscalautils.assertions.*
+import tinyscalautils.timing.toNanos
 
 /** A factory for customized thread pools.
   *
@@ -27,7 +28,7 @@ import tinyscalautils.assertions.*
   * @since 1.0
   */
 @Immutable
-class Executors private (rej: Option[RejectedExecutionHandler], tf: Option[ThreadFactory]):
+class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutionHandler]):
 
    /** Creates a new execution context as a fixed thread pool.
      *
@@ -46,7 +47,7 @@ class Executors private (rej: Option[RejectedExecutionHandler], tf: Option[Threa
            size,
            size,
            0L,
-           TimeUnit.NANOSECONDS,
+           NANOSECONDS,
            LinkedBlockingQueue[Runnable](),
            tf.getOrElse(java.util.concurrent.Executors.defaultThreadFactory()),
            rej.getOrElse(ThreadPoolExecutor.AbortPolicy())
@@ -69,13 +70,31 @@ class Executors private (rej: Option[RejectedExecutionHandler], tf: Option[Threa
          ThreadPoolExecutor(
            0,
            Integer.MAX_VALUE,
-           Math.round(keepAlive * 1E9),
-           TimeUnit.NANOSECONDS,
+           keepAlive.toNanos,
+           NANOSECONDS,
            SynchronousQueue(),
            tf.getOrElse(java.util.concurrent.Executors.defaultThreadFactory()),
            rej.getOrElse(ThreadPoolExecutor.AbortPolicy())
          )
       }
+
+   /** Creates a new execution context with timer facilities, as a fixed thread pool.
+     *
+     * Uses the rejected execution handler and thread factory of the current instance.
+     *
+     * @param size
+     *   the number of threads in the pool; must be positive.
+     *
+     * @since 1.0
+     */
+   @throws[IllegalArgumentException]("if the specified size is not positive")
+   def newTimer(size: Int): ExecutionContextExecutorService & Timer =
+      require(size > 0, "thread pool size must be positive, not %d", size)
+      TimerPool(
+        size,
+        tf.getOrElse(java.util.concurrent.Executors.defaultThreadFactory()),
+        rej.getOrElse(ThreadPoolExecutor.AbortPolicy())
+      )
 
    /** Returns a thread pool factory that uses a `DiscardPolicy` rejected execution handler, and the
      * same thread factory as before.
@@ -85,21 +104,21 @@ class Executors private (rej: Option[RejectedExecutionHandler], tf: Option[Threa
      *
      * @since 1.0
      */
-   def silent: Executors = Executors(Some(ThreadPoolExecutor.DiscardPolicy()), tf)
+   def silent: Executors = Executors(tf, Some(ThreadPoolExecutor.DiscardPolicy()))
 
    /** Returns a thread pool factory that uses the given thread factory, and the same rejected
      * execution handler as before..
      *
      * @since 1.0
      */
-   def withFactory(tf: ThreadFactory): Executors = Executors(rej, Some(tf))
+   def withFactory(tf: ThreadFactory): Executors = Executors(Some(tf), rej)
 
    /** Returns a thread pool factory that uses the given rejected execution handler, and the same
      * thread factory as before.
      *
      * @since 1.0
      */
-   def withRejectionPolicy(rej: RejectedExecutionHandler): Executors = Executors(Some(rej), tf)
+   def withRejectionPolicy(rej: RejectedExecutionHandler): Executors = Executors(tf, Some(rej))
 
 /** Companion object.
   *
