@@ -9,7 +9,7 @@ package tinyscalautils.assertions
   *
   * @since 1.0
   */
-def checkNonNull[A <: AnyRef](obj: A): obj.type =
+inline def checkNonNull[A <: AnyRef](obj: A): obj.type =
    if obj eq null then throw IllegalArgumentException("no nulls") else obj
 
 /** Simple argument assertion, with message.
@@ -28,7 +28,7 @@ def checkNonNull[A <: AnyRef](obj: A): obj.type =
   * @since 1.0
   */
 @throws[IllegalArgumentException]("if the requirement is not satisfied")
-def require(condition: Boolean, message: => String, args: => Any*): Unit =
+inline def require(condition: Boolean, inline message: String, inline args: Any*): Unit =
    if !condition then throw IllegalArgumentException(message.format(args*))
 
 /** Simple argument assertion.
@@ -39,7 +39,7 @@ def require(condition: Boolean, message: => String, args: => Any*): Unit =
   * @since 1.0
   */
 @throws[IllegalArgumentException]("if the requirement is not satisfied")
-def require(condition: Boolean): Unit =
+inline def require(condition: Boolean): Unit =
    if !condition then throw IllegalArgumentException()
 
 /** Simple state assertion, with message.
@@ -58,7 +58,7 @@ def require(condition: Boolean): Unit =
   * @since 1.0
   */
 @throws[IllegalStateException]("if the requirement is not satisfied")
-def requireState(condition: Boolean, message: => String, args: => Any*): Unit =
+inline def requireState(condition: Boolean, inline message: String, inline args: Any*): Unit =
    if !condition then throw IllegalStateException(message.format(args*))
 
 /** Simple state assertion.
@@ -69,4 +69,4 @@ def requireState(condition: Boolean, message: => String, args: => Any*): Unit =
   * @since 1.0
   */
 @throws[IllegalStateException]("if the requirement is not satisfied")
-def requireState(condition: Boolean): Unit = if !condition then throw IllegalStateException()
+inline def requireState(condition: Boolean): Unit = if !condition then throw IllegalStateException()

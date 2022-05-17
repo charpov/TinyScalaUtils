@@ -7,6 +7,6 @@ import tinyscalautils.lang.StackOverflowException
   *
   * @since 1.0
   */
-def limitedStack[A](code: => A): A =
+inline def limitedStack[A](inline code: A): A =
    try code
    catch case e: StackOverflowError => throw StackOverflowException(e)

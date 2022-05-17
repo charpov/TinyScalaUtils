@@ -14,6 +14,16 @@ import java.nio.charset.Charset
   * The mechanism used to capture `Console.out/err` is thread-safe. In particular, different threads
   * can capture independently. `System.out/err`, on the other hand, are global variables.
   *
+  * To capture the output of new threads, it is essential that these threads are created within the
+  * `printout` function:
+  *
+  * {{{
+  * val str = printout {
+  *   val exec = Executors.newThreadPool(n)
+  *   exec.execute(...)
+  * }
+  * }}}
+  *
   * @see
   *   [[System.setOut]]
   * @see

@@ -2,7 +2,7 @@ package tinyscalautils.threads
 
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
-import tinyscalautils.lang.implies
+import tinyscalautils.assertions.implies
 import tinyscalautils.timing.timeOf
 
 import java.util.logging.{ Level, Logger }

@@ -1,4 +1,4 @@
-package tinyscalautils.lang
+package tinyscalautils.assertions
 
 import org.scalatest.funsuite.AnyFunSuite
 

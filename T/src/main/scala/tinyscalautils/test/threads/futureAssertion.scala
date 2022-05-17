@@ -1,7 +1,7 @@
 package tinyscalautils.test.threads
 
 import org.scalatest.Assertion
-
+//import scala.language.implicitConversions
 import scala.concurrent.Future
 
 /** An implicit conversion from `Assertion` to `Future[Assertion]`. This is similar to what is in

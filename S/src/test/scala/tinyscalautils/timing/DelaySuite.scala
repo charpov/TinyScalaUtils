@@ -2,7 +2,7 @@ package tinyscalautils.timing
 
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
-import tinyscalautils.threads.{ KeepThreadsFactory, withLocalContext }
+import tinyscalautils.threads.{ KeepThreadsFactory, withLocalThreadPool }
 import tinyscalautils.timing.{ delay, sleep, timeOf }
 
 import java.util.concurrent.atomic.{ AtomicInteger, AtomicReference }

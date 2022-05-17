@@ -18,7 +18,7 @@ import java.util.concurrent.{
 import scala.concurrent.Promise
 import scala.concurrent.duration.{ Duration, SECONDS }
 
-class InterruptibleSuite extends AnyFunSuite:
+class InterruptiblySuite extends AnyFunSuite:
 
    private class C extends InterruptibleConstructor, InterruptibleEquality
 

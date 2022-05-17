@@ -1,6 +1,6 @@
-package tinyscalautils.lang
+package tinyscalautils.assertions
 
-import scala.collection.{ Iterable, Seq, Set, Map }
+import scala.collection.{ Seq, Set, Map }
 
 extension [A](element: A)
    /** Reverses the order of `contains`.

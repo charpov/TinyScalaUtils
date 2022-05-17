@@ -3,10 +3,13 @@ package tinyscalautils.threads
 import org.scalactic.Tolerance
 import org.scalatest.{ Assertion, Succeeded }
 import org.scalatest.funsuite.AnyFunSuite
+import tinyscalautils.control.times
 import tinyscalautils.timing.{ sleep, timeOf }
 import tinyscalautils.threads.shutdownAndWait
+
 import scala.concurrent.{ Await, Future, Promise }
 import scala.concurrent.duration.{ Duration, SECONDS }
+import java.util.concurrent.{ CountDownLatch, CyclicBarrier }
 
 class ContextsSuite extends AnyFunSuite with Tolerance:
 
@@ -22,9 +25,9 @@ class ContextsSuite extends AnyFunSuite with Tolerance:
       assert(time === 1.0 +- 0.01)
    }
 
-   test("withLocalContext") {
+   test("withLocalLocalThreadPool") {
       val exec = Executors.newUnlimitedThreadPool()
-      val time = withLocalContext(exec) {
+      val time = withLocalThreadPool(exec) {
          Future {
             timeOf(sleep(1.0))
          }
@@ -34,11 +37,11 @@ class ContextsSuite extends AnyFunSuite with Tolerance:
       assert(time === 1.0 +- 0.1)
    }
 
-   test("withLocalContext, exception") {
+   test("withLocalThreadPool, exception") {
       object Ex extends Exception
       val exec = Executors.newUnlimitedThreadPool()
       val ex = intercept[Exception] {
-         withLocalContext(exec) {
+         withLocalThreadPool(exec) {
             Future {
                throw Ex
             }
@@ -49,14 +52,14 @@ class ContextsSuite extends AnyFunSuite with Tolerance:
       assert(ex eq Ex)
    }
 
-   test("withLocalContext, interrupt") {
+   test("withLocalThreadPool, interrupt") {
       val exec = Executors.newUnlimitedThreadPool()
       val p    = Promise[Assertion]()
       val task: Runnable = () =>
          p.success {
             assertThrows[InterruptedException] {
-               withLocalContext(exec) {
-                  exec.execute((() => sleep(1.0)): Runnable)
+               withLocalThreadPool(exec) {
+                  exec.run(sleep(1.0))
                   Future.unit
                }
             }
@@ -69,4 +72,31 @@ class ContextsSuite extends AnyFunSuite with Tolerance:
       assert(exec.isShutdown)
       assert(exec.shutdownAndWait(1.0))
       assert(p.future.value.get.isSuccess)
+   }
+
+   test("withUnlimitedThreads(false)") {
+      val n       = 100
+      val barrier = CyclicBarrier(n)
+      assert {
+         timeOf {
+            withUnlimitedThreads { exec =>
+               n times exec.run(barrier.await())
+               exec.run(sleep(1.0))
+               exec.shutdown()
+            }
+         } === 0.0 +- 0.1
+      }
+   }
+
+   test("withUnlimitedThreads(true)") {
+      val n       = 100
+      val barrier = CyclicBarrier(n)
+      assert {
+         timeOf {
+            withUnlimitedThreads(waitForTermination = true) { exec =>
+               n times exec.run(barrier.await())
+               exec.run(sleep(1.0))
+            }
+         } === 1.0 +- 0.1
+      }
    }

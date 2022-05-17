@@ -1,9 +1,10 @@
 package tinyscalautils.threads
 
 import java.util.concurrent.ExecutorService
-import scala.concurrent.{ Await, Future }
-import scala.concurrent.duration.{ Duration, NANOSECONDS }
-import scala.util.control.NonFatal
+import scala.concurrent.duration.Duration
+import scala.concurrent.{ Await, ExecutionContextExecutorService, Future }
+import scala.util.Try
+import tinyscalautils.assertions.require
 
 /** Runs code within an implicit execution context, and waits for future completion.
   *
@@ -30,7 +31,7 @@ def withContext[A, Exec](exec: Exec)(code: Exec ?=> Future[A]): A =
   * For example:
   *
   * {{{
-  * withLocalContext(Executors.newThreadPool(3)) {
+  * withLocalThreadPool(Executors.newThreadPool(3)) {
   *     val f = Future { ... }
   *     val g = f.map(...)
   *     g.filter(...)
@@ -43,19 +44,47 @@ def withContext[A, Exec](exec: Exec)(code: Exec ?=> Future[A]): A =
   *
   * @since 1.0
   */
-def withLocalContext[A, Exec <: ExecutorService](exec: Exec)(code: Exec ?=> Future[A]): A =
+def withLocalThreadPool[A, Exec <: ExecutorService](exec: Exec)(code: Exec ?=> Future[A]): A =
    try
-      try
-         val out =
-            try Await.result(code(using exec), Duration.Inf)
-            finally exec.shutdown()
-         exec.awaitTermination(Long.MaxValue, NANOSECONDS)
-         out
-      catch
-         case NonFatal(e1) =>
-            exec.awaitTermination(Long.MaxValue, NANOSECONDS)
-            throw e1
+      val result = Try(Await.result(code(using exec), Duration.Inf))
+      exec.shutdownAndWait(Double.PositiveInfinity)
+      result.get
    catch
-      case e2: InterruptedException =>
+      case ex: InterruptedException =>
          exec.shutdownNow()
-         throw e2
+         throw ex
+
+def withLocalThreads[A](maxThreads: Int = 0)(code: ExecutionContextExecutorService ?=> Future[A]): A =
+   require(maxThreads >= 0, s"maxThreads cannot be negative, is $maxThreads")
+   val exec =
+      if maxThreads > 0 then Executors.newThreadPool(maxThreads)
+      else Executors.newUnlimitedThreadPool()
+   withLocalThreadPool(exec)(code)
+
+/** A simplified variant of `withLocalThreadPool`.
+  *
+  * The differences are:
+  *   - an unlimited thread pool is created by the function;
+  *   - `code` is not required to return a future.
+  *
+  * If `waitForTermination` is true, the behavior is that of `withLocalThreadPool`. Otherwise, the
+  * thread pool is not shut down, and its idle threads terminate after 1 second.
+  *
+  * @since 1.0
+  */
+def withUnlimitedThreads[U](waitForTermination: Boolean = false)(
+    code: ExecutionContextExecutorService => U
+): Unit =
+   val exec = Executors.newUnlimitedThreadPool()
+   if waitForTermination then withLocalThreadPool(exec)(Future.successful(code(exec)))
+   else code(exec)
+
+/** A simplified variant of `withLocalThreadPool`.
+  *
+  * This is the short form of `withUnlimitedThreads` that uses the default value:
+  * `withUnlimitedThreads {...}` is equivalent to `withUnlimitedThreads(false) {...}`.
+  *
+  * @since 1.0
+  */
+def withUnlimitedThreads[U](code: ExecutionContextExecutorService => U): Unit =
+   withUnlimitedThreads()(code)

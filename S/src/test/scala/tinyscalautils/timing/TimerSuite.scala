@@ -2,7 +2,7 @@ package tinyscalautils.timing
 
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
-import tinyscalautils.threads.{ DelayedFuture, Executors, Timer, withLocalContext }
+import tinyscalautils.threads.{ DelayedFuture, Executors, Timer, withLocalThreadPool }
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
@@ -13,7 +13,7 @@ class TimerSuite extends AnyFunSuite with Tolerance:
 
    test("schedule") {
       val timer = Executors.newTimer(1)
-      withLocalContext(timer) {
+      withLocalThreadPool(timer) {
          val latch  = CountDownLatch(1)
          val future = timer.schedule(1.5)(latch.countDown()).zipWithDuration
          assert(timeOf(latch.await()) === 1.5 +- 0.1)
@@ -23,7 +23,7 @@ class TimerSuite extends AnyFunSuite with Tolerance:
 
    test("Future") {
       val timer = Executors.newTimer(1)
-      withLocalContext(timer) {
+      withLocalThreadPool(timer) {
          val latch  = CountDownLatch(1)
          val future = DelayedFuture(1.5)(latch.countDown()).zipWithDuration
          assert(timeOf(latch.await()) === 1.5 +- 0.1)

@@ -1,4 +1,4 @@
-package tinyscalautils.lang
+package tinyscalautils.util
 
 import tinyscalautils.assertions.require
 

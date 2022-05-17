@@ -136,3 +136,14 @@ object Executors extends Executors(None, None):
      * @since 1.0
      */
    given global: ExecutionContextExecutorService = newUnlimitedThreadPool()
+
+extension (exec: Executor)
+   /** Allows a by-name argument to replace an explicit `Runnable`.
+     *
+     * Instead of `exec.execute(() => code)`, you can write `exec.run(code)`.
+     */
+   def run[U](code: => U): Unit = exec.execute(() => code)
+
+object Run:
+   /** Like `Future {..}`, but does not construct a future. */
+   def apply[U](code: => U)(using exec: Executor): Unit = exec.run(code)

@@ -1,7 +1,7 @@
 package tinyscalautils.control
 
 import org.scalatest.funsuite.AnyFunSuite
-import tinyscalautils.threads.{ Executors, newThread, withLocalContext }
+import tinyscalautils.threads.{ Executors, newThread, withLocalThreadPool }
 import tinyscalautils.timing.{ timeOf, sleep }
 import org.scalactic.Tolerance.convertNumericToPlusOrMinusWrapper
 

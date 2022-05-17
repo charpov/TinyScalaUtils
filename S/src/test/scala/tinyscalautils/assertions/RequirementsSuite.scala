@@ -18,11 +18,11 @@ class RequirementsSuite extends AnyFunSuite:
          count += 1
          count
 
-      require(true, s"${incr()}")
+      require(count == 0, s"${incr()}")
       assert(count == 0)
 
       val ex = intercept[IllegalArgumentException] {
-         require(false, s"${incr()}")
+         require(count == 1, s"${incr()}")
       }
       assert(count == 1)
       assert(ex.getMessage == "1")
@@ -34,14 +34,14 @@ class RequirementsSuite extends AnyFunSuite:
          count += 1
          count
 
-      require(true, "%d", incr())
+      require(count == 0, "%d%d", incr(), incr())
       assert(count == 0)
 
       val ex = intercept[IllegalArgumentException] {
-         require(false, "%d", incr())
+         require(count == 1, "%d%d", incr(), incr())
       }
-      assert(count == 1)
-      assert(ex.getMessage == "1")
+      assert(count == 2)
+      assert(ex.getMessage == "12")
    }
 
    test("requireState basic") {
@@ -58,11 +58,11 @@ class RequirementsSuite extends AnyFunSuite:
          count += 1
          count
 
-      requireState(true, s"${incr()}")
+      requireState(count == 0, s"${incr()}")
       assert(count == 0)
 
       val ex = intercept[IllegalStateException] {
-         requireState(false, s"${incr()}")
+         requireState(count == 1, s"${incr()}")
       }
       assert(count == 1)
       assert(ex.getMessage == "1")
@@ -74,12 +74,12 @@ class RequirementsSuite extends AnyFunSuite:
          count += 1
          count
 
-      requireState(true, "%d", incr())
+      requireState(count == 0, "%d%d", incr(), incr())
       assert(count == 0)
 
       val ex = intercept[IllegalStateException] {
-         requireState(false, "%d", incr())
+         requireState(count == 1, "%d%d", incr(), incr())
       }
-      assert(count == 1)
-      assert(ex.getMessage == "1")
+      assert(count == 2)
+      assert(ex.getMessage == "12")
    }

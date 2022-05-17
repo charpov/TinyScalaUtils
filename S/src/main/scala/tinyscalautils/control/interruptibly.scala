@@ -16,5 +16,5 @@ package tinyscalautils.control
   * @since 1.0
   */
 @throws[InterruptedException]
-def interruptibly[A](code: => A): A =
+inline def interruptibly[A](inline code: A): A =
    if Thread.interrupted() then throw InterruptedException() else code

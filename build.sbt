@@ -1,8 +1,8 @@
 val jcip      = "net.jcip"          % "jcip-annotations" % "1.0"
-val ScalaTest = "org.scalatest"    %% "scalatest"        % "3.2.12-RC2"
+val ScalaTest = "org.scalatest"    %% "scalatest"        % "3.2.12"
 val JUnit     = "org.junit.jupiter" % "junit-jupiter"    % "5.8.2" % Test
 
-ThisBuild / version       := "0.4.3"
+ThisBuild / version       := "0.4.4"
 ThisBuild / scalaVersion  := "3.1.2"
 ThisBuild / versionScheme := Some("pvp")
 
@@ -50,7 +50,7 @@ val UNHPublish = {
 }
 
 ThisBuild / publishMavenStyle := true
-ThisBuild / publishTo := Some(MavenCache("local-maven", baseDirectory.value / "docs" / "maven"))
+ThisBuild / publishTo := Some(MavenCache("local-maven", baseDirectory.value / "docs" / "maven-add"))
 
 val scalaCompilerOptions = Compile / compile / scalacOptions := Seq(
   "-deprecation",   // Emit warning and location for usages of deprecated APIs.

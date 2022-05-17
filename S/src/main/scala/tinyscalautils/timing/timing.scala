@@ -22,7 +22,7 @@ inline def now(): Long = System.currentTimeMillis()
   *
   * @since 1.0
   */
-def timeIt[A](code: => A): (A, Double) =
+inline def timeIt[A](inline code: A): (A, Double) =
    val start = getTime()
    val value = code
    val nanos = getTime() - start
@@ -35,7 +35,7 @@ def timeIt[A](code: => A): (A, Double) =
   *
   * @since 1.0
   */
-def timeOf[U](code: => U): Double =
+inline def timeOf[U](inline code: U): Double =
    val start = getTime()
    code
    val nanos = getTime() - start
@@ -59,5 +59,5 @@ extension [A](future: Future[A])
 end extension
 
 extension (seconds: Double)
-   /** Multiplies the double value by 1e9 then rounds. */
+   /** Multiplies the double value by 1e9, then rounds. */
    def toNanos: Long = (seconds * 1E9).round

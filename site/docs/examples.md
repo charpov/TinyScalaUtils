@@ -17,21 +17,6 @@ import tinyscalautils.lang.unit
 f((unit, unit)) // easier
 ```
 
-### `implies`
-
-Logical implication:
-
-```scala
-val s: IndexedSeq[Int] = ...
-require(!s.indices.contains(i) || s(i) > 0)
-
-import tinyscalautils.lang.implies
-
-require(s.indices.contains(i) implies s(i) > 0)
-```
-The evaluation is short-circuited: RHS is evaluated only if LHS is true.
-Operator also available under the symbolic name `==>`.
-
 ### `InterruptibleConstructor` / `InterruptibleEquality`
 
 Checks the interrupted status of the current thread before instance creation and/or equality and hash code:
@@ -44,16 +29,6 @@ class C extends InterruptibleConstructor, InterruptibleEquality
 val c = C() // throws InterruptedException if thread is interrupted
 c == c // throws InterruptedException if thread is interrupted
 c.## // throws InterruptedException if thread is interrupted
-```
-
-### `in`
-
-An infix operator that swaps the arguments of `contains`:
-
-```scala
-import tinyscalautils.lang.in
-
-value in (1 to 10) // same as (1 to 10) contains value
 ```
 
 ## Package `control`
@@ -144,6 +119,31 @@ import tinyscalautils.assertions.checkNonNull
 require(checkNonNull(str).nonEmpty, "string cannot be empty") // throws IllegalArgumentException on null or empty string
 ```
 
+### `implies`
+
+Logical implication:
+
+```scala
+val s: IndexedSeq[Int] = ...
+require(!s.indices.contains(i) || s(i) > 0)
+
+import tinyscalautils.assertions.implies
+
+require(s.indices.contains(i) implies s(i) > 0)
+```
+The evaluation is short-circuited: RHS is evaluated only if LHS is true.
+Operator also available under the symbolic name `==>`.
+
+### `in`
+
+An infix operator that swaps the arguments of `contains`:
+
+```scala
+import tinyscalautils.assertions.in
+
+value in (1 to 10) // same as (1 to 10) contains value
+```
+
 ## Package `text`
 
 ### `StringLetters/CharLetters`
@@ -228,7 +228,8 @@ val str = printout(includeSystem = true) {
 } // the string "hello world\n"   
 ```
 
-Note that `System.out` and `System.err` are global variables, shared among threads, while `Console.out` can be different for different threads. 
+Note that `System.out` and `System.err` are global variables, shared among threads, while `Console.out` can be different for different threads.
+To capture the output of newly created threads, these threads should be created within the `printout` function.
 
 ## Package `timing`
 
@@ -357,16 +358,6 @@ Also available on `Source` and `LazyList`.
 
 ## Package `threads`
 
-### `joined`
-
-```scala
-import tinyscalautils.threads.joined
-
-if thread.joined(3.0)
-   then ... // thread is terminated (or never started)
-   else ... // 3-second timeout; thread may still be running                
-```
-
 ### `orTimeout`
 
 ```scala
@@ -453,6 +444,26 @@ given ExecutionContext = tinyscalautils.threads.Executors.global
 val f = Future { ... } // runs on global thread pool
 ```
 
+### `run`/`Run`
+
+Executes code on an executor:
+
+```scala
+import tinyscalautils.threads.{ run, Run }
+
+given exec: Executor = ...
+
+exec.run {
+   // code
+}
+
+Run {
+   // code
+}      
+```
+
+Both functions return `Unit` (no future).
+
 ### `KeepThreadsFactory`
 
 A thread factory that keeps a reference on all the threads it creates:
@@ -512,48 +523,40 @@ if exec.shutdownAndWait(5.0, force = true)
    else // shutdown was invoked, then after 5 seocnds, shutdownNow was invoked
 ```
 
-### `StoppableThread`
+### `countDownAndWait`
 
-Threads that are forcibly stopped if not responsive to interrupts:
-
-```scala
-import tinyscalautils.threads.{ StoppableThread, newStoppableThread } 
-
-val thread = StoppableThread(task)
-thread.start()
-...
-thread.interrupt() // interrupts thread; if still alive after 1 second, stops it.
-
-val thread = StoppableThread(task, delay = 5.0) // same, buts uses a 5-second delay
-
-val thread = newStoppableThread(delay = 5.0)(code) // alternate way for thread creation
-```
-
-When a thread is forcibly stopped, a message is logged by default.
-This can be turned off:
+Combines `countDown` and `await`:
 
 ```scala
-val thread = StoppableThread(task, delay = 5.0, logging = false)
+import tinyscalautils.threads.countDownAndWait
+
+val latch: CountDownLatch = ...
+
+latch.countDownAndWait()
 ```
 
-### `newThread`/`newStoppableThread`
+Waiting uses a one-second timeout by default.
+
+### `joined`
+
+Combines `join` and `isAlive`:
+
+```scala
+import tinyscalautils.threads.joined
+
+if thread.joined(3.0)
+   then ... // thread is terminated (or never started)
+   else ... // 3-second timeout; thread may still be running                
+```
+
+### `newThread`
 
 Kotlin-like functions for easier thread creation:
 
 ```scala
-import tinyscalautils.threads.{ newThread, newStoppableThread } 
+import tinyscalautils.threads.newThread 
 
-val thread = newThread(name = "Joe", start = false, daemon = true) {
-   // code
-}   
-
-val thread = newStoppableThread(
-   delay = 2.0,
-   name = "Joe",
-   start = false,
-   daemon = true,
-   logging = false
-) {
+val thread = newThread(name = "Joe", start = false, daemon = true, waitForChildren = false) {
    // code
 }   
 ```
@@ -585,3 +588,63 @@ for (line: String <- listLines(file)) do ...
 ```
 
 A list is used instead of a stream so the file can be closed.
+
+## Package `util`
+
+### `FastRandom`
+
+Faster random number generators that don't rely on the `java.util.Random` thread-safe implementation.
+Individual instances are not thread-safe, but the singleton `FastRandom` can be shared among threads without contention:
+
+```scala
+import tinyscalautils.util.FastRandom
+impot scala.util.Random
+
+val rand: Random = FastRandom(42L) // fast, but not thread-safe
+
+val rand: Random = FastRandom // fast, thread-safe, but cannot be seeded
+```
+
+The implementation relies on `ThreadLocalRandom` and `SplittableRandom`, available in Java 11, not on the fancier generators that were added to Java 17. 
+
+### `log2`
+
+Base 2 integer logarithm:
+
+```scala
+import tinyscalautils.util.log2
+
+log2(1) // 0
+log2(7) // 2
+log2(8) // 3
+```
+
+### `pickOne/pickOneOption`
+
+Picks an element at random:
+
+```scala
+import tinyscalautils.util.{pickOne, pickOneOption}
+
+val col: Iterable[A] = ...
+
+val one: A = col.pickOne
+val oneOpt: Option[A] = col.pickOneOption
+```
+
+Uses a given `Random` in scope.
+
+### `average`
+
+Calculates an average by ignoring a fixed number of low/high values:
+
+```scala
+val nums: Seq[BigDecimal] = Seq(1, 7, 9, 11, 12, 14)
+
+average(nums) // (1 + 7 + 9 + 11 + 12 + 14) / 6
+average(nums, 1) // (7 + 9 + 11 + 12) / 4
+average(nums, 2) // (9 + 11) / 2
+average(nums, 3) // 0
+```
+
+The function works on any `Fractional` type, including `Double`.

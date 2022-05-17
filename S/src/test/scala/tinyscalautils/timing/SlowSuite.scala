@@ -5,7 +5,7 @@ import org.scalactic.Equality
 import org.scalatest.Ignore
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.tagobjects.Slow
-import tinyscalautils.threads.{ KeepThreadsFactory, withLocalContext }
+import tinyscalautils.threads.{ KeepThreadsFactory, withLocalThreadPool }
 import tinyscalautils.timing.{ SlowIterator, SlowSource, delay, sleep, timeOf }
 import tinyscalautils.control.times
 import java.util.concurrent.atomic.{ AtomicInteger, AtomicReference }
