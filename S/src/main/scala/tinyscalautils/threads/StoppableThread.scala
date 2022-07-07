@@ -26,7 +26,7 @@ class StoppableThread @throws[IllegalArgumentException]("if delay is negative") 
     task: Runnable,
     delay: Double = 1.0,
     logging: Boolean = true
-)(using timer: ScheduledExecutorService)
+)(using timer: Timer)
     extends Thread(task):
 
    require(delay >= 0.0)
@@ -38,7 +38,7 @@ class StoppableThread @throws[IllegalArgumentException]("if delay is negative") 
          if isAlive then
             if logging then StoppableThread.logger.info(s"forcibly stopping thread $getName")
             stop(): @nowarn
-      timer.schedule(kill, delay.toNanos, NANOSECONDS)
+      timer.schedule(delay)(kill)
 
 private object StoppableThread:
    lazy private val logger = Logger.getLogger("tinyscalautils.threads")

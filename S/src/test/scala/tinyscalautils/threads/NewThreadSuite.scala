@@ -3,8 +3,10 @@ package tinyscalautils.threads
 import org.scalatest.funsuite.AnyFunSuite
 import tinyscalautils.threads.joined
 import tinyscalautils.control.times
+import tinyscalautils.text.printout
+import tinyscalautils.timing.delay
 
-import java.util.concurrent.CountDownLatch
+import java.util.concurrent.{ CountDownLatch, ThreadFactory }
 
 class NewThreadSuite extends AnyFunSuite:
 
@@ -73,4 +75,18 @@ class NewThreadSuite extends AnyFunSuite:
       assert(!thread.joined(0.5))
       done.countDown()
       assert(thread.joined(1.0))
+   }
+
+   test("8") {
+      def invokeAndWait(code: => Any): Unit =
+         newThread(name = "main", waitForChildren = true)(code).join()
+      val tf: ThreadFactory = Thread(_)
+      val exec              = java.util.concurrent.Executors.newCachedThreadPool(tf)
+      val str = printout {
+         invokeAndWait {
+            exec.run(println(delay(1.0)("X")))
+            exec.shutdown()
+         }
+      }
+      assert(str == "X\n")
    }

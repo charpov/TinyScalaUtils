@@ -2,12 +2,9 @@ package tinyscalautils.timing
 
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
-import tinyscalautils.threads.{ KeepThreadsFactory, withLocalThreadPool }
-import tinyscalautils.timing.{ delay, sleep, timeOf }
 
-import java.util.concurrent.atomic.{ AtomicInteger, AtomicReference }
-import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, Future, TimeoutException }
+import scala.util.Try
 
 class DelaySuite extends AnyFunSuite with Tolerance:
 
@@ -64,4 +61,11 @@ class DelaySuite extends AnyFunSuite with Tolerance:
       thread.join()
       assert(time === 1.0 +- 0.1)
       assert(flag)
+   }
+
+   test("exception") {
+      val ex        = Exception()
+      val (t, time) = timeIt(Try(delay(1.0)(throw ex)))
+      assert(time === 1.0 +- 0.1)
+      assert(t.failed.get == ex)
    }

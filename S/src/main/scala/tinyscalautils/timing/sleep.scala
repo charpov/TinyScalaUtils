@@ -1,8 +1,10 @@
 package tinyscalautils.timing
 
+import tinyscalautils.assertions.require
+
 import scala.concurrent.duration.NANOSECONDS
-import tinyscalautils.assertions.*
 import scala.io.Source
+import scala.util.Try
 
 /** Limit below which sleeping is replaced with spinning.
   *
@@ -39,9 +41,9 @@ private def delayNanos(nanos: Long, start: Long = getTime()): Unit =
   * @since 1.0
   */
 def delay[A](seconds: Double, start: Long = getTime())(code: => A): A =
-   val value = code
+   val value = Try(code)
    delayNanos(seconds.toNanos, start)
-   value
+   value.get
 
 /** Pauses the calling thread for the specified amount of time.
   *

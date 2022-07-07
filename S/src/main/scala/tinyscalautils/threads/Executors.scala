@@ -1,13 +1,14 @@
 package tinyscalautils.threads
 
 import net.jcip.annotations.Immutable
-import tinyscalautils.assertions.*
-
+import tinyscalautils.timing.toNanos
+import tinyscalautils.assertions.require
+import java.util
 import java.util.concurrent.*
-import scala.concurrent.duration.{ Duration, NANOSECONDS }
+import java.util.logging.Logger
+import scala.concurrent.duration.{ Duration, NANOSECONDS, SECONDS }
 import scala.concurrent.{ Await, ExecutionContext, ExecutionContextExecutorService, Future }
 import scala.util.control.NonFatal
-import tinyscalautils.timing.toNanos
 
 /** A factory for customized thread pools.
   *
@@ -41,7 +42,7 @@ class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutio
      */
    @throws[IllegalArgumentException]("if the specified size is not positive")
    def newThreadPool(size: Int): ExecutionContextExecutorService =
-      require(size > 0, "thread pool size must be positive, not %d", size)
+      require(size > 0, s"thread pool size must be positive, not $size")
       ExecutionContext.fromExecutorService {
          ThreadPoolExecutor(
            size,
@@ -65,7 +66,7 @@ class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutio
      */
    @throws[IllegalArgumentException]("if the specified keepalive time is not positive")
    def newUnlimitedThreadPool(keepAlive: Double = 1.0): ExecutionContextExecutorService =
-      require(keepAlive >= 0.0, "keep alive time must be nonnegative, not %f", keepAlive)
+      require(keepAlive >= 0.0, s"keep alive time must be nonnegative, not $keepAlive")
       ExecutionContext.fromExecutorService {
          ThreadPoolExecutor(
            0,
@@ -89,7 +90,7 @@ class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutio
      */
    @throws[IllegalArgumentException]("if the specified size is not positive")
    def newTimer(size: Int): ExecutionContextExecutorService & Timer =
-      require(size > 0, "thread pool size must be positive, not %d", size)
+      require(size > 0, s"thread pool size must be positive, not $size")
       TimerPool(
         size,
         tf.getOrElse(java.util.concurrent.Executors.defaultThreadFactory()),
@@ -135,7 +136,22 @@ object Executors extends Executors(None, None):
      *
      * @since 1.0
      */
-   given global: ExecutionContextExecutorService = newUnlimitedThreadPool()
+   given global: ExecutionContextExecutorService = ExecutionContext.fromExecutorService {
+      new ThreadPoolExecutor(
+        0,
+        Integer.MAX_VALUE,
+        1L,
+        SECONDS,
+        SynchronousQueue()
+      ):
+         override def shutdown(): Unit =
+            try super.shutdown()
+            finally Logger.getLogger("tinyscalautils").warning("global thread pool shut down")
+
+         override def shutdownNow(): util.List[Runnable] =
+            try super.shutdownNow()
+            finally Logger.getLogger("tinyscalautils").warning("global thread pool shut down (now)")
+   }
 
 extension (exec: Executor)
    /** Allows a by-name argument to replace an explicit `Runnable`.
@@ -144,6 +160,6 @@ extension (exec: Executor)
      */
    def run[U](code: => U): Unit = exec.execute(() => code)
 
-object Run:
+object Execute:
    /** Like `Future {..}`, but does not construct a future. */
    def apply[U](code: => U)(using exec: Executor): Unit = exec.run(code)
