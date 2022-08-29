@@ -34,11 +34,11 @@ class StoppableThread @throws[IllegalArgumentException]("if delay is negative") 
    /** Interrupts the thread and schedule later killing if necessary. */
    override def interrupt(): Unit =
       super.interrupt()
-      val kill: Runnable = () =>
+      def kill() =
          if isAlive then
             if logging then StoppableThread.logger.info(s"forcibly stopping thread $getName")
             stop(): @nowarn
-      timer.schedule(delay)(kill)
+      timer.schedule(delay)(kill())
 
 private object StoppableThread:
    lazy private val logger = Logger.getLogger("tinyscalautils.threads")
