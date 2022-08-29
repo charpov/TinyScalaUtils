@@ -2,7 +2,7 @@ package tinyscalautils.timing
 
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
-import tinyscalautils.threads.withLocalThreadPool
+import tinyscalautils.threads.withUnlimitedThreadsAndWait
 import tinyscalautils.threads.Executors
 
 import scala.concurrent.Future
@@ -27,7 +27,7 @@ class TimingSuite extends AnyFunSuite with Tolerance:
    }
 
    test("zipWithDuration") {
-      withLocalThreadPool(Executors.newUnlimitedThreadPool()) {
+      withUnlimitedThreadsAndWait() {
          val future = Future(delay(1.5)(obj))
          val (f, t) = timeIt(future.zipWithDuration)
          assert(t === 0.0 +- 0.1)

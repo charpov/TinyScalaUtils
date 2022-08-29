@@ -1,12 +1,12 @@
 package tinyscalautils.threads
 
-import scala.concurrent.duration.NANOSECONDS
-import java.util.concurrent.{ Executors, ScheduledExecutorService }
-import scala.concurrent.{ ExecutionContext, Future, Promise }
+import tinyscalautils.timing.toNanos
+
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
+import scala.concurrent.ExecutionContext.parasitic
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.util.Try
-import tinyscalautils.timing.toNanos
 
 extension [A](future: Future[A])
 
@@ -25,9 +25,8 @@ extension [A](future: Future[A])
      *   execution context (not the timer); defaults to noOp.
      *
      * @param timer
-     *   a scheduled executor used to cancel the future after the timeout, and to run the
-     *   cancellation code, if any. For convenience, [[timeoutTimer]] can be imported as a timer
-     *   available implicitly.
+     *   a timer used to cancel the future after the timeout, and to run the cancellation code, if
+     *   any. For convenience, [[timeoutTimer]] can be imported as a timer available implicitly.
      *
      * @return
      *   a future that completes either with the result of the initial future, or with a
@@ -37,7 +36,7 @@ extension [A](future: Future[A])
      */
    def orTimeout(seconds: Double, cancelCode: => Any = ())(
        using exec: ExecutionContext,
-       timer: ScheduledExecutorService
+       timer: Timer
    ): Future[A] =
       // skip mechanics if future already completed or already timed out
       if future.isCompleted then future
@@ -46,13 +45,10 @@ extension [A](future: Future[A])
          Future.failed(TimeoutException())
       else
          val promise = Promise[A]()
-         val interrupt: Runnable =
-            () => if promise.tryFailure(TimeoutException()) then exec.execute(() => cancelCode)
-         val timerFuture = timer.schedule(interrupt, seconds.toNanos, NANOSECONDS)
-         future.onComplete { result =>
-            timerFuture.cancel(false)
-            promise.tryComplete(result)
+         timer.schedule(seconds) {
+            if promise.tryFailure(TimeoutException()) then exec.execute(() => cancelCode)
          }
+         future.onComplete(promise.tryComplete)(using parasitic)
          promise.future
    end orTimeout
 
@@ -80,8 +76,8 @@ extension [A](future: Future[A])
      *   timeout, in seconds.
      *
      * @param timer
-     *   a scheduled executor used to complete the future after the timeout. For convenience,
-     *   [[timeoutTimer]] can be imported as a timer available implicitly.
+     *   a timer used to complete the future after the timeout. For convenience, [[timeoutTimer]]
+     *   can be imported as a timer available implicitly.
      *
      * @return
      *   a future that completes either with the result of the initial future, or with the result of
@@ -91,32 +87,27 @@ extension [A](future: Future[A])
      */
    def completeOnTimeout(seconds: Double, strict: Boolean = false)(fallbackCode: => A)(
        using exec: ExecutionContext,
-       timer: ScheduledExecutorService
+       timer: Timer
    ): Future[A] =
       if strict then completeOnTimeoutStrict(seconds, fallbackCode)
       else completeOnTimeoutLoose(seconds, fallbackCode)
 
    private def completeOnTimeoutLoose(seconds: Double, fallbackCode: => A)(
        using exec: ExecutionContext,
-       timer: ScheduledExecutorService
+       timer: Timer
    ): Future[A] =
       // skip mechanics if future already completed
       if future.isCompleted then future
       else
-         val promise             = Promise[A]()
-         val interrupt: Runnable = () => promise.completeWith(Future(fallbackCode))
-         val timerFuture         = timer.schedule(interrupt, seconds.toNanos, NANOSECONDS)
-
-         future.onComplete { result =>
-            timerFuture.cancel(false)
-            promise.tryComplete(result)
-         }
+         val promise = Promise[A]()
+         timer.schedule(seconds)(promise.completeWith(Future(fallbackCode)))
+         future.onComplete(promise.tryComplete)(using parasitic)
          promise.future
    end completeOnTimeoutLoose
 
    private def completeOnTimeoutStrict(seconds: Double, fallbackCode: => A)(
        using exec: ExecutionContext,
-       timer: ScheduledExecutorService
+       timer: Timer
    ): Future[A] =
       // skip mechanics if future already completed or already timed out
       if future.isCompleted then future
@@ -124,14 +115,12 @@ extension [A](future: Future[A])
       else
          val shouldComplete = AtomicBoolean(true)
          val promise        = Promise[A]()
-         val interrupt: Runnable =
-            () => if shouldComplete.getAndSet(false) then promise.completeWith(Future(fallbackCode))
-         val timerFuture = timer.schedule(interrupt, seconds.toNanos, NANOSECONDS)
-
-         future.onComplete { result =>
-            timerFuture.cancel(false)
-            if shouldComplete.getAndSet(false) then promise.tryComplete(result)
+         timer.schedule(seconds) {
+            if shouldComplete.getAndSet(false) then promise.completeWith(Future(fallbackCode))
          }
+         future.onComplete { result =>
+            if shouldComplete.getAndSet(false) then promise.tryComplete(result)
+         }(using parasitic)
          promise.future
    end completeOnTimeoutStrict
 
@@ -141,10 +130,10 @@ extension [A](future: Future[A])
   *
   * @since 1.0
   */
-given timeoutTimer: ScheduledExecutorService =
+given timeoutTimer: Timer =
    def newThread(r: Runnable): Thread =
-      val thread = Executors.defaultThreadFactory().newThread(r)
+      val thread = java.util.concurrent.Executors.defaultThreadFactory().newThread(r)
       thread.setDaemon(true)
       thread.setName("timeoutTimer")
       thread
-   Executors.newSingleThreadScheduledExecutor(newThread(_))
+   Executors.withFactory(newThread).newTimer(1)

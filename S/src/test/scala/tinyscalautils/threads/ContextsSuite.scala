@@ -4,99 +4,95 @@ import org.scalactic.Tolerance
 import org.scalatest.{ Assertion, Succeeded }
 import org.scalatest.funsuite.AnyFunSuite
 import tinyscalautils.control.times
-import tinyscalautils.timing.{ sleep, timeOf }
+import tinyscalautils.timing.{ sleep, timeIt, timeOf }
 import tinyscalautils.threads.shutdownAndWait
+import tinyscalautils.timing.delay
 
-import scala.concurrent.{ Await, Future, Promise }
+import scala.concurrent.{ Await, ExecutionContext, Future, Promise }
 import scala.concurrent.duration.{ Duration, SECONDS }
-import java.util.concurrent.{ CountDownLatch, CyclicBarrier }
+import java.util.concurrent.{ CountDownLatch, CyclicBarrier, Executor, ExecutorService }
 
 class ContextsSuite extends AnyFunSuite with Tolerance:
 
-   test("withContext") {
-      val exec = Executors.newUnlimitedThreadPool()
-      val time = withContext(exec) {
-         Future {
-            timeOf(sleep(1.0))
+   for (flag <- Seq(false, true)) do
+      test(s"withThreadPoolAndWait (shutdown = $flag)") {
+         val exec = Executors.newUnlimitedThreadPool()
+         val time = withThreadPoolAndWait(exec, shutdown = flag) {
+            Future(timeOf(sleep(1.0)))
          }
+         assert(exec.isShutdown == flag)
+         assert(exec.shutdownAndWait(0.1))
+         assert(time === 1.0 +- 0.01)
       }
-      assert(!exec.isShutdown)
-      assert(exec.shutdownAndWait(1.0))
-      assert(time === 1.0 +- 0.01)
-   }
 
-   test("withLocalLocalThreadPool") {
-      val exec = Executors.newUnlimitedThreadPool()
-      val time = withLocalThreadPool(exec) {
-         Future {
-            timeOf(sleep(1.0))
-         }
-      }
-      assert(exec.isShutdown)
-      assert(exec.isTerminated)
-      assert(time === 1.0 +- 0.1)
-   }
-
-   test("withLocalThreadPool, exception") {
-      object Ex extends Exception
-      val exec = Executors.newUnlimitedThreadPool()
-      val ex = intercept[Exception] {
-         withLocalThreadPool(exec) {
-            Future {
-               throw Ex
+      test(s"withThreadsAndWait (awaitTermination = $flag)") {
+         val (time1, time2) = timeIt {
+            withThreadsAndWait(4, awaitTermination = flag) {
+               Execute(sleep(2.0))
+               Future(timeOf(sleep(1.0)))
             }
          }
+         val expectedTime = if flag then 2.0 else 1.0
+         assert(time1 === 1.0 +- 0.1)
+         assert(time2 === expectedTime +- 0.1)
       }
-      assert(exec.isShutdown)
-      assert(exec.isTerminated)
-      assert(ex eq Ex)
-   }
 
-   test("withLocalThreadPool, interrupt") {
-      val exec = Executors.newUnlimitedThreadPool()
-      val p    = Promise[Assertion]()
-      val task: Runnable = () =>
-         p.success {
-            assertThrows[InterruptedException] {
-               withLocalThreadPool(exec) {
-                  exec.run(sleep(1.0))
-                  Future.unit
+      test(s"withUnlimitedThreadsAndWait (awaitTermination = $flag)") {
+         val (time1, time2) = timeIt {
+            withUnlimitedThreadsAndWait(awaitTermination = flag) {
+               Execute(sleep(2.0))
+               Future(timeOf(sleep(1.0)))
+            }
+         }
+         val expectedTime = if flag then 2.0 else 1.0
+         assert(time1 === 1.0 +- 0.1)
+         assert(time2 === expectedTime +- 0.1)
+      }
+
+      test(s"withThreadPoolAndWait, exception (shutdown = $flag)") {
+         object Ex extends Exception
+         val exec = Executors.newUnlimitedThreadPool()
+         val ex = intercept[Exception] {
+            withThreadPoolAndWait(exec, shutdown = flag) {
+               Future {
+                  throw Ex
                }
             }
          }
-      val thread = Thread(task)
-      thread.start()
-      sleep(0.5)
-      thread.interrupt()
-      Await.ready(p.future, Duration.Inf)
-      assert(exec.isShutdown)
-      assert(exec.shutdownAndWait(1.0))
-      assert(p.future.value.get.isSuccess)
-   }
-
-   test("withUnlimitedThreads(false)") {
-      val n       = 100
-      val barrier = CyclicBarrier(n)
-      assert {
-         timeOf {
-            withUnlimitedThreads { exec =>
-               n times exec.run(barrier.await())
-               exec.run(sleep(1.0))
-               exec.shutdown()
-            }
-         } === 0.0 +- 0.1
+         assert(exec.isShutdown == flag)
+         assert(exec.shutdownAndWait(1.0))
+         assert(ex eq Ex)
       }
-   }
 
-   test("withUnlimitedThreads(true)") {
-      val n       = 100
-      val barrier = CyclicBarrier(n)
-      assert {
-         timeOf {
-            withUnlimitedThreads(waitForTermination = true) { exec =>
-               n times exec.run(barrier.await())
-               exec.run(sleep(1.0))
+      test(s"withThreads (awaitTermination = $flag)") {
+         val time = timeOf {
+            withThreads(4, awaitTermination = flag) {
+               10 times Execute(sleep(1.0))
             }
-         } === 1.0 +- 0.1
+         }
+         val expectedTime = if flag then 3.0 else 0.0
+         assert(time === expectedTime +- 0.1)
+      }
+
+      test(s"withUnlimitedThreads (awaitTermination = $flag)") {
+         val n       = 100
+         val barrier = CyclicBarrier(n)
+         val time = timeOf {
+            withUnlimitedThreads(awaitTermination = flag) {
+               n times Execute(barrier.await())
+               Execute(sleep(1.0))
+            }
+         }
+         val expectedTime = if flag then 1.0 else 0.0
+         assert(time === expectedTime +- 0.1)
+      }
+   end for
+
+   test("withThreadPoolAndWait, no shutdown") {
+      inline val flag = false
+      assertResult(42) {
+         withThreadPoolAndWait(ExecutionContext.global, shutdown = flag) {
+            Future(delay(1.0)(42))
+         }
       }
    }

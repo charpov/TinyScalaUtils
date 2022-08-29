@@ -108,7 +108,7 @@ public final class Text {
     }
   }
 
-  private static final PrintoutScala printout = new PrintoutScala();
+  private static final TextScala textScala = new TextScala();
 
   /** Note that, contrary to the Scala variant, this method sets {@code includeSystem} to true by default. */
   public static String printout(Runnable code) {
@@ -120,6 +120,10 @@ public final class Text {
   }
 
   public static String printout(boolean includeErr, boolean includeSystem, Charset charset, Runnable code) {
-    return printout.printout(code, includeErr, includeSystem, charset);
+    return textScala.printout(code, includeErr, includeSystem, charset);
+  }
+  
+  public static void info() {
+    textScala.info();
   }
 }

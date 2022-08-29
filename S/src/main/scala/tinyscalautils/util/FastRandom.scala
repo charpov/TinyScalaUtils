@@ -65,6 +65,8 @@ private class SplittableRandomAdapter(seed: Long) extends ju.Random(seed):
 
    override def nextBoolean(): Boolean = rand.nextBoolean()
 
+   // Implementation lifted from RandomGenerator.
+   // 5.9604644775390625E-8f is Java's 0x1.0p-24f
    override def nextFloat(): Float = (rand.nextInt() >>> 8) * 5.9604644775390625E-8f
 
    override def nextDouble(): Double = rand.nextDouble()

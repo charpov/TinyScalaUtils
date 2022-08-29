@@ -2,7 +2,6 @@ package tinyscalautils.threads
 
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
-import tinyscalautils.threads.withLocalThreadPool
 import tinyscalautils.timing.{ delay, sleep, timeOf }
 
 import java.util.concurrent.atomic.{ AtomicInteger, AtomicReference }
@@ -21,7 +20,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
 
    test("orTimeout") {
       assertResult("X") {
-         withLocalThreadPool(Executors.newUnlimitedThreadPool()) {
+         withUnlimitedThreadsAndWait() {
             val f = Future(delay(1.0)("X")).orTimeout(1.5)
             assert(timeOf(Await.ready(f, Duration.Inf)) === 1.0 +- 0.1)
             f
@@ -31,7 +30,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
 
    test("orTimeout, completed") {
       assertResult("X") {
-         withLocalThreadPool(Executors.newUnlimitedThreadPool()) {
+         withUnlimitedThreadsAndWait() {
             val f = Future.successful("X").orTimeout(0.5)
             assert(timeOf(Await.ready(f, Duration.Inf)) === 0.0 +- 0.1)
             f
@@ -41,7 +40,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
 
    test("orTimeout, cancel code") {
       assertResult("X") {
-         withLocalThreadPool(Executors.newUnlimitedThreadPool()) {
+         withUnlimitedThreadsAndWait() {
             val count = AtomicInteger()
 
             val f = Future(delay(1.0)("X")).orTimeout(1.5, cancelCode = count.incrementAndGet())
@@ -55,7 +54,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
 
    test("orTimeout, completed, cancel code") {
       assertResult("X") {
-         withLocalThreadPool(Executors.newUnlimitedThreadPool()) {
+         withUnlimitedThreadsAndWait() {
             val count = AtomicInteger()
 
             val f = Future.successful("X").orTimeout(0.5, cancelCode = count.incrementAndGet())
@@ -69,7 +68,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
 
    test("orTimeout, timeout") {
       assertResult("Y") {
-         withLocalThreadPool(Executors.newUnlimitedThreadPool()) {
+         withUnlimitedThreadsAndWait() {
             val f = Future(delay(1.5)("X"))
                .orTimeout(1.0)
                .recover {
@@ -84,7 +83,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
 
    test("orTimeout, no time") {
       assertResult("Y") {
-         withLocalThreadPool(Executors.newUnlimitedThreadPool()) {
+         withUnlimitedThreadsAndWait() {
             val f = Future(delay(0.5)("X"))
                .orTimeout(-1.0)
                .recover {
@@ -102,7 +101,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
       val thread = AtomicReference[Thread]()
 
       assertResult("Y") {
-         withLocalThreadPool(Executors.withFactory(tf).newUnlimitedThreadPool()) {
+         withThreadPoolAndWait(Executors.withFactory(tf).newUnlimitedThreadPool(), true) {
             val f = Future(delay(1.5)("X"))
                .orTimeout(1.0, cancelCode = sign(thread))
                .recover {
@@ -121,7 +120,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
       val thread = AtomicReference[Thread]()
 
       assertResult("Y") {
-         withLocalThreadPool(Executors.withFactory(tf).newUnlimitedThreadPool()) {
+         withThreadPoolAndWait(Executors.withFactory(tf).newUnlimitedThreadPool(), true) {
             val f = Future(delay(1.0)("X"))
                .orTimeout(-1.0, cancelCode = sign(thread))
                .recover {
@@ -140,7 +139,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
          val thread = AtomicReference[Thread]()
 
          assertResult("X") {
-            withLocalThreadPool(Executors.newUnlimitedThreadPool()) {
+            withUnlimitedThreadsAndWait() {
                val f = Future(delay(1.0)("X")).completeOnTimeout(1.5, strict)(sign(thread, "Y"))
                assert(timeOf(Await.ready(f, Duration.Inf)) === 1.0 +- 0.1)
                assert(thread.get eq null)
@@ -153,7 +152,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
          val thread = AtomicReference[Thread]()
 
          assertResult("X") {
-            withLocalThreadPool(Executors.newUnlimitedThreadPool()) {
+            withUnlimitedThreadsAndWait() {
                val f = Future.successful("X").completeOnTimeout(0.5, strict)(sign(thread, "Y"))
                assert(timeOf(Await.ready(f, Duration.Inf)) === 0.0 +- 0.1)
                sleep(1.0)
@@ -168,7 +167,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
          val thread = AtomicReference[Thread]()
 
          assertResult("Y") {
-            withLocalThreadPool(Executors.withFactory(tf).newUnlimitedThreadPool()) {
+            withThreadPoolAndWait(Executors.withFactory(tf).newUnlimitedThreadPool(), true) {
                val f = Future(delay(2.0)("X")).completeOnTimeout(1.0, strict)(sign(thread, "Y"))
                assert(timeOf(Await.ready(f, Duration.Inf)) === 1.0 +- 0.1)
                sleep(0.5)
@@ -184,7 +183,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
          val thread = AtomicReference[Thread]()
 
          assertResult("Y") {
-            withLocalThreadPool(Executors.withFactory(tf).newUnlimitedThreadPool()) {
+            withThreadPoolAndWait(Executors.withFactory(tf).newUnlimitedThreadPool(), true) {
                val f = Future(delay(1.0)("X")).completeOnTimeout(-1.0, strict)(sign(thread, "Y"))
                assert(timeOf(Await.ready(f, Duration.Inf)) === 0.0 +- 0.1)
                sleep(0.5)
@@ -199,7 +198,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
       assertResult(42) {
          val count = AtomicInteger()
 
-         withLocalThreadPool(Executors.newUnlimitedThreadPool()) {
+         withUnlimitedThreadsAndWait() {
             val f =
                Future(delay(1.0)(42)).completeOnTimeout(0.5)(delay(1.0)(count.incrementAndGet()))
             assert(timeOf(Await.ready(f, Duration.Inf)) === 1.0 +- 0.1)
@@ -214,7 +213,7 @@ class TimeoutSuite extends AnyFunSuite with Tolerance:
       assertResult(1) {
          val count = AtomicInteger()
 
-         withLocalThreadPool(Executors.newUnlimitedThreadPool()) {
+         withUnlimitedThreadsAndWait() {
             val f = Future(delay(1.0)(42))
                .completeOnTimeout(0.5, strict = true)(delay(1.5)(count.incrementAndGet()))
             assert(timeOf(Await.ready(f, Duration.Inf)) === 2.0 +- 0.1)

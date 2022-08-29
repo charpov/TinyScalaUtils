@@ -1,9 +1,9 @@
 val jcip      = "net.jcip"          % "jcip-annotations" % "1.0"
-val ScalaTest = "org.scalatest"    %% "scalatest"        % "3.2.12"
-val JUnit     = "org.junit.jupiter" % "junit-jupiter"    % "5.8.2" % Test
+val ScalaTest = "org.scalatest"    %% "scalatest"        % "3.2.13"
+val JUnit     = "org.junit.jupiter" % "junit-jupiter"    % "5.9.0" % Test
 
-ThisBuild / version       := "0.4.4"
-ThisBuild / scalaVersion  := "3.1.2"
+ThisBuild / version       := "0.5.0"
+ThisBuild / scalaVersion  := "3.2.0-RC4"
 ThisBuild / versionScheme := Some("pvp")
 
 ThisBuild / Test / fork                 := true

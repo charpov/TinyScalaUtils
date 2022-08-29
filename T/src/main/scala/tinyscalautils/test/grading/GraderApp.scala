@@ -3,6 +3,7 @@ package tinyscalautils.test.grading
 import org.scalatest.Suite
 import tinyscalautils.timing.timeOf
 import tinyscalautils.test.mixins.Grading
+import tinyscalautils.text.info
 
 /** Grading main application. Note that this application ''does'' call `System.exit(0)`.
   *
@@ -13,6 +14,9 @@ class GraderApp(suites: (Int, Suite & Grading)*):
 
    def main(args: Array[String]): Unit =
       val verbose = args.nonEmpty && args(0) == "-v"
+      if verbose then
+         info()
+         println()
       var grade   = 0.0
       var weights = 0
       val time = timeOf {
