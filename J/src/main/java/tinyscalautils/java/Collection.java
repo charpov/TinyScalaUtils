@@ -16,14 +16,14 @@ public class Collection {
   }
 
   public static <A> Iterator<A> randomly(Iterable<A> iterable, Random rand) {
-    return collection.randomly(iterable,rand);
+    return collection.randomly(iterable, rand);
   }
 
   public static <A> A pickOne(Iterable<A> iterable, Random rand) {
-    return collection.pickOne(iterable,rand);
+    return collection.pickOne(iterable, rand);
   }
 
   public static <A> Optional<A> pickOneOption(Iterable<A> iterable, Random rand) {
-    return collection.pickOneOption(iterable,rand);
+    return collection.pickOneOption(iterable, rand);
   }
 }

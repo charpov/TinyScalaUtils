@@ -18,14 +18,15 @@ inline private val SpinningNanos = 2_000_000L
 inline private val MinSleepNanos = 100_000_000L
 
 private def delayNanos(nanos: Long, start: Long = getTime()): Unit =
-   val end = start + nanos
-   try
-      var time = getTime()
-      while end - time > 0 do
-         val sleepTime = (end - time) / 2
-         if sleepTime > SpinningNanos then NANOSECONDS.sleep(sleepTime)
-         time = getTime()
-   catch case _: InterruptedException => Thread.currentThread.interrupt()
+   if !Thread.currentThread().isInterrupted then
+      val end = start + nanos
+      try
+         var time = getTime()
+         while end - time > 0 do
+            val sleepTime = (end - time) / 2
+            if sleepTime > SpinningNanos then NANOSECONDS.sleep(sleepTime)
+            time = getTime()
+      catch case _: InterruptedException => Thread.currentThread.interrupt()
 
 /** Adds sleep time so code takes up specified duration.
   *

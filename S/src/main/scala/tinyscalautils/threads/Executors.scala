@@ -1,14 +1,14 @@
 package tinyscalautils.threads
 
 import net.jcip.annotations.Immutable
-import tinyscalautils.timing.toNanos
 import tinyscalautils.assertions.require
+import tinyscalautils.timing.toNanos
+
 import java.util
 import java.util.concurrent.*
 import java.util.logging.Logger
-import scala.concurrent.duration.{ Duration, NANOSECONDS, SECONDS }
-import scala.concurrent.{ Await, ExecutionContext, ExecutionContextExecutorService, Future }
-import scala.util.control.NonFatal
+import scala.concurrent.duration.{ NANOSECONDS, SECONDS }
+import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService }
 
 /** A factory for customized thread pools.
   *
@@ -30,7 +30,6 @@ import scala.util.control.NonFatal
   */
 @Immutable
 class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutionHandler]):
-
    /** Creates a new execution context as a fixed thread pool.
      *
      * Uses the rejected execution handler and thread factory of the current instance.
@@ -38,22 +37,27 @@ class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutio
      * @param size
      *   the number of threads in the pool; must be positive.
      *
+     * @param keepAlive
+     *   the duration pool threads are kept alive when idle, in seconds; 0 means indefinitely.
+     *
      * @since 1.0
      */
    @throws[IllegalArgumentException]("if the specified size is not positive")
-   def newThreadPool(size: Int): ExecutionContextExecutorService =
+   def newThreadPool(size: Int, keepAlive: Double = 0.0): ExecutionContextExecutorService =
       require(size > 0, s"thread pool size must be positive, not $size")
-      ExecutionContext.fromExecutorService {
-         ThreadPoolExecutor(
+      require(keepAlive >= 0.0, s"keep alive time must be nonnegative, not $keepAlive")
+      ExecutionContext.fromExecutorService:
+         val exec = ThreadPoolExecutor(
            size,
            size,
-           0L,
+           keepAlive.toNanos,
            NANOSECONDS,
            LinkedBlockingQueue[Runnable](),
            tf.getOrElse(java.util.concurrent.Executors.defaultThreadFactory()),
            rej.getOrElse(ThreadPoolExecutor.AbortPolicy())
          )
-      }
+         if keepAlive > 0.0 then exec.allowCoreThreadTimeOut(true)
+         exec
 
    /** Creates a new execution context as an unlimited thread pool.
      *
@@ -67,7 +71,7 @@ class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutio
    @throws[IllegalArgumentException]("if the specified keepalive time is not positive")
    def newUnlimitedThreadPool(keepAlive: Double = 1.0): ExecutionContextExecutorService =
       require(keepAlive >= 0.0, s"keep alive time must be nonnegative, not $keepAlive")
-      ExecutionContext.fromExecutorService {
+      ExecutionContext.fromExecutorService:
          ThreadPoolExecutor(
            0,
            Integer.MAX_VALUE,
@@ -77,7 +81,6 @@ class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutio
            tf.getOrElse(java.util.concurrent.Executors.defaultThreadFactory()),
            rej.getOrElse(ThreadPoolExecutor.AbortPolicy())
          )
-      }
 
    /** Creates a new execution context with timer facilities, as a fixed thread pool.
      *
@@ -121,6 +124,20 @@ class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutio
      */
    def withRejectionPolicy(rej: RejectedExecutionHandler): Executors = Executors(tf, Some(rej))
 
+   /** Returns a thread pool factory that sets its threads in daemon mode and uses the same rejected
+     * execution handler as before.
+     *
+     * @since 1.0
+     */
+   def withDaemons: Executors =
+      val tf1 = tf.getOrElse(java.util.concurrent.Executors.defaultThreadFactory())
+      val tf2: ThreadFactory = r =>
+         val thread = tf1.newThread(r)
+         thread.setDaemon(true)
+         thread
+      Executors(Some(tf2), rej)
+end Executors
+
 /** Companion object.
   *
   * It is itself an instance of `Executors` that uses the default rejected execution handler and
@@ -153,13 +170,15 @@ object Executors extends Executors(None, None):
             finally Logger.getLogger("tinyscalautils").warning("global thread pool shut down (now)")
    }
 
-extension (exec: Executor)
+extension (exec: Executor | ExecutionContext)
    /** Allows a by-name argument to replace an explicit `Runnable`.
      *
      * Instead of `exec.execute(() => code)`, you can write `exec.run(code)`.
      */
-   def run[U](code: => U): Unit = exec.execute(() => code)
+   def run[U](code: => U): Unit = exec match
+      case e: Executor         => e.execute(() => code)
+      case e: ExecutionContext => e.execute(() => code)
 
 object Execute:
    /** Like `Future {..}`, but does not construct a future. */
-   def apply[U](code: => U)(using exec: Executor): Unit = exec.run(code)
+   def apply[U](code: => U)(using exec: Executor | ExecutionContext): Unit = exec.run(code)

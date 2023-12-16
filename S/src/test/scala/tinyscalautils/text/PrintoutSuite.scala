@@ -2,8 +2,6 @@ package tinyscalautils.text
 
 import org.scalatest.funsuite.AnyFunSuite
 
-import java.nio.charset.StandardCharsets
-
 class PrintoutSuite extends AnyFunSuite:
 
    private def code() =

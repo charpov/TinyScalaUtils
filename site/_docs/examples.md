@@ -90,6 +90,31 @@ val i: Iterator[Int] = List(1, 2, 3).circular
 i.take(10).toList // the list 1,2,3,1,2,3,1,2,3,1
 ```
 
+### `shuffle`
+
+A convenient way yo invoke `Random.shuffle` in a pipeline:
+
+```scala
+import tinyscalautils.collection.shuffle
+
+given Random = ...
+
+val s = Seq
+   .fill(...)(...)
+   .map(...)
+   .shuffle
+   .zipWithIndex
+```
+
+instead of:
+
+```scala
+val s = rand.shuffle( 
+   Seq.fill(...)(...)
+      .map(...)
+   ).zipWithIndex   
+```
+
 ### `randomly`
 
 Produces an infinite collection of elements randomly selected from a finite collection:
@@ -266,6 +291,32 @@ val str = printout(includeSystem = true) {
 Note that `System.out` and `System.err` are global variables, shared among threads, while `Console.out` can be different for different threads.
 To capture the output of newly created threads, these threads should be created within the `printout` function.
 
+### `plural`
+
+Plural forms:
+
+```scala
+import tinyscalautils.text.plural
+
+plural(1, "cat")           // "cat"
+plural(2, "DOG")           // "DOGS"
+plural(2.3, "platypus")    // "platypuses"
+plural(4, "mouse", "mice") // "mice"
+```
+
+### timeString
+
+Human-friendly representation of a duration expressed in seconds:
+
+```scala
+import tinyscalautils.text.timeString
+
+timeString(180.02) // "3 minutes, 20 milliseconds"
+timeString(3609.732) // "1 hour, 10 seconds"
+timeString(3609.732, unitsCount = 3) // "1 hour, 9 seconds, 732 milliseconds"
+timeString(3609.732, unitsCount = 1) // "1 hour"
+```
+
 ## Package `timing`
 
 ### `sleep`
@@ -374,7 +425,7 @@ A mechanism to slow down sources of values:
 ```scala
 import tinyscalautils.timing.SlowIterator
 
-val i = Iterator.range(0, 1000)
+def i = Iterator.range(0, 1000)
 
 val sum = i.sum // 499500
 val sum = i.slow(10.0).sum // 499500, but in about 10 seconds
@@ -562,6 +613,18 @@ if exec.shutdownAndWait(5.0, force = true)
 exec.shutdownAndWait() // invokes shutdown and waits indefinitely; force flag is ignored   
 ```
 
+### `await`
+
+Add a variant of `await` on `CountDownLatch` that specifies its timeout in seconds:
+
+```scala
+import tinyscalautils.threads.await
+
+val latch: CountDownLatch = ...
+
+latch.await(5.0)
+```
+
 ### `countDownAndWait`
 
 Combines `countDown` and `await`:
@@ -572,9 +635,10 @@ import tinyscalautils.threads.countDownAndWait
 val latch: CountDownLatch = ...
 
 latch.countDownAndWait()
+latch.countDownAndWait(3.0)
 ```
 
-Waiting uses a one-second timeout by default.
+Waits forever (interruptibly) if no timeout is specified.
 
 ### `joined`
 
@@ -656,6 +720,20 @@ withThreadPoolAndWait(ExecutionContext.global, shutdown = false) {
 
 This runs the future on the global execution context, and waits for its termination.
 
+### `runAsync`
+
+Run code synchronously in another thread:
+
+```scala
+import tinyscalautils.threads.runAsync
+
+val result = runAsync(code)
+```
+
+The thread is specified as an implicit `Executor` or `ExecutionContext`.
+
+The purpose of this function is to run non-interruptible code interruptibly.
+
 ## Package `io`
 
 ### `listPaths`
@@ -711,6 +789,19 @@ val url = this.findResource(name)
 This is equivalent to `getClass.getResource(name)`, except that it throws an exception for missing resources (instead of returning `null`).
 In particular, a leading slash in the resource name makes it an absolute path, instead of being associated with the package name by default.
 
+### `parseURL`
+
+```scala
+def parse(line: String): Option[Int] = ...
+val list: List[Int] = parseURL(url, parse)
+```
+
+If a list type is not suitable, specify a factory:
+
+```scala
+val seq: IndexedSeq[Int] = parseURL(url, parse, IndexedSeq)
+```
+
 
 ## Package `util`
 
@@ -756,6 +847,7 @@ import tinyscalautils.util.log2
 log2(1) // 0
 log2(7) // 2
 log2(8) // 3
+log2(1L << 62) // 62
 ```
 
 ### `average`
@@ -763,7 +855,7 @@ log2(8) // 3
 Calculates an average by ignoring a fixed number of low/high values:
 
 ```scala
-val nums: Seq[BigDecimal] = Seq(1, 7, 9, 11, 12, 14)
+val nums: Seq[BigDecimal] = Seq(12, 1, 7, 11, 14, 9)
 
 average(nums) // (1 + 7 + 9 + 11 + 12 + 14) / 6
 average(nums, 1) // (7 + 9 + 11 + 12) / 4

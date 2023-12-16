@@ -23,5 +23,5 @@ def assertInOrder[A : Ordering](list: List[A])(using Prettifier, source.Position
   * @since 1.0
   */
 def assertInOrder[A : Ordering](seq: IndexedSeq[A])(using Prettifier, source.Position): Assertion =
-   for (index <- 1 until seq.length) do assert(seq(index - 1) <= seq(index), ": out of order")
+   for index <- 1 until seq.length do assert(seq(index - 1) <= seq(index), ": out of order")
    Succeeded

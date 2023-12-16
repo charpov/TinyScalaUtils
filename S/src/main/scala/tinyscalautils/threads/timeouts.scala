@@ -1,12 +1,9 @@
 package tinyscalautils.threads
 
-import tinyscalautils.timing.toNanos
-
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.ExecutionContext.parasitic
-import scala.concurrent.{ ExecutionContext, Future, Promise }
-import scala.util.Try
+import scala.concurrent.{ExecutionContext, Future, Promise}
 
 extension [A](future: Future[A])
 

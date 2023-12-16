@@ -1,13 +1,9 @@
 package tinyscalautils.threads
 
-import tinyscalautils.assertions.require
-import tinyscalautils.timing.toNanos
-
 import java.util.concurrent.ExecutorService
 import scala.compiletime.summonInline
-import scala.concurrent.duration.{ Duration, NANOSECONDS }
+import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContextExecutorService, Future }
-import scala.util.Try
 
 /** Runs code within an implicit execution context, and waits for future completion.
   *
@@ -109,10 +105,9 @@ def withUnlimitedThreadsAndWait[A](awaitTermination: Boolean = false)(
 @throws[IllegalArgumentException]("if the specified pool size is not positive")
 def withThreads[U](maxThreads: Int, awaitTermination: Boolean = false)(
     code: ExecutionContextExecutorService ?=> U
-): Unit = withThreadsAndWait(maxThreads, awaitTermination) {
+): Unit = withThreadsAndWait(maxThreads, awaitTermination):
    code
    Future.unit
-}
 
 /** Runs code within a newly created implicit thread pool.
   *
@@ -133,10 +128,9 @@ def withThreads[U](maxThreads: Int, awaitTermination: Boolean = false)(
 @throws[InterruptedException]
 def withUnlimitedThreads[U](awaitTermination: Boolean = false)(
     code: ExecutionContextExecutorService ?=> U
-): Unit = withUnlimitedThreadsAndWait(awaitTermination) {
+): Unit = withUnlimitedThreadsAndWait(awaitTermination):
    code
    Future.unit
-}
 
 /** A simplified variant of `withUnlimitedThreadsAndWait`.
   *

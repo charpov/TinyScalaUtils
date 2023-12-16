@@ -10,7 +10,14 @@ import org.scalatest.events.*
   * {{{
   * test("this is a test [2]") {...}
   * }}}
-  * or {{{test("a big test [10pts]") {...}}} } The default weight is 1.
+  *
+  * or
+  *
+  * {{{
+  * test("a big test [10pts]") {...}
+  * }}}
+  *
+  * The default weight is 1.
   *
   * Instances of this class are not thread-safe.
   *
@@ -20,16 +27,22 @@ import org.scalatest.events.*
   * @since 1.0
   */
 class Grader extends Reporter:
-
    import Grader.weight
 
    private var sumWeight, sumPassed, w = 0.0
+   private var tests                   = 0
 
    /** The grade.  This is the weighted ratio of tests passed over tests failed. */
    def grade: Double = sumPassed / sumWeight
 
    /** Total weight.  This is the sum of the weights of all the tests. */
    def totalWeight: Double = sumWeight
+
+   /** Total number of tests that were run.
+     *
+     * @since 1.1
+     */
+   def testCount: Int = tests
 
    /** Processes an event.
      *
@@ -40,14 +53,14 @@ class Grader extends Reporter:
      */
    def apply(event: Event): Unit =
       event match
-         case e: TestStarting  => w = weight(e.testName)
+         case e: TestStarting  => w = weight(e.testName); tests += 1
          case _: TestSucceeded => sumWeight += w; sumPassed += w
          case _: TestFailed    => sumWeight += w
-         case _ => () // do nothing
+         case _                => () // do nothing
 end Grader
 
 /** Companion object of [[package.Grader]]. */
-object Grader:
+private object Grader:
    private val weightRegex = """\[\s*(\d*\.?\d+)\s*\p{Alpha}*\]""".r.unanchored
 
    private def weight(name: String): Double = weightRegex.findAllMatchIn(name).toSeq match

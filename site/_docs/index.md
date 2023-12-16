@@ -13,7 +13,7 @@ libraryDependencies += "com.github.charpov" %% "tiny-scala-utils" % "<version>"
 
 ## Binary compatibility
 
-Java 11 and Scala 3.2, or newer.
+Java 11 and Scala 3.3, or newer.
 
 ## Structure
 

@@ -5,8 +5,7 @@ import java.nio.file.{ Files, Path }
 import scala.util.Using
 import scala.jdk.StreamConverters.*
 import tinyscalautils.assertions.*
-
-import scala.collection.Factory
+import scala.collection.IterableFactory
 
 /** The list of files and subdirectories in a directory, in no particular order.
   *
@@ -28,10 +27,10 @@ def listPaths(dir: Path, silent: Boolean = false): List[Path] = readPaths(List)(
   *
   * @since 1.0
   */
-def readPaths[C[_]](factory: Factory[Path, C[Path]])(dir: Path, silent: Boolean = false): C[Path] =
+def readPaths[C[_]](factory: IterableFactory[C])(dir: Path, silent: Boolean = false): C[Path] =
    require(Files.isDirectory(dir), s"$dir is not a directory")
    val contents = Using(Files.list(dir))(stream => stream.toScala(factory))
-   if silent then contents.getOrElse(factory.fromSpecific(Seq.empty)) else contents.get
+   if silent then contents.getOrElse(factory.empty) else contents.get
 
 /** The list of lines in a text file, in UTF8 encoding.
   *
@@ -55,7 +54,7 @@ def listLines(file: Path, silent: Boolean = false): List[String] = readLines(Lis
   * @since 1.0
   */
 def readLines[C[_]](
-    factory: Factory[String, C[String]]
+    factory: IterableFactory[C]
 )(file: Path, silent: Boolean = false): C[String] =
    val lines = Using(Files.lines(file, UTF_8))(stream => stream.toScala(factory))
-   if silent then lines.getOrElse(factory.fromSpecific(Seq.empty)) else lines.get
+   if silent then lines.getOrElse(factory.empty) else lines.get

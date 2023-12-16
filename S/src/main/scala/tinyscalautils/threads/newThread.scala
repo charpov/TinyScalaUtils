@@ -43,33 +43,6 @@ private class WaitingThread(group: ThreadGroup, task: Runnable) extends Thread(g
             for (i <- 0 until alive) do if threads(i) ne Thread.currentThread then threads(i).join()
             alive = group.enumerate(threads)
 
-/** A Kotlin-like function to create stoppable threads.
-  *
-  * Empty names are ignored.
-  *
-  * @since 1.0
-  */
-@deprecated("Uses Thread.stop, which is deprecated. No replacement.", "1.0")
-def newStoppableThread[U](
-    delay: Double = 1.0,
-    name: String = "",
-    start: Boolean = true,
-    daemon: Boolean = false,
-    logging: Boolean = true
-)(
-    code: => U
-): Thread =
-   newFactoryThread(name, start, daemon, StoppableThread(_, delay, logging), code)
-
-/** A Kotlin-like function to create stoppable threads.
-  *
-  * This is the short form of `newStoppableThread` that uses default values.
-  *
-  * @since 1.0
-  */
-@deprecated("Uses Thread.stop, which is deprecated. No replacement.", "1.0")
-def newStoppableThread[U](code: => U): Thread = newStoppableThread()(code)
-
 private def newFactoryThread[U](
     name: String,
     start: Boolean,

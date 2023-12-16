@@ -1,6 +1,6 @@
 package tinyscalautils.collection
 
-import scala.collection.AbstractIterator
+import scala.collection.{ AbstractIterator, BuildFrom }
 import scala.util.Random
 
 private final class RandomElements[A](sequence: IndexedSeq[A], rand: Random)
@@ -20,3 +20,10 @@ extension [A](elements: IterableOnce[A])
    def randomly(using rand: Random): Iterator[A] =
       val sequence = elements.iterator.toIndexedSeq
       if sequence.isEmpty then Iterator.empty else RandomElements(sequence, rand)
+
+   /** A convenient way to invoke `Random.shuffle` in a pipeline.
+     *
+     * @since 1.0
+     */
+   def shuffle[C](using rand: Random)(using bf: BuildFrom[elements.type, A, C]): C =
+      rand.shuffle(elements)

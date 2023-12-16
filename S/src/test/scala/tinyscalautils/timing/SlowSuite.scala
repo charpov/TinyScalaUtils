@@ -1,26 +1,20 @@
 package tinyscalautils.timing
 
 import org.scalactic.{ Equality, Tolerance }
-import org.scalatest.Ignore
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.tagobjects.Slow
-import tinyscalautils.control.times
-import tinyscalautils.threads.KeepThreadsFactory
 import tinyscalautils.timing.*
 
-import java.util.concurrent.atomic.{ AtomicInteger, AtomicReference }
-import scala.concurrent.duration.Duration
-import scala.concurrent.{ Await, Future, TimeoutException }
+import scala.compiletime.asMatchable
 import scala.io.Source
 
-//@Ignore
+//@org.scalatest.Ignore
 // Note: This suite takes 50 minutes and 40 seconds to run.
 class SlowSuite extends AnyFunSuite with Tolerance:
    private given Equality[Double] with
-      def areEqual(x: Double, value: Any): Boolean =
-         value match
-            case y: Double => x === y +- y / 10.0
-            case _         => false
+      def areEqual(x: Double, value: Any): Boolean = value.asMatchable match
+         case y: Double => x === y +- y / 10.0
+         case _         => false
 
    private def newlines = new Iterator[Char] {
       def hasNext = true
@@ -30,16 +24,6 @@ class SlowSuite extends AnyFunSuite with Tolerance:
    private def consume(iterator: Iterator[Char]) =
       timeOf(while iterator.hasNext do iterator.next())
 
-   /*
-   for (steps <- Seq(1, 10, 100, 1000, 10000))
-      test(s"one test $steps") {
-         val length = 0
-         val time   = 5.0
-         val nano   = 1E-9
-         // val steps  = 10000
-         assert(consume(newlines.take(length).slow(time + nano, steps)) === time)
-      }
-    */
    for {
       time   <- Seq(1.0, 5.0, 10.0, 60.0)
       length <- Seq(0, 1, 10, 100)

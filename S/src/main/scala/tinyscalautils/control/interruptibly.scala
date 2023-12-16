@@ -11,7 +11,7 @@ package tinyscalautils.control
   * }}}
   *
   * Note that the body of the loop can remain unresponsive. To deal with that, use
-  * [[package.stoppably]].
+  * [[tinyscalautils.threads.runAsync]].
   *
   * @since 1.0
   */

@@ -38,7 +38,10 @@ trait PrintingMode:
    final def printf(format: String, args: Any*): Unit = print(format.format(args*))
 end PrintingMode
 
-private inline def thread = Thread.currentThread.getName
+private def thread =
+   val theThread = Thread.currentThread
+   val name      = theThread.getName
+   if name.nonEmpty then name else "anonymous thread " + theThread.getId
 
 private inline def now = System.currentTimeMillis()
 

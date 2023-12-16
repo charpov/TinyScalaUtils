@@ -8,7 +8,7 @@ import tinyscalautils.assertions.checkNonNull
   *   Builds a new exception with the same message, cause and stack trace as the error. Note that
   *   `error` is ''not'' used as cause.
   *
-  * See [[tinyscalautils.control.limitedStack]]
+  * See [[tinyscalautils.control.noStackOverflow]]
   *
   * @since 1.0
   */

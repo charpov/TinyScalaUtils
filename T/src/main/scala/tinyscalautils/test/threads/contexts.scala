@@ -1,13 +1,12 @@
 package tinyscalautils.test.threads
 
 import org.scalactic.{ Prettifier, source }
-import tinyscalautils.threads.{ Executors, shutdownAndWait, MarkedThreadFactory }
 import tinyscalautils.assertions.require
+import tinyscalautils.threads.{ Executors, MarkedThreadFactory, shutdownAndWait }
 
-import scala.util.{ Failure, Success, Try }
-import java.util.concurrent.ExecutorService
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContextExecutorService, Future }
+import scala.util.{ Failure, Success, Try }
 
 /** A variant of `withThreadsAndWait` suitable for testing.
   *

@@ -9,3 +9,12 @@ private final class TextScala:
       )
 
    def info(): Unit = tinyscalautils.text.info()
+
+   def plural(x: Number, singularForm: String, pluralForm: String): String =
+      tinyscalautils.text.plural(x.doubleValue(), singularForm, pluralForm)
+
+   def plural(x: Number, singularForm: String): String =
+      tinyscalautils.text.plural(x.doubleValue(), singularForm)
+
+   def timeString(seconds: Double, unitsCount: Int): String =
+      tinyscalautils.text.timeString(seconds, unitsCount)

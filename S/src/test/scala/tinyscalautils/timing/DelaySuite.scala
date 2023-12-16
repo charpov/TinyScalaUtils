@@ -3,7 +3,6 @@ package tinyscalautils.timing
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
 
-import scala.concurrent.{ Await, Future, TimeoutException }
 import scala.util.Try
 
 class DelaySuite extends AnyFunSuite with Tolerance:

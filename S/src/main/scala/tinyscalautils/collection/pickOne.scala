@@ -1,10 +1,8 @@
 package tinyscalautils.collection
 
-import tinyscalautils.assertions.require
-
+import java.util.NoSuchElementException
 import scala.collection.IndexedSeq
 import scala.util.Random
-import java.util.NoSuchElementException
 
 extension [A](collection: Iterable[A])
    /** Picks one element at random.
@@ -13,9 +11,11 @@ extension [A](collection: Iterable[A])
      *
      * The collection is assumed non-emtpy.
      *
+     * @throws NoSuchElementException
+     *   if the collection is empty.
+     *
      * @since 1.0
      */
-   @throws[NoSuchElementException]("if the collection is empty")
    def pickOne(using rand: Random): A =
       if collection.isEmpty then throw NoSuchElementException("empty.pickOne")
       collection match

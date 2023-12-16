@@ -1,9 +1,9 @@
 val jcip      = "net.jcip"          % "jcip-annotations" % "1.0"
-val ScalaTest = "org.scalatest"    %% "scalatest"        % "3.2.14"
-val JUnit     = "org.junit.jupiter" % "junit-jupiter"    % "5.9.1" % Test
+val ScalaTest = "org.scalatest"    %% "scalatest"        % "3.2.17"
+val JUnit     = "org.junit.jupiter" % "junit-jupiter"    % "5.10.1"
 
-ThisBuild / version       := "1.0.0"
-ThisBuild / scalaVersion  := "3.2.0"
+ThisBuild / version       := "1.1.0"
+ThisBuild / scalaVersion  := "3.3.1"
 ThisBuild / versionScheme := Some("semver-spec")
 
 ThisBuild / Test / fork                 := true
@@ -31,9 +31,10 @@ ThisBuild / developers := List(
 )
 
 ThisBuild / description := "A tiny, no (real) dependencies, Scala library, mostly used for teaching."
-ThisBuild / licenses := Seq(License.Apache2)
-ThisBuild / homepage := Some(url("https://github.com/charpov/TinyScalaUtils"))
-ThisBuild / apiURL   := Some(url("https://charpov.github.io/TinyScalaUtils/"))
+ThisBuild / licenses        := Seq(License.Apache2)
+ThisBuild / homepage        := Some(url("https://github.com/charpov/TinyScalaUtils"))
+ThisBuild / apiURL          := Some(url("https://charpov.github.io/TinyScalaUtils/"))
+ThisBuild / releaseNotesURL := Some(url("https://github.com/charpov/TinyScalaUtils/releases"))
 
 val GithubPackagePublish =
    "GitHub Package Registry" at "https://maven.pkg.github.com/charpov/TinyScalaUtils"
@@ -50,7 +51,8 @@ ThisBuild / scalacOptions := Seq(
   "-unchecked",     // Enable detailed unchecked (erasure) warnings.
   "-new-syntax",    // Require `then` and `do` in control expressions.
   "-source:future", // source version.
-  "-language:noAutoTupling",
+  "-language:noAutoTupling", // no auto-tupling
+  "-Wunused:all",            // unused stuff
 )
 
 val docOptions = Compile / doc / scalacOptions := Seq(
@@ -59,7 +61,7 @@ val docOptions = Compile / doc / scalacOptions := Seq(
   "-project-version",
   version.value,
   "-project-footer",
-  "Copyright Michel Charpentier, 2022",
+  "Copyright Michel Charpentier, 2023",
   "-siteroot",
   "./site",
   "-doc-root-content",
@@ -89,7 +91,7 @@ lazy val T = project
    .settings(
      name := "tiny-scala-utils-test",
      docOptions,
-     libraryDependencies ++= Seq(jcip, ScalaTest),
+     libraryDependencies ++= Seq(ScalaTest),
    )
    .dependsOn(S)
 
@@ -99,6 +101,6 @@ lazy val J = project
      Compile / compile / javacOptions ++= Seq("-deprecation", "-Xlint"),
      Compile / doc / javacOptions += "--ignore-source-errors",
      Compile / doc / sources ~= (files => files.filterNot(_.getName.endsWith(".scala"))),
-     libraryDependencies ++= Seq(jcip, JUnit),
+     libraryDependencies ++= Seq(JUnit % Test),
    )
    .dependsOn(S)

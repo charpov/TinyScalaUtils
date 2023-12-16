@@ -3,7 +3,7 @@ package tinyscalautils.java
 import java.util.function.Supplier
 
 private final class TimingScala:
-
+   //noinspection AccessorLikeMethodIsEmptyParen
    def getTime(): Long = tinyscalautils.timing.getTime()
 
    def now(): Long = tinyscalautils.timing.now()

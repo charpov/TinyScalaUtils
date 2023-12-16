@@ -3,7 +3,6 @@ package tinyscalautils.timing
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
 import tinyscalautils.threads.withUnlimitedThreadsAndWait
-import tinyscalautils.threads.Executors
 
 import scala.concurrent.Future
 

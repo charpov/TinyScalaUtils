@@ -1,4 +1,2 @@
 - atomic stamped Boolean
-- concurrency wrappers with no nulls
-
-- timeouts don't work on inherited tests anymore (?)
+- concurrency wrappers with no nulls (or pollOption, takeOption, etc. extensions)

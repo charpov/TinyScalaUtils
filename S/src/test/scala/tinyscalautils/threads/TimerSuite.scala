@@ -2,12 +2,10 @@ package tinyscalautils.threads
 
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
-import tinyscalautils.timing.{ timeOf, zipWithDuration, sleep }
+import tinyscalautils.timing.{sleep, timeOf, zipWithDuration}
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
 
 class TimerSuite extends AnyFunSuite with Tolerance:
 

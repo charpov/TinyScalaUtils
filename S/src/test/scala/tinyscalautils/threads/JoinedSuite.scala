@@ -2,9 +2,9 @@ package tinyscalautils.threads
 
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
-import tinyscalautils.timing.{ sleep, timeIt }
-import tinyscalautils.threads.newThread
 import tinyscalautils.lang.unit
+import tinyscalautils.threads.newThread
+import tinyscalautils.timing.timeIt
 
 import java.util.concurrent.CountDownLatch
 

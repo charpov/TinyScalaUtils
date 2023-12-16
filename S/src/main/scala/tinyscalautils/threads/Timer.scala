@@ -1,17 +1,11 @@
 package tinyscalautils.threads
 
-import java.util.concurrent.{
-   LinkedBlockingQueue,
-   RejectedExecutionHandler,
-   ScheduledExecutorService,
-   ScheduledThreadPoolExecutor,
-   ThreadFactory,
-   ThreadPoolExecutor
-}
-import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService, Future, Promise }
-import scala.concurrent.duration.NANOSECONDS
-import scala.util.Try
 import tinyscalautils.timing.toNanos
+
+import java.util.concurrent.*
+import scala.concurrent.duration.NANOSECONDS
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future, Promise}
+import scala.util.Try
 
 /** Simple timers.
   *
