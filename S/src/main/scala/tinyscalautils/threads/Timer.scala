@@ -4,7 +4,7 @@ import tinyscalautils.timing.toNanos
 
 import java.util.concurrent.*
 import scala.concurrent.duration.NANOSECONDS
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future, Promise}
+import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService, Future, Promise }
 import scala.util.Try
 
 /** Simple timers.
@@ -14,6 +14,9 @@ import scala.util.Try
 trait Timer:
    /** Schedules a task for delayed execution. */
    def schedule[A](delay: Double)(code: => A): Future[A]
+
+   /** Schedules a task for delayed execution. */
+   def execute[U](delay: Double)(code: => U): Unit
 
    /** Schedules a task for repeated execution.
      *
@@ -32,6 +35,7 @@ trait Timer:
      * Delayed tasks will still run, but repeated tasks are stopped.
      */
    def shutdown(): Unit
+end Timer
 
 private class TimerPool(size: Int, tf: ThreadFactory, rej: RejectedExecutionHandler)
     extends ExecutionContextExecutorService
@@ -46,6 +50,10 @@ private class TimerPool(size: Int, tf: ThreadFactory, rej: RejectedExecutionHand
       val task: Runnable = () => p.complete(Try(code))
       exec.schedule(task, delay.toNanos, NANOSECONDS)
       p.future
+
+   def execute[U](delay: Double)(code: => U): Unit =
+      val task: Runnable = () => code
+      exec.schedule(task, delay.toNanos, NANOSECONDS)
 
    def scheduleAtFixedRate[U](initDelay: Double, rate: Double)(code: => U): Unit =
       val task: Runnable = () => code

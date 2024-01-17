@@ -9,13 +9,11 @@ def syncForkJoin[A](inputs: Iterable[A], action: => Any = ())(code: A => Any)(
 ): Double =
    val barrier = CyclicBarrier(inputs.size + 1)
    for input <- inputs do
-      Execute {
+      Execute:
          barrier.await()
          code(input)
          barrier.await()
-      }
    barrier.await()
-   timeOf {
+   timeOf:
       action
       barrier.await()
-   }

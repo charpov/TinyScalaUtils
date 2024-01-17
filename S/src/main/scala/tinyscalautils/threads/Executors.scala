@@ -182,3 +182,7 @@ extension (exec: Executor | ExecutionContext)
 object Execute:
    /** Like `Future {..}`, but does not construct a future. */
    def apply[U](code: => U)(using exec: Executor | ExecutionContext): Unit = exec.run(code)
+
+object ExecuteAfter:
+   /** Like `DelayedFuture {...}`, but does not construct a future. */
+   def apply[U](delay: Double)(code: => U)(using timer: Timer): Unit = timer.execute(delay)(code)

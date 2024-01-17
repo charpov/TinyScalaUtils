@@ -519,12 +519,12 @@ given ExecutionContext = tinyscalautils.threads.Executors.global
 val f = Future { ... } // runs on global thread pool
 ```
 
-### `run`/`Execute`
+### `run`/`Execute/ExecuteAfter`
 
 Executes code on an executor:
 
 ```scala
-import tinyscalautils.threads.{ run, Execute }
+import tinyscalautils.threads.{ run, Execute, ExecuteAfter }
 
 given exec: Executor = ...
 
@@ -538,6 +538,15 @@ Execute {
 ```
 
 Both functions return `Unit` (no future).
+Also works with a timer:
+
+```scala
+given Timer = ...
+
+ExecuteAfter(delay = 1.5) {
+  // code
+}  
+```
 
 ### `KeepThreadsFactory`
 
