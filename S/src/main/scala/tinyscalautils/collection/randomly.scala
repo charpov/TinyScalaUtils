@@ -13,7 +13,9 @@ extension [A](elements: IterableOnce[A])
      *
      * If the collection is empty, the iterator is empty; otherwise, it is infinite.
      *
-     * The iterator is thread-safe if the random number generator is thread-safe.
+     * This method iterates over the entire collection and is not thread-safe in general. However,
+     * the iterator that is returned relies on its own copy and is thread-safe if the random number
+     * generator is thread-safe.
      *
      * @since 1.0
      */
@@ -25,5 +27,5 @@ extension [A](elements: IterableOnce[A])
      *
      * @since 1.0
      */
-   def shuffle[C](using rand: Random)(using bf: BuildFrom[elements.type, A, C]): C =
+   def shuffle[C](using rand: Random)(using BuildFrom[elements.type, A, C]): C =
       rand.shuffle(elements)

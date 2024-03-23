@@ -19,19 +19,19 @@ inline private val MinSleepNanos = 100_000_000L
 
 private def delayNanos(nanos: Long, start: Long = getTime()): Unit =
    if !Thread.currentThread().isInterrupted then
-      val end = start + nanos
+      val end       = start + nanos
+      var sleepTime = (end - getTime()) / 2
       try
-         var time = getTime()
-         while end - time > 0 do
-            val sleepTime = (end - time) / 2
-            if sleepTime > SpinningNanos then NANOSECONDS.sleep(sleepTime)
-            time = getTime()
+         while sleepTime > SpinningNanos do
+            NANOSECONDS.sleep(sleepTime)
+            sleepTime = (end - getTime()) / 2
+         while end - getTime() > 0 do Thread.onSpinWait()
       catch case _: InterruptedException => Thread.currentThread.interrupt()
 
 /** Adds sleep time so code takes up specified duration.
   *
-  * An optional argument can be used to specify the starting clock, as per [[getTime]]; this is
-  * useful when preliminary computation needs to be performed before sleeping.
+  * An argument can be used to specify the starting clock, as per [[getTime]]; this is useful when
+  * preliminary computation needs to be performed before sleeping.
   *
   * This method does not throw `InterruptedException`. If the thread is interrupted, the sleeping
   * stops and the thread is left interrupted.
@@ -41,10 +41,25 @@ private def delayNanos(nanos: Long, start: Long = getTime()): Unit =
   *
   * @since 1.0
   */
-def delay[A](seconds: Double, start: Long = getTime())(code: => A): A =
+def delay[A](seconds: Double, start: Long)(code: => A): A =
    val value = Try(code)
    delayNanos(seconds.toNanos, start)
    value.get
+
+/** Adds sleep time so code takes up specified duration.
+  *
+  * This method does not throw `InterruptedException`. If the thread is interrupted, the sleeping
+  * stops and the thread is left interrupted.
+  *
+  * @since 1.0
+  */
+def delay[A](seconds: Double)(code: => A): A =
+   if seconds <= 0.0 then code
+   else
+      val start = getTime()
+      val value = Try(code)
+      delayNanos(seconds.toNanos, start)
+      value.get
 
 /** Pauses the calling thread for the specified amount of time.
   *
@@ -61,7 +76,7 @@ def delay[A](seconds: Double, start: Long = getTime())(code: => A): A =
 def sleep(seconds: Double, start: Long = getTime()): Unit = delayNanos(seconds.toNanos, start)
 
 /** Adds a `slow` method to iterators. */
-// The given is needed because, as of 3.1, Scala cannot handle multiple extensions by the same name
+// The given is needed because, as of 3.3, Scala cannot handle multiple extensions by the same name
 // if they have default argument values.
 given SlowIterator: AnyRef with
    extension [A](source: Iterator[A])
@@ -90,7 +105,7 @@ given SlowIterator: AnyRef with
          val delta     = remaining / delayedElements
          var delay     = 0L
 
-         new Iterator[A]() {
+         new Iterator[A]():
             def hasNext = source.hasNext || (remaining > 0) && {
                delayNanos(remaining)
                remaining = 0L
@@ -105,11 +120,10 @@ given SlowIterator: AnyRef with
                      remaining -= delay
                      delay = 0L
                source.next()
-         }
       end slow
 
 /** Adds a `slow` method to sources. */
-// The given is needed because, as of 3.1, Scala cannot handle multiple extensions by the same name
+// The given is needed because, as of 3.3, Scala cannot handle multiple extensions by the same name
 // if they have default argument values.
 given SlowSource: AnyRef with
    extension (source: Source)
@@ -134,13 +148,13 @@ given SlowSource: AnyRef with
       def slow(seconds: Double, delayedCharacters: Int = 1024): Source =
          require(delayedCharacters > 0)
 
-         new Source() {
+         new Source():
             val iter = (source: Iterator[Char]).slow(seconds, delayedCharacters)
-         } withReset (() => source.reset().slow(seconds, delayedCharacters))
+         .withReset(() => source.reset().slow(seconds, delayedCharacters))
       end slow
 
 /** Adds a `slow` method to streams. */
-// The given is needed because, as of 3.1, Scala cannot handle multiple extensions by the same name
+// The given is needed because, as of 3.3, Scala cannot handle multiple extensions by the same name
 // if they have default argument values.
 given SlowLazyList: AnyRef with
    extension [A](source: LazyList[A])

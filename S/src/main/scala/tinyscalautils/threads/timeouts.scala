@@ -3,10 +3,9 @@ package tinyscalautils.threads
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.ExecutionContext.parasitic
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 
 extension [A](future: Future[A])
-
    /** Adds a orTimeout method similar to Java's
      * [[java.util.concurrent.CompletableFuture#orTimeout]].
      *
@@ -42,9 +41,8 @@ extension [A](future: Future[A])
          Future.failed(TimeoutException())
       else
          val promise = Promise[A]()
-         timer.schedule(seconds) {
+         timer.schedule(seconds):
             if promise.tryFailure(TimeoutException()) then exec.execute(() => cancelCode)
-         }
          future.onComplete(promise.tryComplete)(using parasitic)
          promise.future
    end orTimeout
@@ -56,16 +54,6 @@ extension [A](future: Future[A])
      * future is completed by executing the fallback code, passed by name. The fallback code runs in
      * the execution context (not the timer).
      *
-     * The `strict` flags controls the race between timeout and normal completion. If false, the
-     * race is between normal completion and ''termination'' of the fallback code. In other words,
-     * the fallback computation is initiated at the timeout, but the original computation can still
-     * complete while the fallback code is running (in which case the fallback value is computed but
-     * not used).
-     *
-     * If true, the race is between normal completion and ''initiation'' of the fallback code. Once
-     * the fallback code is started, its value will be used to complete the future, even if normal
-     * completion of the initial task occurs in the meantime.
-     *
      * @param fallbackCode
      *   code to produce a fallback value in case of timeout.
      *
@@ -75,6 +63,17 @@ extension [A](future: Future[A])
      * @param timer
      *   a timer used to complete the future after the timeout. For convenience, [[timeoutTimer]]
      *   can be imported as a timer available implicitly.
+     *
+     * @param strict
+     *   This flag controls the race between timeout and normal completion. If false, the race is
+     *   between normal completion and _termination_ of the fallback code. In other words, the
+     *   fallback computation is initiated at the timeout, but the original computation can still
+     *   complete while the fallback code is running (in which case the fallback value is computed
+     *   but not used).
+     *
+     * If true, the race is between normal completion and _initiation_ of the fallback code. Once
+     * the fallback code is started, its value will be used to complete the future, even if normal
+     * completion of the initial task occurs in the meantime.
      *
      * @return
      *   a future that completes either with the result of the initial future, or with the result of
@@ -93,8 +92,7 @@ extension [A](future: Future[A])
        using exec: ExecutionContext,
        timer: Timer
    ): Future[A] =
-      // skip mechanics if future already completed
-      if future.isCompleted then future
+      if future.isCompleted then future // skip mechanics if future already completed
       else
          val promise = Promise[A]()
          timer.schedule(seconds)(promise.completeWith(Future(fallbackCode)))
@@ -106,18 +104,16 @@ extension [A](future: Future[A])
        using exec: ExecutionContext,
        timer: Timer
    ): Future[A] =
-      // skip mechanics if future already completed or already timed out
-      if future.isCompleted then future
+      if future.isCompleted then future // skip mechanics if future already completed
       else if seconds <= 0.0 then Future(fallbackCode)
       else
          val shouldComplete = AtomicBoolean(true)
          val promise        = Promise[A]()
-         timer.schedule(seconds) {
+         timer.schedule(seconds):
             if shouldComplete.getAndSet(false) then promise.completeWith(Future(fallbackCode))
-         }
-         future.onComplete { result =>
+         future.onComplete(result =>
             if shouldComplete.getAndSet(false) then promise.tryComplete(result)
-         }(using parasitic)
+         )(using parasitic)
          promise.future
    end completeOnTimeoutStrict
 

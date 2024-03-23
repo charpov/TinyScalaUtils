@@ -1,5 +1,7 @@
 package tinyscalautils.text
 
+import tinyscalautils.timing.now
+
 /** Printing mode. Decides which of thread/time is shown and how.
   *
   * For instance,
@@ -43,7 +45,7 @@ private def thread =
    val name      = theThread.getName
    if name.nonEmpty then name else "anonymous thread " + theThread.getId
 
-private inline def now = System.currentTimeMillis()
+// These objects are needed for interfacing with Java
 
 private object StandardMode extends PrintingMode:
    def print(arg: Any, newline: Boolean) =
@@ -60,23 +62,23 @@ private object ThreadMode extends PrintingMode:
 private object TimeMode extends PrintingMode:
    def print(arg: Any, newline: Boolean) =
       val format = if newline then "at %1$TT.%1$TL: %2$s%n" else "at %1$TT.%1$TL: %2$s"
-      Predef.printf(format, now, arg)
+      Predef.printf(format, now(), arg)
 
 private object TimeDemoMode extends PrintingMode:
    def print(arg: Any, newline: Boolean) =
       val format = if newline then "at XX:XX:%1$TS.%1$TL: %2$s%n" else "at XX:XX:%1$TS.%1$TL: %2$s"
-      Predef.printf(format, now, arg)
+      Predef.printf(format, now(), arg)
 
 private object ThreadTimeMode extends PrintingMode:
    def print(arg: Any, newline: Boolean) =
       val format = if newline then "%1$s at %2$TT.%2$TL: %3$s%n" else "%1$s at %2$TT.%2$TL: %3$s"
-      Predef.printf(format, thread, now, arg)
+      Predef.printf(format, thread, now(), arg)
 
 private object ThreadTimeDemoMode extends PrintingMode:
    def print(arg: Any, newline: Boolean) =
       val format =
          if newline then "%1$s at XX:XX:%2$TS.%2$TL: %3$s%n" else "%1$s at XX:XX:%2$TS.%2$TL: %3$s"
-      Predef.printf(format, thread, now, arg)
+      Predef.printf(format, thread, now(), arg)
 
 /** Standard printing. Equivalent to `Predef.printf/println`. */
 given standardMode: PrintingMode = StandardMode

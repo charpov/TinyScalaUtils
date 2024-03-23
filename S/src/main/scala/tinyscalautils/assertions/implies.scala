@@ -7,6 +7,8 @@ extension (left: Boolean)
      * true.
      *
      * Also available as `==>`
+     *
+     * @since 1.1
      */
    inline infix def implies(inline right: Boolean): Boolean = !left || right
 
@@ -14,6 +16,9 @@ extension (left: Boolean)
      * true.
      *
      * Also available as `implies`
+     *
+     * @since 1.1
      */
    @targetName("implies")
+   @deprecated("confusing precedence; use implies instead", since = "1.2")
    inline def ==> (inline right: Boolean): Boolean = !left || right

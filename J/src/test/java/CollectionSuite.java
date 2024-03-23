@@ -61,4 +61,12 @@ public class CollectionSuite {
     } while (count < 100);
     assertTrue(pickOneOption(Set.of(), rand).isEmpty());
   }
+  
+  @Test
+  void testJavaList() {
+    List<String> list = JavaList.of("X", "Y", "Z");
+    list.add("O");
+    assertEquals(4, list.size());
+    assertEquals("O", list.get(3));
+  }
 }

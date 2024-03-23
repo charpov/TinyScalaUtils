@@ -6,13 +6,15 @@ import tinyscalautils.assertions.checkNonNull
   *
   * @constructor
   *   Builds a new exception with the same message, cause and stack trace as the error. Note that
-  *   `error` is ''not'' used as cause.
+  *   `error` is _not_ used as cause.
   *
   * See [[tinyscalautils.control.noStackOverflow]]
   *
+  * @throws IllegalArgumentException
+  *   if error is null.
+  *
   * @since 1.0
   */
-class StackOverflowException @throws[IllegalArgumentException]("if error is null") (
-    error: StackOverflowError
-) extends RuntimeException(checkNonNull(error).getMessage, error.getCause):
+class StackOverflowException(error: StackOverflowError)
+    extends RuntimeException(checkNonNull(error).getMessage, error.getCause):
    setStackTrace(error.getStackTrace)

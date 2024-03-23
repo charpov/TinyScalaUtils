@@ -17,6 +17,9 @@ public final class Text {
             throw new AssertionError("this class cannot be instantiated");
         }
 
+        public static void print(Object ignoredArg) {
+        }
+
         public static void println(Object ignoredArg) {
         }
 
@@ -27,6 +30,10 @@ public final class Text {
     public final static class STANDARD_MODE {
         private STANDARD_MODE() {
             throw new AssertionError("this class cannot be instantiated");
+        }
+
+        public static void print(Object arg) {
+            tinyscalautils.text.StandardMode.print(arg, false);
         }
 
         public static void println(Object arg) {
@@ -43,6 +50,10 @@ public final class Text {
             throw new AssertionError("this class cannot be instantiated");
         }
 
+        public static void print(Object arg) {
+            tinyscalautils.text.ThreadMode.print(arg, false);
+        }
+
         public static void println(Object arg) {
             tinyscalautils.text.ThreadMode.print(arg, true);
         }
@@ -55,6 +66,10 @@ public final class Text {
     public final static class THREAD_TIME_DEMO_MODE {
         private THREAD_TIME_DEMO_MODE() {
             throw new AssertionError("this class cannot be instantiated");
+        }
+
+        public static void print(Object arg) {
+            tinyscalautils.text.ThreadTimeDemoMode.print(arg, false);
         }
 
         public static void println(Object arg) {
@@ -71,6 +86,10 @@ public final class Text {
             throw new AssertionError("this class cannot be instantiated");
         }
 
+        public static void print(Object arg) {
+            tinyscalautils.text.ThreadTimeMode.print(arg, false);
+        }
+
         public static void println(Object arg) {
             tinyscalautils.text.ThreadTimeMode.print(arg, true);
         }
@@ -85,6 +104,10 @@ public final class Text {
             throw new AssertionError("this class cannot be instantiated");
         }
 
+        public static void print(Object arg) {
+            tinyscalautils.text.TimeDemoMode.print(arg, false);
+        }
+
         public static void println(Object arg) {
             tinyscalautils.text.TimeDemoMode.print(arg, true);
         }
@@ -97,6 +120,10 @@ public final class Text {
     public final static class TIME_MODE {
         private TIME_MODE() {
             throw new AssertionError("this class cannot be instantiated");
+        }
+
+        public static void print(Object arg) {
+            tinyscalautils.text.TimeMode.print(arg, false);
         }
 
         public static void println(Object arg) {

@@ -1,8 +1,6 @@
 package tinyscalautils.java;
 
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public class Collection {
   private Collection() {
@@ -25,5 +23,16 @@ public class Collection {
 
   public static <A> Optional<A> pickOneOption(Iterable<A> iterable, Random rand) {
     return collection.pickOneOption(iterable, rand);
+  }
+
+  public static class JavaList {
+    private JavaList() {
+      throw new AssertionError("this class cannot be instantiated");
+    }
+
+    @SafeVarargs
+    public static <A> List<A> of(A... values) {
+      return new ArrayList<>(Arrays.asList(values));
+    }
   }
 }

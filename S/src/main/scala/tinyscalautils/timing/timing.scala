@@ -52,11 +52,9 @@ extension [A](future: Future[A])
      */
    def zipWithDuration(using ExecutionContext): Future[(A, Double)] =
       val start = getTime()
-      future.map { value =>
+      future.map: value =>
          val end = getTime()
          value -> (end - start) / 1E9
-      }
-end extension
 
 extension (seconds: Double)
    /** Multiplies the double value by 1e9, then rounds. */

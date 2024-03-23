@@ -5,7 +5,7 @@ import org.scalatest.tagobjects.Slow
 import org.scalatest.time.Span
 import org.scalatest.time.SpanSugar.convertDoubleToGrainOfTime
 import org.scalatest.{ Canceled, Outcome, TestSuite }
-import tinyscalautils.test.tagobjects.Timeout
+import tinyscalautils.test.tagobjects.{ NoTimeout, Timeout }
 
 import scala.compiletime.uninitialized
 
@@ -48,11 +48,13 @@ trait DualTimeLimits extends TimeLimitedTests:
    abstract override def withFixture(test: NoArgTest): Outcome =
       currentTimeLimit = shortTimeLimit // default
       if test.tags.nonEmpty then
-         val tags = test.tags.filter(str => str == Slow.name || str.startsWith(Timeout.name))
+         val tags = test.tags.filter: str =>
+            str == Slow.name || str == NoTimeout.name || str.startsWith(Timeout.name)
          if tags.size > 1 then return Canceled(s"""conflicting tags: ${tags.mkString(", ")}""")
          if tags.nonEmpty then
             val tag = tags.head
             if tag == Slow.name then currentTimeLimit = longTimeLimit
+            else if tag == NoTimeout.name then currentTimeLimit = Span.Max
             else // Timeout
                Timeout.regex.findFirstMatchIn(tag).flatMap(_.group(1).toDoubleOption) match
                   case Some(value) if value > 0.0 => currentTimeLimit = value.seconds

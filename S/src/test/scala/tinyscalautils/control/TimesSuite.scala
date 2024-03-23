@@ -1,22 +1,20 @@
 package tinyscalautils.control
 
 import org.scalatest.funsuite.AnyFunSuite
+import tinyscalautils.lang.unit
 
 class TimesSuite extends AnyFunSuite:
-
-   test("times") {
+   test("times"):
       var count = 0
 
       0 times (count += 1)
-      assert(count === 0)
+      assert(count == 0)
 
       10 times (count += 1)
-      assert(count === 10)
+      assert(count == 10)
 
       10 times (count -= 1)
-      assert(count === 0)
-   }
+      assert(count == 0)
 
-   test("times, exception") {
-      assertThrows[IllegalArgumentException](-1 times ())
-   }
+   test("times, exception"):
+      assertThrows[IllegalArgumentException](-1 times unit)

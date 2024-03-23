@@ -2,15 +2,14 @@ package tinyscalautils.control
 
 import tinyscalautils.assertions.require
 
-extension [U](number: Int)
+extension (number: Int)
    /** Simple repetitions.
      *
      * Evaluates an expression a given number of times. e.g.:
      *
      * {{{
-     * 42 times {
+     * 42 times:
      *     ...
-     * }
      * }}}
      *
      * Throws [[IllegalArgumentException]] if the target number is negative.
@@ -18,11 +17,9 @@ extension [U](number: Int)
      * @since 1.0
      */
    @throws[IllegalArgumentException]("if the target number is negative")
-   infix def times(code: => U): Unit =
+   infix inline def times(inline code: Any): Unit =
       require(number >= 0, s"target number $number is negative")
-
-      var i = 0
-      while i < number do
-         i += 1
+      var i = number
+      while i > 0 do
+         i -= 1
          code
-   end times

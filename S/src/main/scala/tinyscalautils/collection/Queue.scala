@@ -1,11 +1,16 @@
 package tinyscalautils.collection
 
 import java.util
-import scala.annotation.experimental
 
 extension [A](queue: util.Queue[A])
-   @experimental
+   /** Like `poll` but wrapping `null` in an option.
+    *
+    * @since 1.2
+    */
    def pollOption(): Option[A] = Option(queue.poll())
 
-   @experimental
+   /** Like `peek` but wrapping `null` in an option.
+    *
+    * @since 1.2
+    */
    def peekOption: Option[A] = Option(queue.peek())

@@ -40,9 +40,8 @@ This is the same `times` as in `Scalactic`:
 ```scala
 import tinyscalautils.control.times
 
-3 times {
+3 times:
    println("Beetlejuice!")
-}   
 ```
 
 ### `limitedStack` / `StackOverflowException`
@@ -69,10 +68,10 @@ Checks the interrupted status of the current thread before running some code:
 ```scala
 import tinyscalautils.control.interruptibly
 
-while true do interruptibly {
+while true do interruptibly:
    x += 1
-}   
 ```
+
 The infinite loops terminates with `InterruptedException` if the thread is interrupted.
 
 ## Package `collection`
@@ -135,13 +134,47 @@ Produces a randomly selected element from a finite, non-empty collection:
 ```scala
 import tinyscalautils.collection.pickOne
 
+given Random = ...
+
 val n: Int = List(1, 2, 3).pickOne
 // n is one of 1, 2 or 3, randomly chosen
 ```
 
-Uses a given `Random` in scope.
 Exists also as `pickOneOption` to handle empty collections.
 These methods should not be used in a loop over the same collection; use `randomly` instead.
+
+### `JavaList`
+
+Like `List.of` but with mutable lists:
+
+```scala
+import tinyscalautils.collection.JavaList
+
+val list = JavaList.of("X", "Y") // a mutable list
+```
+
+Lists are `ArrayList` by default, but `LinkedList` can be used as well:
+
+```scala
+import tinyscalautils.collection.JavaList
+import tinyscalautils.collection.LinkedList.factory
+
+val list = JavaList.of("X", "Y") // a mutable linked list
+```
+
+### `pollOption` / `peekOption`
+
+Like `poll` / `peek` but wrapping `null` in an option.
+
+```scala
+import tinyscalautils.collection.{ pollOption, peekOption }
+
+val q = util.ArrayDeque[String]()
+q.offer("X")
+q.peekOption   // Some("X")
+q.pollOption() // Some("X")
+q.pollOption() // None
+```
 
 ## Package `assertions`
 
@@ -201,7 +234,7 @@ value in (1 to 10) // same as (1 to 10) contains value
 
 ## Package `text`
 
-### `StringLetters/CharLetters`
+### `StringLetters` / `CharLetters`
 
 All cap letters as strings or characters:
 
@@ -228,7 +261,7 @@ str.short(10) // "ABCDEFG..."
 
 Note that standard method `padTo` pads strings _on the right_.
 
-### `printf/println`
+### `print` / `printf` / `println`
 
 Adds thread and/or time information to print statements:
 
@@ -255,11 +288,13 @@ Adds thread and/or time information to print statements:
    println("foo") // prints nothing
 ```
 
-Function `printf` works similarly.
+Functions `print` and `printf` work similarly.
 These functions can also be imported as:
+
 ```scala
 import tinyscalautils.text.threadTimeMode.println
 ```
+
 which is simpler for most usages (i.e., when not using mode arguments explicitly).
 
 ### `printout`
@@ -267,25 +302,25 @@ which is simpler for most usages (i.e., when not using mode arguments explicitly
 Captures the output of print statements into a string:
 
 ```scala
-val str = printout {
+// the string "hello"
+val str = printout:
    Console.out.print("hello")
    Console.err.println(" world")
-} // the string "hello"
 
-val str = printout(includeErr = true) {
+// the string "hello world\n"
+val str = printout(includeErr = true):
    Console.out.print("hello")
    Console.err.println(" world")
-} // the string "hello world\n"   
 ```
 
 By default, only `Console.out` (and `Predef.print` and `tinyscalautils.text.print`, which are based on it) is captured, but `System.out` and `System.err` are *not* captured.
 This can be changed with an option:
 
 ```scala
-val str = printout(includeSystem = true) {
+// the string "hello world\n"
+val str = printout(includeSystem = true):
    Console.out.print("hello")
    System.out.println(" world")
-} // the string "hello world\n"   
 ```
 
 Note that `System.out` and `System.err` are global variables, shared among threads, while `Console.out` can be different for different threads.
@@ -335,7 +370,9 @@ sleep(3.0, start) // sleeps 3 seconds, starting from start time
 
 This last example won't sleep at all if more than 3 seconds have already elapsed since time `start`.
 
-This method `sleep` does not undershoot even if `Thread.sleep` does, and does not throw `InterruptedException`.
+This method `sleep` does not undershoot even if `Thread.sleep` does, and does not throw `InterruptedException` (but leaves interrupted threads interrupted).
+
+Non-positive values incur no delay.
 
 ### `delay`
 
@@ -344,13 +381,14 @@ Delays returning a value:
 ```scala
 import tinyscalautils.timing.delay
 
-val result = delay(3.0) {
+val result = delay(3.0):
    // code
-}  
 ```
 
 This produces the same value as `code`, but takes 3 seconds (assuming the evaluation of `code` took less than 3 seconds).
 Like `sleep`, also exists in a `start` variant: `delay(3.0, start)(code)`.
+
+Non-positive values incur no delay.
 
 ### `timeOf`
 
@@ -359,9 +397,8 @@ The time it took to evaluate some code, in seconds:
 ```scala
 import tinyscalautils.timing.timeOf
 
-val time = timeOf {
+val time = timeOf:
    // code
-}   
 ```
 
 The value produced by the code, if any, is ignored.
@@ -373,9 +410,8 @@ The value produced by some code, and the time it took to compute it, as a pair:
 ```scala
 import tinyscalautils.timing.timeIt
 
-val (value, time) = timeIt {
+val (value, time) = timeIt:
    // code
-}   
 ```
 
 ### Timers
@@ -387,20 +423,26 @@ Can be used explicitly:
 import tinyscalautils.threads.Executors
 
 val timer = Executors.newTimer(size = 2)
-val future = timer.schedule(1.5) {
-   // code 
-}
+
+timer.execute(2.5):
+   // code
+   
+val future = timer.schedule(1.5):
+   // code
 ```
 
 or implicitly:
 
 ```scala
-import tinyscalautils.threads.{ DelayedFuture, Executors }
+import tinyscalautils.threads.{ DelayedFuture, Executors, ExecuteAfter }
 
 given Timer = Executors.newTimer(2)
-val future = DelayedFuture(1.5) {
+
+ExecuteAfter(2.5):
    // code
-}
+
+val future = DelayedFuture(1.5):
+   // code
 ```
 
 Note that timers need to be explicitly shut down for their threads to terminate.
@@ -442,9 +484,55 @@ i.slow(10.0, delayedElements = 10_000)
 
 Also available on `Source` and `LazyList`.
 
+### `runFor` / `callFor`
+
+Runs iterative code with a time bound:
+
+```scala
+import tinyscalautils.threads.Timer
+import tinyscalautils.timing.{ runFor, callFor }
+
+given Timer = ...
+
+val start: T = ...
+def step(st: T): Option[T] = ...
+
+// runs step until None, at most 1 minute; returns true if no timeout
+runFor(60.0)(start)(step) 
+
+// same but also returns a Seq[T] of step results
+callFor(60.0)(start)(step) 
+```
+
+Also a simpler form with no carried state:
+
+```scala
+def step(): Boolean = ...
+runFor(60.0)(step)
+```
+and richer forms that separate state from produced values:
+
+```scala
+val start: T = ...
+def step(st: T): Option[(A, T)] = ...
+
+runFor(60.0)(start)(step) // a Boolean and a Seq[A]
+```
+
+```scala
+val start: T = ...
+def step(st: T): (A, Option[T]) = ...
+
+runFor(60.0)(start)(step) // a Boolean and a Seq[A]
+```
+
+This last variant produces a last value when it terminates (i.e., `(last, None)`).
+
 ## Package `threads`
 
 ### `orTimeout`
+
+Adds a timeout feature to future, similar to Java's:
 
 ```scala
 import tinyscalautils.threads.{ orTimeout, completeOnTimeout } 
@@ -519,7 +607,7 @@ given ExecutionContext = tinyscalautils.threads.Executors.global
 val f = Future { ... } // runs on global thread pool
 ```
 
-### `run`/`Execute/ExecuteAfter`
+### `run` / `Execute/ExecuteAfter`
 
 Executes code on an executor:
 
@@ -528,25 +616,14 @@ import tinyscalautils.threads.{ run, Execute, ExecuteAfter }
 
 given exec: Executor = ...
 
-exec.run {
+exec.run:
    // code
-}
 
-Execute {
+Execute:
    // code
-}      
 ```
 
 Both functions return `Unit` (no future).
-Also works with a timer:
-
-```scala
-given Timer = ...
-
-ExecuteAfter(delay = 1.5) {
-  // code
-}  
-```
 
 ### `KeepThreadsFactory`
 
@@ -624,7 +701,7 @@ exec.shutdownAndWait() // invokes shutdown and waits indefinitely; force flag is
 
 ### `await`
 
-Add a variant of `await` on `CountDownLatch` that specifies its timeout in seconds:
+Adds a variant of `await` on `CountDownLatch` that specifies its timeout in seconds:
 
 ```scala
 import tinyscalautils.threads.await
@@ -649,6 +726,32 @@ latch.countDownAndWait(3.0)
 
 Waits forever (interruptibly) if no timeout is specified.
 
+### `acquire`
+
+Adds a variant of `acquire` on `Semaphore` that specifies its timeout in seconds:
+
+```scala
+import tinyscalautils.threads.acquire
+
+val sem: Semaphore = ...
+
+sem.acquire(1, seconds = 3.0)
+```
+
+### `offer` / `pollOption`
+
+Adds variant of `offer` and `poll` on blocking queues that specifies their timeout in seconds and wrap `null` in an option:
+
+```scala
+import tinyscalautils.threads.{ offer, pollOption }
+
+val q = ArrayBlockingQueue[String](1)
+q.offer("X", seconds = 1.0) // true, immediately
+q.offer("X", seconds = 1.0) // false, after 1 second
+q.pollOption(seconds = 1.0) // Some("X"), immediately
+q.pollOption(seconds = 1.0) // None, after 1 second
+```
+
 ### `joined`
 
 Combines `join` and `isAlive`:
@@ -668,9 +771,8 @@ Kotlin-like functions for easier thread creation:
 ```scala
 import tinyscalautils.threads.newThread 
 
-val thread = newThread(name = "Joe", start = false, daemon = true, waitForChildren = false) {
+val thread = newThread(name = "Joe", start = false, daemon = true, waitForChildren = false):
    // code
-}   
 ```
 
 All arguments have default values and are optional.
@@ -683,11 +785,9 @@ Easy setup of execution contexts, mostly for testing:
 ```scala
 import tinyscalautils.threads.withThreadsAndWait
 
-val result = withThreadsAndWait(4) {
-   Future {
+val result = withThreadsAndWait(4):
+   Future:
       42
-   }   
-}
 ```
 
 This creates a 4-thread pool, runs the future on it, waits for the future to finish, shuts down the thread pool, and sets `result` to 42.
@@ -705,11 +805,9 @@ To reuse an existing thread pool, use `withThreadPoolAndWait`:
 import tinyscalautils.threads.withThreadPoolAndWait
 
 val exec = Executors.newUnlimitedThreadPool()
-val result = withThreadPoolAndWait(exec) {
-   Future {
+val result = withThreadPoolAndWait(exec):
+   Future:
       42
-   }   
-}
 ```
 
 This runs the future on the thread pool and waits for the future to finish before setting `result` to 42.
@@ -720,11 +818,9 @@ Note that if `shutdown` is known to be false at compile time, the thread pool do
 In particular, it can be of type `Executor` or `ExecutionContext`:
 
 ```scala
-withThreadPoolAndWait(ExecutionContext.global, shutdown = false) {
-   Future {
+withThreadPoolAndWait(ExecutionContext.global, shutdown = false):
+   Future:
       ...
-   }
-}
 ```
 
 This runs the future on the global execution context, and waits for its termination.
@@ -752,7 +848,7 @@ The contents of a directory, as a list:
 ```scala
 import tinyscalautils.io.listPaths
 
-for (path: Path <- listPaths(dir)) do ...
+for path: Path <- listPaths(dir) do ...
 ```
 
 If a list type is not suitable, use `readPaths` instead:
@@ -866,7 +962,7 @@ Calculates an average by ignoring a fixed number of low/high values:
 ```scala
 val nums: Seq[BigDecimal] = Seq(12, 1, 7, 11, 14, 9)
 
-average(nums) // (1 + 7 + 9 + 11 + 12 + 14) / 6
+average(nums)    // (1 + 7 + 9 + 11 + 12 + 14) / 6
 average(nums, 1) // (7 + 9 + 11 + 12) / 4
 average(nums, 2) // (9 + 11) / 2
 average(nums, 3) // 0

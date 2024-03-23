@@ -10,7 +10,7 @@ private val maxSeconds: Double = java.lang.Double.valueOf("0x1.517ffffea033p47")
   *
   * @param unitsCount
   *   the number of different units used in the representation, between 1 and 5. Using 2 units (the
-  *   defaults) results in strings of hte form `3 minutes, 20 milliseconds` or `1 hour, 10
+  *   defaults) results in strings of the form `3 minutes, 20 milliseconds` or `1 hour, 10
   *   seconds`.
   *
   * @throws IllegalArgumentException

@@ -9,7 +9,7 @@ import tinyscalautils.test.tagobjects.*
 import tinyscalautils.timing.sleep
 
 class DualTimeLimitsTests extends AnyFunSuite with Tolerance:
-   test("Fast/Slow/Timeout"):
+   test("Fast/Slow/Timeout/NoTimeout"):
       class Tests extends AnyFunSuite with DualTimeLimits:
          override val shortTimeLimit = 0.5.seconds
          override val longTimeLimit  = 1.second
@@ -18,6 +18,7 @@ class DualTimeLimitsTests extends AnyFunSuite with Tolerance:
          test("fast, successful 2", NoTag)(sleep(0.4))
          test("slow, successful", Slow)(sleep(0.6))
          test("timeout, successful", Timeout(1.5))(sleep(1.1))
+         test("no timeout, successful", NoTimeout)(sleep(1.1))
          test("fast, failed 1")(sleep(0.6))
          test("fast, failed 2", NoTag)(sleep(0.6))
          test("slow, failed", Slow)(sleep(1.1))
@@ -29,6 +30,7 @@ class DualTimeLimitsTests extends AnyFunSuite with Tolerance:
       assert(suite.run(Some("fast, successful 2"), silent).succeeds())
       assert(suite.run(Some("slow, successful"), silent).succeeds())
       assert(suite.run(Some("timeout, successful"), silent).succeeds())
+      assert(suite.run(Some("no timeout, successful"), silent).succeeds())
       assert(!suite.run(Some("fast, failed 1"), silent).succeeds())
       assert(!suite.run(Some("fast, failed 2"), silent).succeeds())
       assert(!suite.run(Some("slow, failed"), silent).succeeds())
@@ -41,10 +43,18 @@ class DualTimeLimitsTests extends AnyFunSuite with Tolerance:
 
          test("Timeout + Timeout", Timeout(2), Timeout(1)) {}
          test("Slow + Timeout", Slow, Timeout(1)) {}
+         test("Slow + NoTimeout", Slow, NoTimeout) {}
+         test("Timeout + NoTimeout", Timeout(1), NoTimeout) {}
       end Tests
 
       val suite = Tests()
-      for str <- Seq("Timeout + Timeout", "Slow + Timeout") do
+      for str <- Seq(
+           "Timeout + Timeout",
+           "Slow + Timeout",
+           "Slow + NoTimeout",
+           "Timeout + NoTimeout"
+         )
+      do
          assert(suite.run(Some(str), Args(R)).succeeds())
          R.lastEvent match
             case Some(ev: TestCanceled) => assert(ev.message.startsWith("conflicting tags:"))
@@ -65,11 +75,22 @@ class DualTimeLimitsTests extends AnyFunSuite with Tolerance:
             case Some(ev: TestCanceled) => assert(ev.message == s"'$str' is not a valid tag")
             case other                  => fail(s"unexpected: $other ")
 
-   test("annotations"):
+   test("Slow annotation"):
       @org.scalatest.tags.Slow
       class Tests extends AnyFunSuite with DualTimeLimits:
          override val shortTimeLimit = 0.5.seconds
          override val longTimeLimit  = 1.second
+
+         test("slow")(sleep(0.6))
+      end Tests
+
+      assert(Tests().run(Some("slow"), silent).succeeds())
+
+   test("NoTimeout annotation"):
+      @tinyscalautils.test.tags.NoTimeout
+      class Tests extends AnyFunSuite with DualTimeLimits:
+         override val shortTimeLimit = 0.1.seconds
+         override val longTimeLimit  = 0.5.seconds
 
          test("slow")(sleep(0.6))
       end Tests

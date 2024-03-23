@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.{ AtomicInteger, AtomicReference }
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, Future, TimeoutException }
 
-class TimeoutSuite extends AnyFunSuite with Tolerance:
+class FutureTimeoutSuite extends AnyFunSuite with Tolerance:
 
    private def sign(ref: AtomicReference[Thread]): Unit =
       if !ref.compareAndSet(null, Thread.currentThread) then
