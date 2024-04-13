@@ -15,6 +15,5 @@ def assertExpr[A, B](actual: A)(expected: B)(using Prettifier, CanEqual[A, B]): 
   *
   * @since 1.1
   */
-def assertExpr[A, B](actual: A, clue: Any)(
-    expected: B
-)(using Prettifier, CanEqual[A, B]): Assertion = assertResult(expected, clue)(actual)
+def assertExpr[A, B](actual: A, clue: Any)(expected: B)(using Prettifier, CanEqual[A, B]): Assertion =
+   assertResult(expected, clue)(actual)

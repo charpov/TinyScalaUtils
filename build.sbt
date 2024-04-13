@@ -2,7 +2,7 @@ val jcip      = "net.jcip"          % "jcip-annotations" % "1.0"
 val ScalaTest = "org.scalatest"    %% "scalatest"        % "3.2.18"
 val JUnit     = "org.junit.jupiter" % "junit-jupiter"    % "5.10.2"
 
-ThisBuild / version       := "1.2.0"
+ThisBuild / version       := "1.2.1"
 ThisBuild / scalaVersion  := "3.3.3"
 ThisBuild / versionScheme := Some("semver-spec")
 

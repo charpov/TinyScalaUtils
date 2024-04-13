@@ -18,7 +18,10 @@ class DualTimeLimitsTests extends AnyFunSuite with Tolerance:
          test("fast, successful 2", NoTag)(sleep(0.4))
          test("slow, successful", Slow)(sleep(0.6))
          test("timeout, successful", Timeout(1.5))(sleep(1.1))
-         test("no timeout, successful", NoTimeout)(sleep(1.1))
+         test("no timeout 1", NoTimeout)(sleep(1.1))
+         test("no timeout 2", Slow, NoTimeout)(sleep(1.1))
+         test("no timeout 3", Timeout(0.5), NoTimeout)(sleep(1.1))
+         test("no timeout 4", NoTag, NoTimeout)(sleep(1.1))
          test("fast, failed 1")(sleep(0.6))
          test("fast, failed 2", NoTag)(sleep(0.6))
          test("slow, failed", Slow)(sleep(1.1))
@@ -30,7 +33,10 @@ class DualTimeLimitsTests extends AnyFunSuite with Tolerance:
       assert(suite.run(Some("fast, successful 2"), silent).succeeds())
       assert(suite.run(Some("slow, successful"), silent).succeeds())
       assert(suite.run(Some("timeout, successful"), silent).succeeds())
-      assert(suite.run(Some("no timeout, successful"), silent).succeeds())
+      assert(suite.run(Some("no timeout 1"), silent).succeeds())
+      assert(suite.run(Some("no timeout 2"), silent).succeeds())
+      assert(suite.run(Some("no timeout 3"), silent).succeeds())
+      assert(suite.run(Some("no timeout 4"), silent).succeeds())
       assert(!suite.run(Some("fast, failed 1"), silent).succeeds())
       assert(!suite.run(Some("fast, failed 2"), silent).succeeds())
       assert(!suite.run(Some("slow, failed"), silent).succeeds())
@@ -43,18 +49,10 @@ class DualTimeLimitsTests extends AnyFunSuite with Tolerance:
 
          test("Timeout + Timeout", Timeout(2), Timeout(1)) {}
          test("Slow + Timeout", Slow, Timeout(1)) {}
-         test("Slow + NoTimeout", Slow, NoTimeout) {}
-         test("Timeout + NoTimeout", Timeout(1), NoTimeout) {}
       end Tests
 
       val suite = Tests()
-      for str <- Seq(
-           "Timeout + Timeout",
-           "Slow + Timeout",
-           "Slow + NoTimeout",
-           "Timeout + NoTimeout"
-         )
-      do
+      for str <- Seq("Timeout + Timeout", "Slow + Timeout") do
          assert(suite.run(Some(str), Args(R)).succeeds())
          R.lastEvent match
             case Some(ev: TestCanceled) => assert(ev.message.startsWith("conflicting tags:"))
@@ -92,10 +90,12 @@ class DualTimeLimitsTests extends AnyFunSuite with Tolerance:
          override val shortTimeLimit = 0.1.seconds
          override val longTimeLimit  = 0.5.seconds
 
-         test("slow")(sleep(0.6))
+         test("slow 1")(sleep(0.6))
+         test("slow 2", Slow)(sleep(0.6))
       end Tests
 
-      assert(Tests().run(Some("slow"), silent).succeeds())
+      assert(Tests().run(Some("slow 1"), silent).succeeds())
+      assert(Tests().run(Some("slow 2"), silent).succeeds())
 
    test("when/unless"):
       class Tests extends AnyFunSuite with DualTimeLimits:
@@ -105,6 +105,7 @@ class DualTimeLimitsTests extends AnyFunSuite with Tolerance:
          for time <- Seq(0.1, 0.2, 1.1, 1.2) do
             test(s"time 1: $time", Slow.when(time > 1.0))(sleep(time))
             test(s"time 2: $time", Slow.unless(time < 1.0))(sleep(time))
+            test(s"time 3: $time", NoTimeout.when(time > 1.0))(sleep(time))
       end Tests
 
       val suite = Tests()

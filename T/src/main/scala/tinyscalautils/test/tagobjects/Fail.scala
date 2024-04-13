@@ -12,13 +12,7 @@ import scala.util.matching.Regex
   *
   * @since 1.1
   */
-class Fail private (name: String) extends Tag(name):
-   /** A mechanism to fail programmatically. */
-   inline def when(condition: Boolean): this.type | NoTag.type = if condition then this else NoTag
-
-   /** A mechanism to fail programmatically. */
-   inline def unless(condition: Boolean): this.type | NoTag.type = if condition then NoTag else this
-end Fail
+class Fail private (name: String) extends Tag(name)
 
 /** A failed tag with no message
   *

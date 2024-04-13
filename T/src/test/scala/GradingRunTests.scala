@@ -12,17 +12,18 @@ import tinyscalautils.threads.Executors.global
 import tinyscalautils.threads.runAsync
 import tinyscalautils.timing.{getTime, sleep, timeOf}
 import tinyscalautils.lang.unit
+import tinyscalautils.test.text.TruncatingPrettifier
 
 class GradingRunTests extends AnyFunSuite with Tolerance:
    private val nums = List.range(0, 42)
 
    test("prettifier and grade"):
-      class Tests extends AnyFunSuite with GradingRun:
-         test("default truncating prettifier"):
+      class Tests(using Prettifier) extends AnyFunSuite with GradingRun:
+         test("default prettifier"):
             val e = intercept[TestFailedException](assert(nums.isEmpty))
             assert(e.message.exists(_.endsWith(", 31, ...) was not empty")))
 
-         test("truncating prettifier"):
+         test("overridden prettifier"):
             given Prettifier = Prettifier.truncateAt(SizeLimit(10))
 
             val e = intercept[TestFailedException](assert(nums.isEmpty))
@@ -31,37 +32,29 @@ class GradingRunTests extends AnyFunSuite with Tolerance:
          test("failed [3pts]")(fail())
       end Tests
 
-      val suite = Tests()
+      val suite = Tests(using Prettifier.truncateAt(SizeLimit(32)))
       suite.run(None, silent)
       assert(suite.grader.grade == 0.4)
 
-   test("overridden prettifier and grade"):
-      class Tests extends AnyFunSuite with GradingRun:
-         override val prettifier = Prettifier.truncateAt(SizeLimit(10))
-
-         test("overridden truncating prettifier"):
+   test("truncating default prettifier and grade"):
+      class Tests(using Prettifier) extends AnyFunSuite with GradingRun:
+         test("prettifier"):
             val e = intercept[TestFailedException](assert(nums.isEmpty))
-            assert(e.message.exists(_.endsWith(", 9, ...) was not empty")))
+            assert(e.message.exists(_.endsWith(", 10, 1... was not empty")))
 
-      val suite = Tests()
+      val suite = Tests(using TruncatingPrettifier(43))
       suite.run(None, silent)
       assert(suite.grader.grade == 1.0)
 
-   test("super overridden prettifier and grade"):
-      val Foo = 0
-      class Tests extends AnyFunSuite with GradingRun:
-         override val prettifier = Prettifier {
-            case Foo => "zero"
-            case o   => super.prettifier(o)
-         }
+   test("truncating prettifier and grade"):
+      given Prettifier = Prettifier.truncateAt(SizeLimit(5))
 
-         test("overridden truncating prettifier"):
-            val e1 = intercept[TestFailedException](assert(nums.isEmpty))
-            assert(e1.message.exists(_.endsWith(", 31, ...) was not empty")))
-            val e2 = intercept[TestFailedException](assert(Foo == 1))
-            assert(e2.message.contains("zero did not equal 1"))
+      class Tests(using Prettifier) extends AnyFunSuite with GradingRun:
+         test("prettifier"):
+            val e = intercept[TestFailedException](assert(nums.isEmpty))
+            assert(e.message.exists(_.endsWith(", 4, ... was not empty")))
 
-      val suite = Tests()
+      val suite = Tests(using TruncatingPrettifier(23))
       suite.run(None, silent)
       assert(suite.grader.grade == 1.0)
 
@@ -212,4 +205,4 @@ class GradingRunTests extends AnyFunSuite with Tolerance:
       assert(!Tests().run(None, Args(R).copy(configMap = config)).succeeds())
       R.lastEvent match
          case Some(ev: TestFailed) => assert(ev.message == "test name in failed set")
-         case other => fail(s"unexpected: $other ")
+         case other                => fail(s"unexpected: $other ")

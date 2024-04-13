@@ -1,6 +1,5 @@
 package tinyscalautils.test.grading
 
-import org.scalactic.{ Prettifier, SizeLimit }
 import org.scalatest.concurrent.{ Signaler, ThreadSignaler }
 import org.scalatest.time.Span
 import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
@@ -32,11 +31,6 @@ trait GradingRun extends Grading, DualTimeLimits, NoStackOverflowError:
 
    val shortTimeLimit: Span = 1.second
    val longTimeLimit: Span  = 1.minute
-
-   /** Default prettifier, which truncates collections after 32 elements. */
-   protected def prettifier: Prettifier = Prettifier.truncateAt(SizeLimit(32))
-
-   given Prettifier = prettifier
 
    abstract override def withFixture(test: NoArgTest): Outcome =
       val failed = test.configMap.getWithDefault[Set[String]]("failed", Set.empty)
