@@ -1,53 +1,62 @@
 package tinyscalautils.test.grading
 
-import org.scalatest.{ ConfigMap, Suite }
-import tinyscalautils.io.parseURL
+import org.scalatest.{ ConfigMap, Filter }
+import tinyscalautils.io.readAll
 import tinyscalautils.text.{ info, plural, timeString }
 import tinyscalautils.timing.timeOf
 
-import java.io.IOException
-import java.net.URI
-
-/** Grading main application.
+/** Grading main application. It is defined as an open class because subclasses and singleton
+  * objects can be run more easily in IntelliJ. Tests with names in a local `failed_tests.txt` file
+  * are manually failed. (Lines in this file are interpreted as anchored regular expressions.)
+  *
+  * @note
+  *   This application relies on the default text reporter from Scalatest. Unfortunately, this
+  *   reporter uses its own separate thread. As a result, there is an unavoidable race condition
+  *   with output from other reporters, if any. If more text output is needed, it should come from
+  *   the same default reporter (e.g., using `info`).
   *
   * @note
   *   This application _does_ call `System.exit(0)`.
   *
   * @param suites
-  *   a sequence of (weight -> suite) testing suites; tests with names in `failed_tests.txt` are
-  *   manually failed.
+  *   an instance of `GradingSuites` taken as a container of testing suites;
   */
-open class GraderApp(suites: (Int, Suite & Grading)*):
+open class GraderApp(suites: GradingSuites):
+   /** Alternate constructor. It wraps the given suites into a new instance of `GradingSuites`. */
+   def this(suites: GradingSuite*) = this(GradingSuites(suites*))
+
    def main(args: Array[String]): Unit =
-      val verbose = args.nonEmpty && args(0) == "-v"
+      val failedTests = readFailedTests()
+      val verbose     = args.nonEmpty && args(0) == "-v"
       if verbose then info(newlines = 1)
-      var grade   = 0.0
-      var weights = 0
-      var tests   = 0
+      val expectedTests = suites.expectedTestCount(Filter.default)
+      println(s"""Starting run for $expectedTests ${plural(expectedTests, "test")}:""")
       val time = timeOf:
-         for (weight, suite) <- suites do
+         for suite <- suites.nestedSuites do
             suite.execute(
               durations = true,
               color = false,
               shortstacks = true,
-              configMap = readFailedTests()
+              configMap = failedTests
             )
-            val g = suite.grader.grade * weight
-            val n = suite.grader.testCount
-            weights += weight
-            grade += g
-            tests += n
-            if verbose then
-               println(f"""${suite.suiteName}: $g%.1f / $weight ($n ${plural(n, "test")})""")
+            println:
+               val name   = suite.suiteName
+               val weight = suite.grader.totalWeight
+               val grade  = suite.grader.grade * weight
+               val tests  = suite.grader.testCount
+               f"""$name: $grade%.1f / $weight%.1f ($tests ${plural(tests, "test")})"""
       println(s"time: ${timeString(time)}")
       println:
-         f"grade: $grade%.0f / $weights" +
-            (if verbose then s""" ($tests ${plural(tests, "test")})""" else "")
+         val weight = suites.grader.totalWeight
+         val grade  = suites.grader.grade * weight
+         val tests  = suites.grader.testCount
+         f"""grade: $grade%.0f / $weight%.0f ($tests ${plural(tests, "test")})"""
       System.exit(0) // possible hanging threads; forcing termination
+end GraderApp
 
 private def readFailedTests(): ConfigMap =
+   import tinyscalautils.io.FileNameIsInput
    def parse(line: String) = Some(line.trim).filterNot(str => str.isBlank || str.startsWith("#"))
-   try ConfigMap("failed" -> parseURL(failedTestsURL, parse, Set))
-   catch case _: IOException => ConfigMap.empty
+   ConfigMap("failed" -> readAll(Set)(failedTestsFile, parse, silent = true))
 
-private val failedTestsURL = URI.create("file:failed_tests.txt").toURL
+private val failedTestsFile = "failed_tests.txt"

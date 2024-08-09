@@ -13,7 +13,7 @@ import scala.jdk.CollectionConverters.*
   * factory is still being used to create more threads.
   *
   * @see
-  *   [[MarkedThreadsFactory]]
+  *   [[MarkedThreadFactory]]
   *
   * @since 1.0
   */

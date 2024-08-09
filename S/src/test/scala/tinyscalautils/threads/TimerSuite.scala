@@ -2,11 +2,12 @@ package tinyscalautils.threads
 
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
-import tinyscalautils.timing.{sleep, timeOf, zipWithDuration}
+import tinyscalautils.timing.{ sleep, timeIt, timeOf, zipWithDuration }
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
 import scala.concurrent.Future
+import scala.util.Using
 
 class TimerSuite extends AnyFunSuite with Tolerance:
    test("schedule"):
@@ -42,3 +43,20 @@ class TimerSuite extends AnyFunSuite with Tolerance:
       timer.shutdown()
       assert(timeOf(latch.await()) === 1.0 +- 0.1)
       assert(repeats.get == 4)
+
+   test("shutdown"):
+      val (thread, time) = timeIt:
+         withUnlimitedThreadsAndWait():
+            val timer = Executors.newTimer(1)
+            val f     = timer.schedule(1.5)(Thread.currentThread)
+            timer.shutdown()
+            f
+      assert(time === 1.5 +- 0.1)
+      assert(thread.joined(1.0))
+
+   test("close"):
+      val (thread, time) = timeIt:
+         withUnlimitedThreadsAndWait():
+            Using.resource(Executors.newTimer(1))(_.schedule(1.5)(Thread.currentThread))
+      assert(time === 1.5 +- 0.1)
+      assert(thread.joined(1.0))

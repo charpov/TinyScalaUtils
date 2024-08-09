@@ -8,7 +8,7 @@ import scala.util.matching.Regex
 /** A tag to fail a test. This makes it easier to manually fail tests in grading runs.
   *
   * @see
-  *   [[tinyscalautils.test.grading.GradingRun]]
+  *   [[tinyscalautils.test.grading.Grading]]
   *
   * @since 1.1
   */

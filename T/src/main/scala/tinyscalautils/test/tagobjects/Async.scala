@@ -19,7 +19,7 @@ import org.scalatest.Tag
   *   [[tinyscalautils.threads.runAsync]]
   *
   * @see
-  *   [[tinyscalautils.test.grading.GradingRun]]
+  *   [[tinyscalautils.test.grading.Grading]]
   *
   * @since 1.1
   */

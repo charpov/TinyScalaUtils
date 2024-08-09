@@ -25,7 +25,7 @@ import java.nio.charset.Charset
   * }}}
   *
   * @see
-  *   [[System.setOut]]
+  *   [[java.lang.System.setOut]]
   * @see
   *   [[Console.withOut]]
   *

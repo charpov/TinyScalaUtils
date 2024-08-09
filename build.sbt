@@ -1,8 +1,8 @@
 val jcip      = "net.jcip"          % "jcip-annotations" % "1.0"
-val ScalaTest = "org.scalatest"    %% "scalatest"        % "3.2.18"
-val JUnit     = "org.junit.jupiter" % "junit-jupiter"    % "5.10.2"
+val ScalaTest = "org.scalatest"    %% "scalatest"        % "3.2.19"
+val JUnit     = "org.junit.jupiter" % "junit-jupiter"    % "5.10.3"
 
-ThisBuild / version       := "1.2.1"
+ThisBuild / version       := "1.3.0"
 ThisBuild / scalaVersion  := "3.3.3"
 ThisBuild / versionScheme := Some("semver-spec")
 
@@ -36,10 +36,6 @@ ThisBuild / homepage        := Some(url("https://github.com/charpov/TinyScalaUti
 ThisBuild / apiURL          := Some(url("https://charpov.github.io/TinyScalaUtils/"))
 ThisBuild / releaseNotesURL := Some(url("https://github.com/charpov/TinyScalaUtils/releases"))
 
-val GithubPackagePublish =
-   "GitHub Package Registry" at "https://maven.pkg.github.com/charpov/TinyScalaUtils"
-//ThisBuild / credentials += Credentials(Path.userHome / ".sbt" / "github-credentials")
-
 ThisBuild / publishMavenStyle := true
 ThisBuild / publishTo := Some(MavenCache("local-maven", baseDirectory.value / "docs" / "maven-add"))
 
@@ -53,19 +49,15 @@ ThisBuild / scalacOptions := Seq(
   "-source:future", // source version.
   "-language:noAutoTupling", // no auto-tupling
   "-Wunused:all",            // unused stuff
+  "-java-output-version:11", // Target Java 11, which is needed anyway
 )
 
 val docOptions = Compile / doc / scalacOptions := Seq(
-  "-project",
-  "TinyScalaUtils",
-  "-project-version",
-  version.value,
-  "-project-footer",
-  "Copyright Michel Charpentier, 2023",
-  "-siteroot",
-  "./site",
-  "-doc-root-content",
-  "./api.md",
+  "-project:TinyScalaUtils",
+  s"-project-version:${version.value}",
+  "-project-footer:Copyright Michel Charpentier, 2024",
+  "-siteroot:./site",
+  "-doc-root-content:./api.md",
   "-author",
   "-groups",
   "-external-mappings:.*scala.*::scaladoc3::https://scala-lang.org/api/3.x/," +
@@ -99,7 +91,7 @@ lazy val J = project
    .settings(
      name := "tiny-scala-utils-java",
      Compile / compile / javacOptions ++= Seq("-deprecation", "-Xlint"),
-     Compile / doc / javacOptions += "--ignore-source-errors",
+     Compile / doc / javacOptions ++= Seq("--ignore-source-errors", "-Xdoclint:none"),
      Compile / doc / sources ~= (files => files.filterNot(_.getName.endsWith(".scala"))),
      libraryDependencies ++= Seq(JUnit % Test),
    )

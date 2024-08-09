@@ -12,19 +12,32 @@ extension (exec: ExecutorService)
      *
      * @param seconds
      *   timeout, in seconds.
+     *
      * @param force
      *   if true, `shutdownNow` is invoked after a timeout.
+     *
      * @return
      *   true if the executor terminates before the timeout.
+     *
      * @since 1.0
      */
    @throws[InterruptedException]
-   def shutdownAndWait(seconds: Double = Double.PositiveInfinity, force: Boolean = false): Boolean =
+   def shutdownAndWait(seconds: Double, force: Boolean = false): Boolean =
       exec.shutdown()
       exec.awaitTermination(seconds.toNanos, NANOSECONDS) || {
          if force then exec.shutdownNow()
          false
       }
+
+   /** Shuts down the executor and waits forever for termination.
+     *
+     * @return
+     *   true.
+     *
+     * @since 1.0
+     */
+   @throws[InterruptedException]
+   def shutdownAndWait(): Boolean = shutdownAndWait(Double.PositiveInfinity)
 
    /** Floating seconds version of `awaitTermination`.
      *
@@ -88,13 +101,16 @@ extension (thread: Thread)
 
 extension [A](queue: BlockingQueue[A])
    /** Like `offer` but timeout in seconds.
-    *
-    * @since 1.2
-    */
-   def offer(value: A, seconds: Double): Boolean = queue.offer(value, seconds.toNanos, NANOSECONDS)
-
-   /** Like `poll` but timeout in seconds and `null` wrapped in an option.
      *
      * @since 1.2
      */
+   def offer(value: A, seconds: Double): Boolean = queue.offer(value, seconds.toNanos, NANOSECONDS)
+
+   @deprecated("use Option instead", since = "1.3")
    def pollOption(seconds: Double): Option[A] = Option(queue.poll(seconds.toNanos, NANOSECONDS))
+
+   /** Like `poll` but timeout in seconds.
+     *
+     * @since 1.3
+     */
+   def poll(seconds: Double): A = queue.poll(seconds.toNanos, NANOSECONDS)

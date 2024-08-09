@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger
   * @since 1.0
   */
 class MarkedThreadFactory extends ThreadFactory:
-
    private val IDS = AtomicInteger()
 
    /** Creates a new thread. The thread has type `MarkedThread` and is not started.

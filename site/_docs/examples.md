@@ -162,18 +162,15 @@ import tinyscalautils.collection.LinkedList.factory
 val list = JavaList.of("X", "Y") // a mutable linked list
 ```
 
-### `pollOption` / `peekOption`
+### `sortedInReverse`
 
-Like `poll` / `peek` but wrapping `null` in an option.
+Like `sorted`, but in reverse:
 
 ```scala
-import tinyscalautils.collection.{ pollOption, peekOption }
+import tinyscalautils.collection.sortedInReverse
 
-val q = util.ArrayDeque[String]()
-q.offer("X")
-q.peekOption   // Some("X")
-q.pollOption() // Some("X")
-q.pollOption() // None
+val seq = ...       // a sequence
+seq.sortedInReverse // same sequence as seq.sorted.reverse, but more efficient
 ```
 
 ## Package `assertions`
@@ -220,7 +217,6 @@ import tinyscalautils.assertions.implies
 require(s.indices.contains(i) implies s(i) > 0)
 ```
 The evaluation is short-circuited: RHS is evaluated only if LHS is true.
-Operator also available under the symbolic name `==>`.
 
 ### `in`
 
@@ -446,6 +442,7 @@ val future = DelayedFuture(1.5):
 ```
 
 Note that timers need to be explicitly shut down for their threads to terminate.
+Timers implement the `AutoCloseable` interface.
 
 ### `zipWithDuration`
 
@@ -472,13 +469,13 @@ def i = Iterator.range(0, 1000)
 val sum = i.sum // 499500
 val sum = i.slow(10.0).sum // 499500, but in about 10 seconds
 
-// first 10 elements delayed by about 1 second, then fast:
+// first 10 elements delayed by about 1 second each, then fast:
 i.slow(10.0, delayedElements = 10)
 
-// first 100 elements delayed by about 0.1 second, then fast
+// first 100 elements delayed by about 0.1 second each, then fast
 i.slow(10.0, delayedElements = 100)
 
-// all elements delayed by about 0.001 second, then 9-second delay to finish
+// all elements delayed by about 0.001 second each, then 9-second delay to finish
 i.slow(10.0, delayedElements = 10_000)
 ```
 
@@ -696,7 +693,7 @@ if exec.shutdownAndWait(5.0, force = true)
    then // shutdown was invoked, and pool terminated within 5 seconds
    else // shutdown was invoked, then after 5 seconds, shutdownNow was invoked
    
-exec.shutdownAndWait() // invokes shutdown and waits indefinitely; force flag is ignored   
+exec.shutdownAndWait() // invokes shutdown and waits indefinitely; returns true
 ```
 
 ### `await`
@@ -738,18 +735,18 @@ val sem: Semaphore = ...
 sem.acquire(1, seconds = 3.0)
 ```
 
-### `offer` / `pollOption`
+### `offer` / `poll`
 
-Adds variant of `offer` and `poll` on blocking queues that specifies their timeout in seconds and wrap `null` in an option:
+Adds variant of `offer` and `poll` on blocking queues that specifies their timeout in seconds:
 
 ```scala
-import tinyscalautils.threads.{ offer, pollOption }
+import tinyscalautils.threads.{ offer, poll }
 
 val q = ArrayBlockingQueue[String](1)
 q.offer("X", seconds = 1.0) // true, immediately
 q.offer("X", seconds = 1.0) // false, after 1 second
-q.pollOption(seconds = 1.0) // Some("X"), immediately
-q.pollOption(seconds = 1.0) // None, after 1 second
+q.poll(seconds = 1.0)       // "X", immediately
+q.poll(seconds = 1.0)       // null, after 1 second
 ```
 
 ### `joined`
@@ -786,8 +783,7 @@ Easy setup of execution contexts, mostly for testing:
 import tinyscalautils.threads.withThreadsAndWait
 
 val result = withThreadsAndWait(4):
-   Future:
-      42
+   Future(42)
 ```
 
 This creates a 4-thread pool, runs the future on it, waits for the future to finish, shuts down the thread pool, and sets `result` to 42.
@@ -806,8 +802,7 @@ import tinyscalautils.threads.withThreadPoolAndWait
 
 val exec = Executors.newUnlimitedThreadPool()
 val result = withThreadPoolAndWait(exec):
-   Future:
-      42
+   Future(42)
 ```
 
 This runs the future on the thread pool and waits for the future to finish before setting `result` to 42.
@@ -862,28 +857,72 @@ val paths: Set[Path] = readPaths(Set)(dir)
 *DO NOT* use a stream for the collection.
 Since the directory is closed before this function finishes, lazily evaluated collections won't work.
 
-### `listLines`
+### `read/readAll`
 
-The contents of a UTF8 text file, as a list:
-
-```scala
-import tinyscalautils.io.listLines
-
-for line: String <- listLines(file) do ...
-```
-
-If a list type is not suitable, use `readLines` instead:
+The contents of a UTF8 text file, as a collection of line elements:
 
 ```scala
-import tinyscalautils.io.readLines
+import tinyscalautils.io.{ readAll, given }
 
-val lines: IndexedSeq[String] = readLines(IndexedSeq)(file)
+def parse(line: String): Option[Int] = ...
+
+readAll(IndexedSeq)(file, parse)     // an IndexedSeq[Int]
+readAll(IndexedSeq)(file)            // all non-blank lines
+readAll(IndexedSeq)(file, noParsing) // all lines
 ```
+
+If no factory is specified, it defaults to `List`, e.g.:
+
+```scala
+readAll(file, parse)     // a List[Int]
+readAll(file)            // a List[String]
+readAll(file, noParsing) // a List[String]
+```
+
+`read` does no parsing and returns the entire file contents as a single string.
+
+The argument `file` must belong to the `Input` type class, which is predefined to contain `InputStream`, `URL`, `Path`, `File` and `String` (as a filename).
 
 *DO NOT* use a stream for the collection.
-Since the file is closed before this function finishes, lazily evaluated collections won't work.
+Since the source is closed before this function finishes, lazily evaluated collections won't work.
 
-### `findResource`
+### `readingAll`
+
+This is a variant of `readAll` that returns values as a closeable iterator:
+
+```scala
+import tinyscalautils.io.{ readingAll, given }
+
+def parse(line: String): Option[Int] = ...
+
+Using.resource(readingAll(file, parse)): i =>
+   // i has type Iterator[Int]
+// file input closed here
+```
+`readingAll` does not support a silent mode.
+
+### `write/writeAll`
+
+Write data to a UTF8 text file:
+
+```scala
+   import tinyscalautils.io.{ write, writeAll, given }
+   
+   val list = List(1, 2, 3)
+
+   write(file)(list)                                      // file contains "List(1, 2, 3)"
+   write(file, newline = true)(list)                      // file contains "List(1, 2, 3)\n"
+   writeAll(file)(list)                                   // file contains "1\n2\n3\n"
+   writeAll(sep = ",")(file)(list)                        // file contains "1,2,3"
+   writeAll(pre = "[", sep = ",", post = "]")(file)(list) // file contains "[1,2,3]"
+   writeAll()(file)(list)                                 // file contains "123"
+```
+Note that the simplified `writeAll` variant includes a final newline after the last value.
+
+The argument `file` must belong to the `Output` type class, which is predefined to contain `OutputStream`, `Path`, `File` and `String` (as a filename).
+
+
+### `findResource/findResourceAsStream`
 
 ```scala
 import tinyscalautils.io.findResource
@@ -894,19 +933,13 @@ val url = this.findResource(name)
 This is equivalent to `getClass.getResource(name)`, except that it throws an exception for missing resources (instead of returning `null`).
 In particular, a leading slash in the resource name makes it an absolute path, instead of being associated with the package name by default.
 
-### `parseURL`
-
 ```scala
-def parse(line: String): Option[Int] = ...
-val list: List[Int] = parseURL(url, parse)
+val url = this.findResource(fallback)(name)
 ```
 
-If a list type is not suitable, specify a factory:
+This variant uses a fallback URI instead of failing with `MissingResourceException`.
 
-```scala
-val seq: IndexedSeq[Int] = parseURL(url, parse, IndexedSeq)
-```
-
+The `findResourceAsStream` variants work in the same way but looks for a GZIP compressed variant of a resource before giving up. 
 
 ## Package `util`
 
@@ -969,3 +1002,17 @@ average(nums, 3) // 0
 ```
 
 The function works on any `Fractional` type, including `Double`.
+
+### `dot/star`
+
+An identity function that prints a single dot (or star):
+
+```scala
+import tinyscalautils.util.dot
+
+val x = dot(y)  // x eq y and a dot was printed
+val x = star(y) // x eq y and a star was printed
+```
+
+Importing `tinyscalautils.text.silentMode` stops the dot/star from being printed.
+Printing modes other than `silent` and `standard` cannot be used.

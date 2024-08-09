@@ -3,12 +3,15 @@ package tinyscalautils.test.text
 import org.scalactic.{ Prettifier, PrettyPair }
 import tinyscalautils.text.short
 
+import scala.compiletime.asMatchable
+
 /** A truncating prettifier. It can be used to guarantee that failed tests do not produce humongous
   * outputs.
   *
   * @constructor
   * @param prettifier
   *   the underlying prettifier.
+  *
   * @param limit
   *   the maximum length of individual strings; must be at least 3.
   */
@@ -23,8 +26,15 @@ class TruncatingPrettifier(prettifier: Prettifier, limit: Int) extends Prettifie
      *   TruncatingPrettifier(256): o =>
      *      ...
      * }}}
+     * or
+     * {{{
+     *   TruncatingPrettifier(256):
+     *      case ... => ...
+     *      case ... => ...
+     * }}}
      */
-   def this(limit: Int)(using DummyImplicit)(prettifier: Prettifier) = this(prettifier, limit)
+   def this(limit: Int)(prettifier: Matchable => String) =
+      this(o => prettifier(o.asMatchable), limit)
 
    private def s(str: String) = str.short(limit)
 

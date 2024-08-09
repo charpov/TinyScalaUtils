@@ -11,7 +11,7 @@ import scala.util.Try
   *
   * @since 1.0
   */
-trait Timer:
+trait Timer extends AutoCloseable:
    /** Schedules a task for delayed execution. */
    def schedule[A](delay: Double)(code: => A): Future[A]
 
@@ -35,6 +35,12 @@ trait Timer:
      * Delayed tasks will still run, but repeated tasks are stopped.
      */
    def shutdown(): Unit
+
+   /** Alias for `shutdown` to implement `AutoCloseable`.
+     *
+     * @since 1.3
+     */
+   final def close(): Unit = shutdown()
 end Timer
 
 private class TimerPool(size: Int, tf: ThreadFactory, rej: RejectedExecutionHandler)

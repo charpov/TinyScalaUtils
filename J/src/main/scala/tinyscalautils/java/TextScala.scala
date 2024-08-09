@@ -18,3 +18,10 @@ private final class TextScala:
 
    def timeString(seconds: Double, unitsCount: Int): String =
       tinyscalautils.text.timeString(seconds, unitsCount)
+
+   def standardMode       = tinyscalautils.text.standardMode
+   def timeMode           = tinyscalautils.text.timeMode
+   def timeDemoMode       = tinyscalautils.text.timeDemoMode
+   def threadMode         = tinyscalautils.text.threadMode
+   def threadTimeMode     = tinyscalautils.text.threadTimeMode
+   def threadTimeDemoMode = tinyscalautils.text.threadTimeDemoMode

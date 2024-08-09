@@ -45,61 +45,45 @@ private def thread =
    val name      = theThread.getName
    if name.nonEmpty then name else "anonymous thread " + theThread.getId
 
-// These objects are needed for interfacing with Java
-
-private object StandardMode extends PrintingMode:
-   def print(arg: Any, newline: Boolean) =
+/** Standard printing. Equivalent to `Predef.printf/println`. */
+given standardMode: PrintingMode with
+   def print(arg: Any, newline: Boolean): Unit =
       if newline then Predef.println(arg) else Predef.print(arg)
 
-private object SilentMode extends PrintingMode:
-   def print(arg: Any, newline: Boolean) = ()
+/** Silent. Does not print anything. No call to `Predef.printf/println` takes place. */
+given silentMode: PrintingMode with
+   def print(arg: Any, newline: Boolean): Unit = ()
 
-private object ThreadMode extends PrintingMode:
-   def print(arg: Any, newline: Boolean) =
+/** Adds thread name. Strings are printed as: `<thread>: <string>`. */
+given threadMode: PrintingMode with
+   def print(arg: Any, newline: Boolean): Unit =
       val format = if newline then "%s: %s%n" else "%s: %s"
       Predef.printf(format, thread, arg)
 
-private object TimeMode extends PrintingMode:
-   def print(arg: Any, newline: Boolean) =
+/** Adds time. Strings are printed as: `at HH:MM:SS.millis: <string>` */
+given timeMode: PrintingMode with
+   def print(arg: Any, newline: Boolean): Unit =
       val format = if newline then "at %1$TT.%1$TL: %2$s%n" else "at %1$TT.%1$TL: %2$s"
       Predef.printf(format, now(), arg)
 
-private object TimeDemoMode extends PrintingMode:
-   def print(arg: Any, newline: Boolean) =
+/** Adds time, but hides hours and minutes. Strings are printed as: `at XX:XX:SS.millis: <string>`
+  */
+given timeDemoMode: PrintingMode with
+   def print(arg: Any, newline: Boolean): Unit =
       val format = if newline then "at XX:XX:%1$TS.%1$TL: %2$s%n" else "at XX:XX:%1$TS.%1$TL: %2$s"
       Predef.printf(format, now(), arg)
 
-private object ThreadTimeMode extends PrintingMode:
-   def print(arg: Any, newline: Boolean) =
+/** Adds thread name and time. Strings are printed as: `<thread> at HH:MM:SS.millis: <string>` */
+given threadTimeMode: PrintingMode with
+   def print(arg: Any, newline: Boolean): Unit =
       val format = if newline then "%1$s at %2$TT.%2$TL: %3$s%n" else "%1$s at %2$TT.%2$TL: %3$s"
       Predef.printf(format, thread, now(), arg)
-
-private object ThreadTimeDemoMode extends PrintingMode:
-   def print(arg: Any, newline: Boolean) =
-      val format =
-         if newline then "%1$s at XX:XX:%2$TS.%2$TL: %3$s%n" else "%1$s at XX:XX:%2$TS.%2$TL: %3$s"
-      Predef.printf(format, thread, now(), arg)
-
-/** Standard printing. Equivalent to `Predef.printf/println`. */
-given standardMode: PrintingMode = StandardMode
-
-/** Silent. Does not print anything. No call to `Predef.printf/println` takes place. */
-given silentMode: PrintingMode = SilentMode
-
-/** Adds thread name. Strings are printed as: `<thread>: <string>`. */
-given threadMode: PrintingMode = ThreadMode
-
-/** Adds time. Strings are printed as: `at HH:MM:SS.millis: <string>` */
-given timeMode: PrintingMode = TimeMode
-
-/** Adds time, but hides hours and minutes. Strings are printed as: `at XX:XX:SS.millis: <string>`
-  */
-given timeDemoMode: PrintingMode = TimeDemoMode
-
-/** Adds thread name and time. Strings are printed as: `<thread> at HH:MM:SS.millis: <string>` */
-given threadTimeMode: PrintingMode = ThreadTimeMode
 
 /** Adds thread name and time, but hides hours and minutes. Strings are printed as: `<thread> at
   * XX:XX:SS.millis: <string>`
   */
-given threadTimeDemoMode: PrintingMode = ThreadTimeDemoMode
+given threadTimeDemoMode: PrintingMode with
+   def print(arg: Any, newline: Boolean): Unit =
+      val format =
+         if newline then "%1$s at XX:XX:%2$TS.%2$TL: %3$s%n" else "%1$s at XX:XX:%2$TS.%2$TL: %3$s"
+      Predef.printf(format, thread, now(), arg)

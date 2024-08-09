@@ -8,7 +8,7 @@ import tinyscalautils.timing.*
 import scala.compiletime.asMatchable
 import scala.io.Source
 
-@org.scalatest.Ignore
+// @org.scalatest.Ignore
 // Note: This suite takes 50 minutes and 40 seconds to run.
 class SlowSuite extends AnyFunSuite with Tolerance:
    private given Equality[Double] with
