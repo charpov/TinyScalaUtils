@@ -1,14 +1,12 @@
 package tinyscalautils.java;
 
-import net.jcip.annotations.Immutable;
-
 /** A dedicated pair type that represents a value and the time it took to compute it.
+ * Timing pairs are immutable.
  * 
  * @see Timing#timeIt
  * 
  * @since 1.0
  */
-@Immutable
 public class TimingPair<A> {
   /** The value part of the pair. */
   public final A value;

@@ -162,6 +162,25 @@ import tinyscalautils.collection.LinkedList.factory
 val list = JavaList.of("X", "Y") // a mutable linked list
 ```
 
+### `JavaSet`
+
+Like `Set.of` but with mutable sets:
+
+```scala
+import tinyscalautils.collection.JavaSet
+
+val set = JavaSet.of("X", "Y") // a mutable set
+```
+
+Sets are `HashSet` by default, but `TreeSet` can be used as well:
+
+```scala
+import tinyscalautils.collection.JavaSet
+import tinyscalautils.collection.TreeSet.factory
+
+val set = JavaSet.of("X", "Y") // a mutable tree set
+```
+
 ### `sortedInReverse`
 
 Like `sorted`, but in reverse:
@@ -974,6 +993,13 @@ rand.nextInt(0 until 100)
 ```
 
 This looks nicer than `(1 to 10).pickone(using rand)` and `(0 until 100).pickone(using rand)`. 
+
+### `interruptible`
+
+Makes all the methods of `Random` interruptible, i.e.,
+`rand.interruptible.nextInt()` is the same as `interruptibly(rand.nextInt())`.
+
+Note that `rand.interruptible.self` does *not* check for interrupts.
 
 ### `log2`
 

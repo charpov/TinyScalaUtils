@@ -1,7 +1,5 @@
 package tinyscalautils.threads
 
-import net.jcip.annotations.ThreadSafe
-
 import java.util.concurrent.{ ConcurrentLinkedQueue, Executors, ThreadFactory }
 import scala.jdk.CollectionConverters.*
 
@@ -17,8 +15,7 @@ import scala.jdk.CollectionConverters.*
   *
   * @since 1.0
   */
-@ThreadSafe
-class KeepThreadsFactory private (tf: ThreadFactory) extends ThreadFactory:
+final class KeepThreadsFactory private (tf: ThreadFactory) extends ThreadFactory:
    private val threads = ConcurrentLinkedQueue[Thread]()
 
    def newThread(r: Runnable): Thread =

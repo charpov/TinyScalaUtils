@@ -1,6 +1,7 @@
-package tinyscalautils.collection
+package tinyscalautils
 
 import org.scalatest.funsuite.AnyFunSuite
+import tinyscalautils.collection.{JavaList, LinkedList}
 
 import java.util
 

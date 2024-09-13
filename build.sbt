@@ -1,8 +1,7 @@
-val jcip      = "net.jcip"          % "jcip-annotations" % "1.0"
-val ScalaTest = "org.scalatest"    %% "scalatest"        % "3.2.19"
-val JUnit     = "org.junit.jupiter" % "junit-jupiter"    % "5.10.3"
+val ScalaTest = "org.scalatest"    %% "scalatest-funsuite" % "3.2.19"
+val JUnit     = "org.junit.jupiter" % "junit-jupiter"      % "5.11.0"
 
-ThisBuild / version       := "1.3.0"
+ThisBuild / version       := "1.4.0"
 ThisBuild / scalaVersion  := "3.3.3"
 ThisBuild / versionScheme := Some("semver-spec")
 
@@ -30,7 +29,7 @@ ThisBuild / developers := List(
   )
 )
 
-ThisBuild / description := "A tiny, no (real) dependencies, Scala library, mostly used for teaching."
+ThisBuild / description     := "A tiny, no dependencies, Scala library, mostly used for teaching."
 ThisBuild / licenses        := Seq(License.Apache2)
 ThisBuild / homepage        := Some(url("https://github.com/charpov/TinyScalaUtils"))
 ThisBuild / apiURL          := Some(url("https://charpov.github.io/TinyScalaUtils/"))
@@ -76,7 +75,7 @@ lazy val S = project
      name := "tiny-scala-utils",
      docOptions,
      Compile / doc / target := file("docs"),
-     libraryDependencies ++= Seq(jcip, ScalaTest % Test),
+     libraryDependencies ++= Seq(ScalaTest % Test),
    )
 
 lazy val T = project

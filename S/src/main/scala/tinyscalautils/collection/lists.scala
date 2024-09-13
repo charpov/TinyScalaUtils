@@ -34,8 +34,9 @@ object JavaList:
    def of[A, C[t] <: util.List[t]](values: A*)(using factory: JavaListFactory[C]): C[A] =
       factory.from(values)
 
-/** Lists are `ArrayList` by default.
-  *
-  * @since 1.2
-  */
-given JavaListFactory[util.ArrayList] = ArrayList.factory
+object JavaListFactory:
+   /** Lists are `ArrayList` by default.
+     *
+     * @since 1.2
+     */
+   given JavaListFactory[util.ArrayList] = ArrayList.factory

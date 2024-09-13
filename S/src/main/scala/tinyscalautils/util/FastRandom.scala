@@ -1,6 +1,6 @@
 package tinyscalautils.util
 
-import net.jcip.annotations.ThreadSafe
+import tinyscalautils.control.interruptibly
 
 import java.util as ju
 import java.util.SplittableRandom
@@ -24,9 +24,7 @@ import scala.compiletime.uninitialized
   * `java.util.Random`.
   */
 class FastRandom private (rand: ju.Random) extends Random(rand):
-
    def this(seed: Long) = this(SplittableRandomAdapter(seed))
-
    def this(seed: Int) = this(seed.toLong)
 end FastRandom
 
@@ -38,17 +36,16 @@ end FastRandom
   * Note that this generator cannot be re-seeded (the `setSeed` method throws
   * `UnsupportedOperationException`).
   */
-@ThreadSafe
-object FastRandom extends FastRandom(ThreadLocalRandomAdapter)
+object FastRandom extends FastRandom(ThreadLocalRandomAdapter):
+   assert(java.lang.Double.parseDouble("0x1.0p-24f").doubleValue == 5.9604644775390625E-8f)
 
 /* It'd be nice to merge the two adapter classes into one (their methods are identical),
  * but the type for `rand` would have to be `RandomGenerator`, which does not exist in Java 11.
  */
 
 // wrapper on a SplittableRandom, which can be seeded
-private class SplittableRandomAdapter(seed: Long) extends ju.Random(seed):
-
-   private var rand: SplittableRandom = rand // set in super constructor, via setSeed
+private final class SplittableRandomAdapter(seed: Long) extends ju.Random(seed):
+   private var rand: SplittableRandom = uninitialized // set in super constructor, via setSeed
 
    // Random is extended for typing reasons, but the implementation should never be used.
    override def next(bits: Int): Int = throw AssertionError("never called")
@@ -131,8 +128,9 @@ private class SplittableRandomAdapter(seed: Long) extends ju.Random(seed):
 
    override def doubles(randomNumberOrigin: Double, randomNumberBound: Double): DoubleStream =
       rand.doubles(randomNumberOrigin, randomNumberBound)
+end SplittableRandomAdapter
 
-/* wrapper that on ThreadLocalRandom.current, so each thread has its own */
+/* wrapper on ThreadLocalRandom.current, so each thread has its own */
 private object ThreadLocalRandomAdapter extends ju.Random(0L):
 
    private def rand: ju.Random = ThreadLocalRandom.current
@@ -200,3 +198,27 @@ private object ThreadLocalRandomAdapter extends ju.Random(0L):
 
    override def doubles(randomNumberOrigin: Double, randomNumberBound: Double): DoubleStream =
       rand.doubles(randomNumberOrigin, randomNumberBound)
+end ThreadLocalRandomAdapter
+
+private final class InterruptibleRandom(rand: Random) extends Random(rand.self):
+   override def nextBoolean(): Boolean              = interruptibly(rand.nextBoolean())
+   override def nextBytes(bytes: Array[Byte]): Unit = interruptibly(rand.nextBytes(bytes))
+   override def nextBytes(n: Int): Array[Byte]      = interruptibly(rand.nextBytes(n))
+   override def nextDouble(): Double                = interruptibly(rand.nextDouble())
+   override def nextFloat(): Float                  = interruptibly(rand.nextFloat())
+   override def nextGaussian(): Double              = interruptibly(rand.nextGaussian())
+   override def nextInt(): Int                      = interruptibly(rand.nextInt())
+   override def nextInt(n: Int): Int                = interruptibly(rand.nextInt(n))
+   override def nextLong(): Long                    = interruptibly(rand.nextLong())
+   // nextPrintableChar is overridden because it uses self.nextInt instead of nextInt
+   override def nextPrintableChar(): Char = interruptibly(rand.nextPrintableChar())
+   override def setSeed(seed: Long): Unit = interruptibly(rand.setSeed(seed))
+   // alphanumeric is overridden because it uses self.nextInt instead of nextInt
+   override def alphanumeric: LazyList[Char] = interruptibly(rand.alphanumeric)
+end InterruptibleRandom
+
+extension (rand: Random)
+   /** A wrapper that calls all the `Random` methods interruptibly. The new generator is as
+     * thread-safe as the original.
+     */
+   def interruptible: Random = InterruptibleRandom(rand)

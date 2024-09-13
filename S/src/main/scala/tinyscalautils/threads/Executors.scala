@@ -1,6 +1,5 @@
 package tinyscalautils.threads
 
-import net.jcip.annotations.Immutable
 import tinyscalautils.assertions.require
 import tinyscalautils.timing.toNanos
 
@@ -19,7 +18,7 @@ import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService }
   * `ExecutionContextExecutorService`, which makes them suitable for use with Java or Scala
   * constructs.
   *
-  * Instances of this class are created through the companion object, e.g.:
+  * Instances of this class are immutable. They are created through the companion object, e.g.:
   *
   * {{{
   * val f1 = Executors.silent
@@ -28,7 +27,6 @@ import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService }
   *
   * @since 1.0
   */
-@Immutable
 class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutionHandler]):
    /** Creates a new execution context as a fixed thread pool.
      *
@@ -153,7 +151,7 @@ object Executors extends Executors(None, None):
      *
      * @since 1.0
      */
-   given global: ExecutionContextExecutorService = ExecutionContext.fromExecutorService {
+   given global: ExecutionContextExecutorService = ExecutionContext.fromExecutorService:
       new ThreadPoolExecutor(
         0,
         Integer.MAX_VALUE,
@@ -168,7 +166,6 @@ object Executors extends Executors(None, None):
          override def shutdownNow(): util.List[Runnable] =
             try super.shutdownNow()
             finally Logger.getLogger("tinyscalautils").warning("global thread pool shut down (now)")
-   }
 
 extension (exec: Executor | ExecutionContext)
    /** Allows a by-name argument to replace an explicit `Runnable`.
