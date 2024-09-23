@@ -1042,3 +1042,19 @@ val x = star(y) // x eq y and a star was printed
 
 Importing `tinyscalautils.text.silentMode` stops the dot/star from being printed.
 Printing modes other than `silent` and `standard` cannot be used.
+
+### `isZero`
+
+A zero test on numeric types:
+
+```scala
+import tinyscalautils.util.isZero
+
+val n: Long = 0
+n.isZero && !(n + 1).isZero // true
+
+val n: BigDecimal = 0
+n.isZero && !(n + 1).isZero // true
+```
+
+The intent is to be more efficient (maybe) than `n == 0` on some types.
