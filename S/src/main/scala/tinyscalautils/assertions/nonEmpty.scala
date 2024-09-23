@@ -1,8 +1,5 @@
 package tinyscalautils.assertions
 
 extension [A](col: java.util.Collection[A])
-   /** Adds a `nonEmpty` method on Java collections.
-     *
-     * @since 1.2
-     */
+   @deprecated("use collections.nonEmpty instead", since = "1.5.0")
    inline def nonEmpty: Boolean = !col.isEmpty

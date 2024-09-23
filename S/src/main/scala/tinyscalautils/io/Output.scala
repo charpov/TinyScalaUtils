@@ -33,6 +33,9 @@ given FileIsOutput: Output[File]                 = _.toPath.destination
   *   Uses `CharSequence` instead of `Any` to avoid accidental calls to `write` that were intended
   *   to be `writeAll`.
   *
+  * @note
+  *   If the destination is closable, this function closes it.
+  *
   * @param out
   *   the destination to write to.
   *
@@ -46,6 +49,9 @@ def write[O: Output](out: O, newline: Boolean = false)(str: CharSequence): Unit 
 
 /** Writes the string representations of a collection of values into a destination. The three
   * arguments `pre`, `sep`, and `post` are as in `mkString`. Encoding is UTF8.
+  *
+  * @note
+  *   If the destination is closable, this function closes it.
   *
   * @param out
   *   the destination to write to.
@@ -65,6 +71,9 @@ def writeAll[A, O: Output](pre: String = "", sep: String = "", post: String = ""
 
 /** Writes the string representations of a collection of values into a destination. Each value is
   * followed by a newline, including the last.
+  *
+  * @note
+  *   If the destination is closable, this function closes it.
   *
   * @param out
   *   the destination to write to.

@@ -1,8 +1,8 @@
 val ScalaTest = "org.scalatest"    %% "scalatest-funsuite" % "3.2.19"
-val JUnit     = "org.junit.jupiter" % "junit-jupiter"      % "5.11.0"
+val JUnit     = "org.junit.jupiter" % "junit-jupiter"      % "5.11.4"
 
-ThisBuild / version       := "1.4.0"
-ThisBuild / scalaVersion  := "3.3.3"
+ThisBuild / version       := "1.5.0"
+ThisBuild / scalaVersion  := "3.3.4"
 ThisBuild / versionScheme := Some("semver-spec")
 
 ThisBuild / Test / fork                 := true

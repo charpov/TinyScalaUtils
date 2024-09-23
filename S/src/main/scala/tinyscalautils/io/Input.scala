@@ -1,7 +1,7 @@
 package tinyscalautils.io
 
 import java.io.{ Closeable, File, IOException, InputStream }
-import java.net.URL
+import java.net.{ URI, URL }
 import java.nio.file.{ Files, Path }
 import scala.collection.{ AbstractIterator, IterableFactory }
 import scala.io.Codec.UTF8
@@ -10,8 +10,7 @@ import scala.util.Using
 
 private lazy val nonEmpty = (str: String) => Option.unless(str.isBlank)(str)
 
-/** Identity parsing. By using it as a `parser` argument of `readAll`, lines are returned
-  * unchanged.
+/** Identity parsing. By using it as a `parser` argument of `readAll`, lines are returned unchanged.
   */
 lazy val noParsing: String => IterableOnce[String] = _ :: Nil
 
@@ -35,11 +34,16 @@ given SourceIsInput: Input[Source]           = identity
 given InputStreamIsInput: Input[InputStream] = Source.fromInputStream(_)
 given FileIsInput: Input[File]               = Source.fromFile(_)
 given URLIsInput: Input[URL]                 = Source.fromURL(_)
+given URIIsInput: Input[URI]                 = Source.fromURI(_)
 given FileNameIsInput: Input[String]         = Source.fromFile(_)
 given PathIsInput: Input[Path]               = Files.newInputStream(_).source
+given URLStringIsInput: Input[String]        = Source.fromURL(_)
 
-/** Parses a text file (sequence of lines) using a given parser to split each line. Lines that parse
-  * to an empty sequence (such as `None`) are ignored. Encoding is UTF8.
+/** Parses a text source (sequence of lines) using a given parser to split each line. Lines that
+  * parse to an empty sequence (such as `None`) are ignored. Encoding is UTF8.
+  *
+  * @note
+  *   If the input is closable, this function closes it.
   *
   * @return
   *   a factory-based collection of all the parts of all the lines.
@@ -94,6 +98,9 @@ def readAll[I: Input](in: I): List[String] = readAll(List)(in, silent = false)
 
 /** Reads a text file as a single string. Encoding is UTF8.
   *
+  * @note
+  *   If the input is closable, this function closes it.
+  *
   * @param in
   *   the source to read.
   *
@@ -115,8 +122,11 @@ private class CloseableIterator[A](i: Iterator[A], closing: => Unit)
    def close(): Unit = closing
 end CloseableIterator
 
-/** Parses a text file (sequence of lines) using a given parser to split each line. Lines that parse
-  * to an empty sequence (such as `None`) are ignored. Encoding is UTF8.
+/** Parses a text source (sequence of lines) using a given parser to split each line. Lines that
+  * parse to an empty sequence (such as `None`) are ignored. Encoding is UTF8.
+  *
+  * @note
+  *   If the input is closable, this function closes it.
   *
   * @return
   *   an iterator of all the parts of all the lines; closing this iterator closes the underlying

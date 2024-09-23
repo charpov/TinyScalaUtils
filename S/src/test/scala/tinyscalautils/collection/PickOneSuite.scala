@@ -5,7 +5,6 @@ import tinyscalautils.timing.timeOf
 import tinyscalautils.util.FastRandom
 
 import scala.collection.mutable
-import tinyscalautils.assertions.in
 import tinyscalautils.lang.unit
 
 import scala.util.Random

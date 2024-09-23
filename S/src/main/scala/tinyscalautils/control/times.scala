@@ -16,7 +16,6 @@ extension (number: Int)
      *
      * @since 1.0
      */
-   @throws[IllegalArgumentException]("if the target number is negative")
    infix inline def times(inline code: Any): Unit =
       require(number >= 0, s"target number $number is negative")
       var i = number

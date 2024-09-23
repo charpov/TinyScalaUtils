@@ -9,13 +9,7 @@ import tinyscalautils.assertions.require
   */
 def log2(n: Int): Int =
    require(n > 0, "n must be positive")
-
-   var log = 0
-   var m   = n
-   while m > 1 do
-      log += 1
-      m = m >> 1
-   log
+   31 - Integer.numberOfLeadingZeros(n)
 
 /** The largest integer `m` such that `2^m <= n`.
   *
@@ -24,10 +18,4 @@ def log2(n: Int): Int =
   */
 def log2(n: Long): Int =
    require(n > 0L, "n must be positive")
-
-   var log = 0
-   var m   = n
-   while m > 1L do
-      log += 1
-      m = m >> 1
-   log
+   63 - java.lang.Long.numberOfLeadingZeros(n)

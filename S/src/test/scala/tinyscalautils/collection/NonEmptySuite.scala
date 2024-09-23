@@ -1,12 +1,10 @@
-package tinyscalautils.assertions
+package tinyscalautils.collection
 
 import org.scalatest.funsuite.AnyFunSuite
 
 class NonEmptySuite extends AnyFunSuite:
-
-   test("nonEmpty") {
+   test("nonEmpty"):
       val col = java.util.HashSet[Int]()
       assert(!col.nonEmpty)
       col.add(0)
       assert(col.nonEmpty)
-   }

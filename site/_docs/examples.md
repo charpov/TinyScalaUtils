@@ -74,7 +74,74 @@ while true do interruptibly:
 
 The infinite loops terminates with `InterruptedException` if the thread is interrupted.
 
+Functions or arity 1 and 2 can also be made interruptible.
+A similar loop can be written as:
+
+```scala
+def f(n: Int) = x += n
+val g = f.interruptibly
+
+while true do g(1)
+```
+
+Finally, higher-order functions can have their function argument be made interruptible:
+
+```scala
+col.map.interruptibly(f)
+```
+
+behaves like:
+
+```scala
+col.map(f.interruptibly)
+```
+
+This is only implemented for functions of arity 1 and 2, which covers the most common cases:
+
+```scala
+col.forall.interruptibly(f)
+col.foreach.interruptibly(f)
+col.fold(start).interruptibly(f)
+...
+```
+
+Note that:
+
+```scala
+for x <- col do interruptibly(f(x))
+```
+
+does not check for interrupts if `col` is empty, while:
+
+```scala
+col.foreach.interruptibly(f)
+```
+
+does.
+
+### `before`
+
+An SML-like operator that evaluates two arguments and returns the value of the first one:
+
+```scala
+import tinyscalautils.control.before
+
+var c = 0
+c before (c += 1) // returns 0, c is now 1
+```
+
+
 ## Package `collection`
+
+### `in`
+
+An infix operator that swaps the arguments of `contains`:
+
+```scala
+import tinyscalautils.collection.in
+
+value in (1 to 10) // same as (1 to 10) contains value
+```
 
 ### `circular`
 
@@ -192,6 +259,48 @@ val seq = ...       // a sequence
 seq.sortedInReverse // same sequence as seq.sorted.reverse, but more efficient
 ```
 
+### `last/lastOption`
+
+Adds `last/lastOption` to `IterableOnce`:
+
+```scala
+import tinyscalautils.collection.{ last, lastOption }
+
+Iterator(1, 2, 3).last // 3
+Iterator.empty.lastOption // None
+```
+
+### `updatedWith`
+
+Replaces a value in a sequence.
+The new value is computed from the old value, as an option.
+If the option if empty, the old value is removed:
+
+```scala
+import tinyscalautils.collection.{ deleted, updatedWith }
+
+val list = List(A, B, C)
+list.updatedWith(1)(c => Some(c.toInt))               // List(A, 66, C)
+list.updatedWith(1)(c => Option.when(c > Z)(c.toInt)) // List(A, C)
+```
+
+Removal can also be achieved using `deleted`:
+
+```scala
+list.deleted(1) // List(A, C)
+```
+
+### `nonEmpty`
+
+Brings `nonEmpty` to Java collections:
+
+```scala
+import tinyscalautils.collection.nonEmpty
+
+val col = java.util.HashSet[Int]()
+col.nonEmpty // false
+```
+
 ## Package `assertions`
 
 ### `require` / `requireState`
@@ -237,15 +346,6 @@ require(s.indices.contains(i) implies s(i) > 0)
 ```
 The evaluation is short-circuited: RHS is evaluated only if LHS is true.
 
-### `in`
-
-An infix operator that swaps the arguments of `contains`:
-
-```scala
-import tinyscalautils.assertions.in
-
-value in (1 to 10) // same as (1 to 10) contains value
-```
 
 ## Package `text`
 
@@ -881,7 +981,7 @@ Since the directory is closed before this function finishes, lazily evaluated co
 The contents of a UTF8 text file, as a collection of line elements:
 
 ```scala
-import tinyscalautils.io.{ readAll, given }
+import tinyscalautils.io.{ readAll, FileIsInput }
 
 def parse(line: String): Option[Int] = ...
 
@@ -900,7 +1000,7 @@ readAll(file, noParsing) // a List[String]
 
 `read` does no parsing and returns the entire file contents as a single string.
 
-The argument `file` must belong to the `Input` type class, which is predefined to contain `InputStream`, `URL`, `Path`, `File` and `String` (as a filename).
+The argument `file` must belong to the `Input` type class, which is predefined to contain `InputStream`, `URL`, `URI`, `Path`, `File` and `String` (as a filename or a URL).
 
 *DO NOT* use a stream for the collection.
 Since the source is closed before this function finishes, lazily evaluated collections won't work.
@@ -910,7 +1010,7 @@ Since the source is closed before this function finishes, lazily evaluated colle
 This is a variant of `readAll` that returns values as a closeable iterator:
 
 ```scala
-import tinyscalautils.io.{ readingAll, given }
+import tinyscalautils.io.{ readingAll, FileIsInput }
 
 def parse(line: String): Option[Int] = ...
 
@@ -925,7 +1025,7 @@ Using.resource(readingAll(file, parse)): i =>
 Write data to a UTF8 text file:
 
 ```scala
-   import tinyscalautils.io.{ write, writeAll, given }
+   import tinyscalautils.io.{ write, writeAll, FileIsOutput }
    
    val list = List(1, 2, 3)
 
@@ -1042,3 +1142,19 @@ val x = star(y) // x eq y and a star was printed
 
 Importing `tinyscalautils.text.silentMode` stops the dot/star from being printed.
 Printing modes other than `silent` and `standard` cannot be used.
+
+### `isZero`
+
+A zero test on numeric types:
+
+```scala
+import tinyscalautils.util.isZero
+
+val n: Long = 0
+n.isZero && !(n + 1).isZero // true
+
+val n: BigDecimal = 0
+n.isZero && !(n + 1).isZero // true
+```
+
+The intent is to be more efficient (maybe) than `n == 0` on some types.
