@@ -17,10 +17,3 @@ extension [Num: Numeric](n: Num)
       case bigInt: BigInt         => bigInt.signum == 0
       case bidDecimal: BigDecimal => bidDecimal.signum == 0
       case _                      => n.sign.toInt == 0
-
-object Test:
-   def main(args: Array[String]) =
-      val int: Int       = 0
-      val bigInt: BigInt = 0
-      // assert(int.isZero && !(int + 1).isZero)
-      assert(bigInt.isZero && !(bigInt + 1).isZero)
