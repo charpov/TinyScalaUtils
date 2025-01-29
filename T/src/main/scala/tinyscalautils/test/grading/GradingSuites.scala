@@ -10,10 +10,10 @@ open class GradingSuites private (
     override val nestedSuites: IndexedSeq[GradingSuite]
 ) extends GradingSuite:
 
-   /** Creates a combined suite.Its weight is the sum of the weights of the nested suites. */
+   /** Creates a combined suite. Its weight is given and must be positive. */
    def this(weight: Double)(suites: GradingSuite*) = this(weight, suites.toIndexedSeq)
 
-   /** Creates a combined suite. Its weight is given and must be positive. */
+   /** Creates a combined suite.Its weight is the sum of the weights of the nested suites. */
    def this(suites: GradingSuite*) = this(0.0, suites.toIndexedSeq)
 
    val grader: Grader = Graders()

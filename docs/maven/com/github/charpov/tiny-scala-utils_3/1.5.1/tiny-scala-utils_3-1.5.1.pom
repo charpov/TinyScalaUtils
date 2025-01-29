@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.github.charpov</groupId>
+    <artifactId>tiny-scala-utils_3</artifactId>
+    <packaging>jar</packaging>
+    <description>A tiny, no dependencies, Scala library, mostly used for teaching.</description>
+    <url>https://github.com/charpov/TinyScalaUtils</url>
+    <version>1.5.1</version>
+    <licenses>
+        <license>
+            <name>Apache-2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <name>tiny-scala-utils</name>
+    <organization>
+        <name>charpov</name>
+        <url>https://github.com/charpov</url>
+    </organization>
+    <scm>
+        <url>https://github.com/charpov/TinyScalaUtils</url>
+        <connection>scm:git@github.com:charpov/TinyScalaUtils.git</connection>
+    </scm>
+    <developers>
+        <developer>
+            <id>charpov</id>
+            <name>Michel Charpentier</name>
+            <url>https://github.com/charpov</url>
+            <email>Michel.Charpentier@unh.edu</email>
+        </developer>
+    </developers>
+    <properties>
+        <info.apiURL>https://charpov.github.io/TinyScalaUtils/</info.apiURL>
+        <info.releaseNotesUrl>https://github.com/charpov/TinyScalaUtils/releases</info.releaseNotesUrl>
+        <info.versionScheme>semver-spec</info.versionScheme>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala3-library_3</artifactId>
+            <version>3.3.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest-funsuite_3</artifactId>
+            <version>3.2.19</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

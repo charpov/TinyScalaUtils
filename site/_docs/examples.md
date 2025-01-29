@@ -74,10 +74,12 @@ while true do interruptibly:
 
 The infinite loops terminates with `InterruptedException` if the thread is interrupted.
 
-Functions or arity 1 and 2 can also be made interruptible.
+Functions or arity 1 and 2 can also be made interruptible via extensions.
 A similar loop can be written as:
 
 ```scala
+import tinyscalautils.control.InterruptiblyExtensions
+
 def f(n: Int) = x += n
 val g = f.interruptibly
 

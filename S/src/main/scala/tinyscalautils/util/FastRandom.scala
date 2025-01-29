@@ -39,6 +39,10 @@ end FastRandom
 object FastRandom extends FastRandom(ThreadLocalRandomAdapter):
    assert(java.lang.Double.parseDouble("0x1.0p-24f").doubleValue == 5.9604644775390625E-8f)
 
+   /** Interruptible variant, same as the `interruptible` extension, but cached for performance. */
+   lazy val interruptible: Random = InterruptibleRandom(this)
+end FastRandom
+
 /* It'd be nice to merge the two adapter classes into one (their methods are identical),
  * but the type for `rand` would have to be `RandomGenerator`, which does not exist in Java 11.
  */
