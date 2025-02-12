@@ -8,7 +8,7 @@ private final class RandomElements[A](sequence: IndexedSeq[A], rand: Random)
    def hasNext: Boolean = true
    def next(): A        = sequence(rand.nextInt(sequence.length))
 
-extension [A](elements: IterableOnce[A])
+extension [A](elements: IterableOnce[A])(using rand: Random)
    /** An iterator that produces the elements of a collection in a random (uniform) order.
      *
      * If the collection is empty, the iterator is empty; otherwise, it is infinite.
@@ -19,13 +19,12 @@ extension [A](elements: IterableOnce[A])
      *
      * @since 1.0
      */
-   def randomly(using rand: Random): Iterator[A] =
-      val sequence = elements.iterator.toIndexedSeq
+   def randomly: Iterator[A] =
+      val sequence = IndexedSeq.from(elements)
       if sequence.isEmpty then Iterator.empty else RandomElements(sequence, rand)
 
    /** A convenient way to invoke `Random.shuffle` in a pipeline.
      *
      * @since 1.0
      */
-   def shuffle[C](using rand: Random)(using BuildFrom[elements.type, A, C]): C =
-      rand.shuffle(elements)
+   def shuffle[C](using BuildFrom[elements.type, A, C]): C = rand.shuffle(elements)

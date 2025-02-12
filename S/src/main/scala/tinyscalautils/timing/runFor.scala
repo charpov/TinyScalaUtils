@@ -2,7 +2,7 @@ package tinyscalautils.timing
 
 import tinyscalautils.lang.unit
 import tinyscalautils.threads.Timer
-
+import scala.util.chaining.scalaUtilChainingOps
 import scala.annotation.{ tailrec, targetName }
 
 /** Repeated invocations of `step` with a time bound. The function is repeatedly invoked on its
@@ -92,11 +92,9 @@ def callFor[A, S](seconds: Double)(start: S)(step: S => Option[(A, S)])(
     using Timer
 ): (Seq[A], Boolean) =
    val builder = Seq.newBuilder[A]
-   def f(p: (A, S)): Option[(A, S)] =
-      val next = step(p(1))
-      for (value, _) <- next do builder += value
-      next
-   (runFor(seconds)((null.asInstanceOf[A], start))(f), builder.result()).swap
+   val timedOut = runFor(seconds)((null.asInstanceOf[A], start)): (_, state) =>
+      step(state).tap(_.foreach((value, _) => builder += value))
+   (builder.result(), timedOut)
 
 /** Repeated invocations of `step` with a time bound. The function is repeatedly invoked on the
   * "state" part of its previous output until it returns `None` or the timeout has been reached. The
@@ -127,11 +125,11 @@ def callFor[A, S](seconds: Double)(start: S)(step: S => (A, Option[S]))(
     using Timer
 ): (Seq[A], Boolean) =
    val builder = Seq.newBuilder[A]
-   def f(p: (A, S)): Option[(A, S)] =
-      val (value, next) = step(p(1))
+   val timedOut = runFor(seconds)((null.asInstanceOf[A], start)): (_, state) =>
+      val (value, next) = step(state)
       builder += value
       for st <- next yield value -> st
-   (runFor(seconds)((null.asInstanceOf[A], start))(f), builder.result()).swap
+   (builder.result(), timedOut)
 
 /** Repeated invocations of `step` with a time bound. The function is repeatedly invoked on its
   * previous output until it returns `None` or the timeout has been reached. The returned values are

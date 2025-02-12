@@ -1,6 +1,8 @@
 package tinyscalautils.collection
 
 import java.util.NoSuchElementException
+import scala.collection.IterableOps
+import scala.compiletime.asMatchable
 
 extension [A](iterable: IterableOnce[A])
    /** The last element of the collection, if any.
@@ -11,11 +13,14 @@ extension [A](iterable: IterableOnce[A])
      * @since 1.5.0
      */
    def last: A =
-      val i = iterable.iterator
-      if i.isEmpty then throw NoSuchElementException("last of empty iterable")
-      var value = i.next()
-      while i.hasNext do value = i.next()
-      value
+      iterable.asMatchable match
+         case iterableOps: IterableOps[?, ?, ?] => iterableOps.last.asInstanceOf[A]
+         case _ =>
+            val i = iterable.iterator
+            if i.isEmpty then throw NoSuchElementException("last of empty iterable")
+            var value = i.next()
+            while i.hasNext do value = i.next()
+            value
 
    /** The last element of the collection, if any.
      *

@@ -1,7 +1,7 @@
 package tinyscalautils.control
 
 import org.scalatest.funsuite.AnyFunSuite
-import tinyscalautils.threads.{Executors, withThreadPoolAndWait}
+import tinyscalautils.threads.{ Executors, withThreads }
 
 import scala.util.Try
 import tinyscalautils.lang.StackOverflowException
@@ -27,7 +27,7 @@ class NoStackOverflowSuite extends AnyFunSuite:
             case (t, e) => Thread.getDefaultUncaughtExceptionHandler.uncaughtException(t, e)
          t
       val exec = Executors.withFactory(quiet).newUnlimitedThreadPool()
-      withThreadPoolAndWait(exec, shutdown = true):
+      withThreads(exec, shutdown = true):
          val f1 = Future(f(0))
          val f2 = Future(noStackOverflow(f(0)))
          f2.failed.map: ex =>

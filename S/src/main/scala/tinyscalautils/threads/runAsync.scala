@@ -16,7 +16,7 @@ def runAsync[A](code: => A)(using exec: Executor | ExecutionContext): A =
    @volatile var runner: Thread = null
    @volatile var shouldRun      = true
    try
-      withThreadPoolAndWait(exec):
+      withThreads(exec):
          val promise = Promise[A]()
          exec.run:
             runner = Thread.currentThread

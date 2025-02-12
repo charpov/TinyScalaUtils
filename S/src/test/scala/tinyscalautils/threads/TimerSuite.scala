@@ -12,21 +12,21 @@ import scala.util.Using
 class TimerSuite extends AnyFunSuite with Tolerance:
    test("schedule"):
       val timer = Executors.newTimer(1)
-      withThreadPoolAndWait(timer, true):
+      withThreads(timer, true):
          val latch  = CountDownLatch(1)
          val future = timer.schedule(1.5)(latch.countDown()).zipWithDuration
          assert(timeOf(latch.await()) === 1.5 +- 0.1)
          future.map((_, time) => assert(time === 1.5 +- 0.1))
 
    test("DelayedFuture"):
-      withThreadPoolAndWait(Executors.newTimer(1), true):
+      withThreads(Executors.newTimer(1), true):
          val latch  = CountDownLatch(1)
          val future = DelayedFuture(1.5)(latch.countDown()).zipWithDuration
          assert(timeOf(latch.await()) === 1.5 +- 0.1)
          future.map((_, time) => assert(time === 1.5 +- 0.1))
 
    test("Execute"):
-      withThreadPoolAndWait(Executors.newTimer(1), true):
+      withThreads(Executors.newTimer(1), true):
          val latch = CountDownLatch(1)
          ExecuteAfter(1.5)(latch.countDown())
          assert(timeOf(latch.await()) === 1.5 +- 0.1)
@@ -46,7 +46,7 @@ class TimerSuite extends AnyFunSuite with Tolerance:
 
    test("shutdown"):
       val (thread, time) = timeIt:
-         withUnlimitedThreadsAndWait():
+         withThreads():
             val timer = Executors.newTimer(1)
             val f     = timer.schedule(1.5)(Thread.currentThread)
             timer.shutdown()
@@ -56,7 +56,7 @@ class TimerSuite extends AnyFunSuite with Tolerance:
 
    test("close"):
       val (thread, time) = timeIt:
-         withUnlimitedThreadsAndWait():
+         withThreads():
             Using.resource(Executors.newTimer(1))(_.schedule(1.5)(Thread.currentThread))
       assert(time === 1.5 +- 0.1)
       assert(thread.joined(1.0))

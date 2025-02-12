@@ -8,7 +8,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContextExecutorService, Future }
 import scala.util.{ Failure, Success, Try }
 
-/** A variant of `withThreadsAndWait` suitable for testing.
+/** A variant of `withThreads` suitable for testing.
   *
   * @param maxThreads
   *   the pool size; 0 means unlimited.

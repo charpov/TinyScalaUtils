@@ -31,5 +31,4 @@ extension [A](collection: Iterable[A])
      *
      * @since 1.0
      */
-   def pickOneOption(using Random): Option[A] =
-      if collection.isEmpty then None else Some(pickOne)
+   def pickOneOption(using Random): Option[A] = Option.unless(collection.isEmpty)(pickOne)

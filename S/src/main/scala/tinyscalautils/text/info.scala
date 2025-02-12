@@ -5,7 +5,7 @@ import scala.util.Properties as Props
 
 /** Basic runtime info. */
 def info(newlines: Int = 0): Unit =
-   require(newlines >= 0, s"invalid  number of newlines: $newlines")
+   require(newlines >= 0, s"number of newlines must be non-negative, not $newlines")
    val mem   = sys.runtime.maxMemory().toDouble / (1 << 30)
    val procs = tinyscalautils.threads.availableProcessors
    Predef.println(Props.javaVendor + " Java " + Props.javaVersion)

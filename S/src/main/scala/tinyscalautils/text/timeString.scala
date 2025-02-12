@@ -10,8 +10,7 @@ private val maxSeconds: Double = java.lang.Double.valueOf("0x1.517ffffea033p47")
   *
   * @param unitsCount
   *   the number of different units used in the representation, between 1 and 5. Using 2 units (the
-  *   defaults) results in strings of the form `3 minutes, 20 milliseconds` or `1 hour, 10
-  *   seconds`.
+  *   defaults) results in strings of the form `3 minutes, 20 milliseconds` or `1 hour, 10 seconds`.
   *
   * @throws IllegalArgumentException
   *   if the duration is negative, the number of units is less than 1, or the duration exceeds
@@ -20,8 +19,8 @@ private val maxSeconds: Double = java.lang.Double.valueOf("0x1.517ffffea033p47")
   * @since 1.1
   */
 def timeString(seconds: Double, unitsCount: Int = 2): String =
-   require(seconds >= 0.0, "duration cannot be negative")
-   require(unitsCount > 0, "at least one unit required")
+   require(seconds >= 0.0, s"duration must be non-negative, not $seconds")
+   require(unitsCount > 0, s"unit count must be positive, not $unitsCount")
    require(seconds < maxSeconds, s"no more than ${Int.MaxValue} days")
 
    if seconds < 0.0005 then "0 second"
@@ -55,3 +54,4 @@ def timeString(seconds: Double, unitsCount: Int = 2): String =
             if str.nonEmpty then str.append(", ")
             str.append(duration).append(" ").append(plural(duration, name))
       str.result()
+end timeString

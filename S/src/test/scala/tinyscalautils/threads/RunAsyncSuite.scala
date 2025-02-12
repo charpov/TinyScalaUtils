@@ -18,7 +18,7 @@ class RunAsyncSuite extends AnyFunSuite with Tolerance:
       timeoutTimer.schedule(1.0)(runner.interrupt())
       val time = timeOf:
          assertThrows[InterruptedException]:
-            withUnlimitedThreads(awaitTermination = true):
+            withThreads(awaitTermination = true):
                runAsync:
                   sleep(10)
                   assert(Thread.currentThread().isInterrupted)
@@ -27,4 +27,4 @@ class RunAsyncSuite extends AnyFunSuite with Tolerance:
 
    test("no stack overflow"):
       assertThrows[StackOverflowException]:
-         withUnlimitedThreads()(runAsync(throw StackOverflowError()))
+         withThreads()(runAsync(throw StackOverflowError()))

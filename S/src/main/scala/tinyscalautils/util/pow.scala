@@ -17,7 +17,7 @@ extension [A: Numeric](n: A)
      * @since 1.5.0
      */
    def pow(m: Int): A =
-      require(m >= 0, s"pow argument cannot be negative, is $m")
+      require(m >= 0, s"pow argument must be non-negative, not $m")
       n.asMatchable match
          case bigInt: BigInt         => bigInt.pow(m).asInstanceOf[A]
          case bigDecimal: BigDecimal => bigDecimal.pow(m).asInstanceOf[A]

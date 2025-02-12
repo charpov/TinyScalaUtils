@@ -882,6 +882,20 @@ if thread.joined(3.0)
    else ... // 3-second timeout; thread may still be running                
 ```
 
+### `isSpinning`
+
+Checks if a thread is spinning:
+
+```scala
+import tinyscalautils.threads.isSpinning
+
+if thread.isSpinning(seconds = 5.0, threshold = 0.1) then ...
+```
+
+The method detects if a thread has spent more than a specified threshold of time (here, 0.1 or 10%) using CPU during a specified time span (here, 5 seconds). The default is to check for 1 second using a 1% threshold.
+
+This functionality may of may not be supported by a given platform (see `java.lang.management.ThreadMXBean`).
+
 ### `newThread`
 
 Kotlin-like functions for easier thread creation:
@@ -901,28 +915,26 @@ Be aware that `waitForChildren` only works if children are created within the sa
 Easy setup of execution contexts, mostly for testing:
 
 ```scala
-import tinyscalautils.threads.withThreadsAndWait
+import tinyscalautils.threads.withThreads
 
-val result = withThreadsAndWait(4):
+val result = withThreads(4):
    Future(42)
 ```
 
 This creates a 4-thread pool, runs the future on it, waits for the future to finish, shuts down the thread pool, and sets `result` to 42.
 Additionally, if `awaitTermination` is set to true, the constructs also waits for the thread pool to terminate before setting the result.
 All waiting is done without a timeout.
-Exists also as a `withUnlimitedThreadsAndWait` variant for an unbounded thread pool.
+Exists also as a `withThreads()` variant for an unbounded thread pool.
 
-The preceding constructs require the code to produce a future.
-For a "fire-and-forget" approach, use `withThreads` and `withUnlimitedThreads`, which can use an arbitrary code.
+The construct can also be used with "fire-and-forget" code that does not produce a future.
+In this case, it returns _unit_.
+If instead one wants to return a value `v`, simply return `Future.successful(v)` (including in the rare case where `v` is a future).
 
-These constructs create and shut down a new thread pool.
-To reuse an existing thread pool, use `withThreadPoolAndWait`:
+Instead of creating (and shutting down) a new thread pool, the construct can also reuse an existing thread pool:
 
 ```scala
-import tinyscalautils.threads.withThreadPoolAndWait
-
 val exec = Executors.newUnlimitedThreadPool()
-val result = withThreadPoolAndWait(exec):
+val result = withThreads(exec):
    Future(42)
 ```
 
@@ -934,7 +946,7 @@ Note that if `shutdown` is known to be false at compile time, the thread pool do
 In particular, it can be of type `Executor` or `ExecutionContext`:
 
 ```scala
-withThreadPoolAndWait(ExecutionContext.global, shutdown = false):
+withThreads(ExecutionContext.global, shutdown = false):
    Future:
       ...
 ```

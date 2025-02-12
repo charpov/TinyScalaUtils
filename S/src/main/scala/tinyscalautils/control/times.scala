@@ -12,7 +12,7 @@ extension (number: Int)
      *     ...
      * }}}
      *
-     * Throws [[IllegalArgumentException]] if the target number is negative.
+     * @throws IllegalArgumentException if the target number is negative.
      *
      * @since 1.0
      */

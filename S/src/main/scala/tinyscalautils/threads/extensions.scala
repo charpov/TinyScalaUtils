@@ -1,6 +1,6 @@
 package tinyscalautils.threads
 
-import tinyscalautils.timing.toNanos
+import tinyscalautils.timing.{ getTime, toNanos }
 
 import java.util.concurrent.*
 import scala.concurrent.duration.NANOSECONDS
@@ -92,12 +92,65 @@ extension (thread: Thread)
      * @param seconds
      *   timeout, in seconds.
      *
+     * @param start
+     *   A starting point for wait time, as per [[getTime]].
+     *
      * @return
      *   true is thread terminates within time limit.
      */
-   def joined(seconds: Double): Boolean =
-      thread.join((seconds * 1E3).round)
+   def joined(seconds: Double, start: Long = getTime()): Boolean =
+      NANOSECONDS.timedJoin(thread, seconds.toNanos + start - getTime())
       !thread.isAlive
+
+   /** Same as `isSpinning(seconds = 1.0)`. */
+   def isSpinning: Boolean = isSpinning(seconds = 1.0)
+
+   /** Same as `isSpinning(seconds, threshold = 0.01)`. */
+   def isSpinning(seconds: Double): Boolean = isSpinning(seconds, threshold = 0.01)
+
+   /** Checks if a thread is spinning.
+     *
+     * This method works by calculating how much CPU time a thread is using during a span of time.
+     * It then returns true if this time is above a specified threshold. If the thread is not alive
+     * when the method starts or terminates while measuring CPU, the method returns false. The
+     * method also returns false for virtual threads.
+     *
+     * @param seconds
+     *   The span of time used to measure CPU activity; must be positive; defaults to 1 second.
+     *
+     * @param threshold
+     *   The threshold of activity to reach to be considered spinning; must be between 0 and 1.
+     *
+     * @throws UnsupportedOperationException
+     *   if measuring CPU time is not supported by the platform.
+     */
+   def isSpinning(seconds: Double = 1.0, threshold: Double): Boolean =
+      val startTime = getTime()
+      if !canCheckSpinning then
+         throw UnsupportedOperationException("spinning check is not supported on this JVM")
+      require(
+        threshold > 0.0 && threshold < 1.0,
+        s"threshold must be in the range (0,1), not $threshold"
+      )
+      require(seconds > 0.0, s"seconds must be positive, not $seconds")
+
+      // replace getId with threadID in Java >= 19
+      def cpu() = threadInfo.getThreadCpuTime(thread.getId)
+
+      val start = cpu()
+      if start == -1 || thread.joined(seconds, startTime) then false
+      else
+         val end = cpu()
+         end != -1 && (end - start) / seconds / 1E9 > threshold
+
+private lazy val threadInfo = management.ManagementFactory.getThreadMXBean
+private lazy val canCheckSpinning =
+   try
+      threadInfo.isThreadCpuTimeEnabled || {
+         threadInfo.setThreadCpuTimeEnabled(true)
+         threadInfo.isThreadCpuTimeEnabled
+      }
+   catch case _: UnsupportedOperationException => false
 
 extension [A](queue: BlockingQueue[A])
    /** Like `offer` but timeout in seconds.

@@ -152,12 +152,21 @@ object Executors extends Executors(None, None):
      * @since 1.0
      */
    given global: ExecutionContextExecutorService = ExecutionContext.fromExecutorService:
+      val threadFactory: ThreadFactory =
+         val regex   = """pool-\d+""".r
+         val default = util.concurrent.Executors.defaultThreadFactory()
+         r =>
+            val t = default.newThread(r)
+            t.setName(regex.replaceFirstIn(t.getName, "tiny-global"))
+            t
+
       new ThreadPoolExecutor(
         0,
         Integer.MAX_VALUE,
         1L,
         SECONDS,
-        SynchronousQueue()
+        SynchronousQueue(),
+        threadFactory
       ):
          override def shutdown(): Unit =
             try super.shutdown()
@@ -166,6 +175,7 @@ object Executors extends Executors(None, None):
          override def shutdownNow(): util.List[Runnable] =
             try super.shutdownNow()
             finally Logger.getLogger("tinyscalautils").warning("global thread pool shut down (now)")
+end Executors
 
 extension (exec: Executor | ExecutionContext)
    /** Allows a by-name argument to replace an explicit `Runnable`.

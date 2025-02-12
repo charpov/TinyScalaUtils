@@ -1,6 +1,7 @@
 package tinyscalautils.timing
 
 import tinyscalautils.assertions.require
+import tinyscalautils.control.before
 
 import scala.concurrent.duration.NANOSECONDS
 import scala.io.Source
@@ -36,20 +37,22 @@ private def delayNanos(nanos: Long, start: Long = getTime()): Unit =
   * This method does not throw `InterruptedException`. If the thread is interrupted, the sleeping
   * stops and the thread is left interrupted.
   *
+  * If the code fails, the exception is thrown _after_ the specified delay.
+  *
   * @param start
   *   A starting point for sleep time, as per [[getTime]].
   *
   * @since 1.0
   */
-def delay[A](seconds: Double, start: Long)(code: => A): A =
-   val value = Try(code)
-   delayNanos(seconds.toNanos, start)
-   value.get
+inline def delay[A](seconds: Double, start: Long)(inline code: A): A =
+   Try(code).before(delayNanos(seconds.toNanos, start)).get
 
 /** Adds sleep time so code takes up specified duration.
   *
   * This method does not throw `InterruptedException`. If the thread is interrupted, the sleeping
   * stops and the thread is left interrupted.
+  *
+  * If the code fails, the exception is thrown _after_ the specified delay.
   *
   * @since 1.0
   */
@@ -57,9 +60,7 @@ def delay[A](seconds: Double)(code: => A): A =
    if seconds <= 0.0 then code
    else
       val start = getTime()
-      val value = Try(code)
-      delayNanos(seconds.toNanos, start)
-      value.get
+      Try(code).before(delayNanos(seconds.toNanos, start)).get
 
 /** Pauses the calling thread for the specified amount of time.
   *

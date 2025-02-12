@@ -7,7 +7,7 @@ import scala.concurrent.Future
 class MarkedThreadFactorySuite extends AnyFunSuite:
    test("marked threads"):
       val runner =
-         withThreadPoolAndWait(
+         withThreads(
            Executors.withFactory(MarkedThreadFactory).newThreadPool(4),
            shutdown = true
          )(Future(Thread.currentThread()))

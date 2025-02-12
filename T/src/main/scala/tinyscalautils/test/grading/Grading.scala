@@ -31,7 +31,11 @@ import tinyscalautils.threads.runAsync
   *
   * @since 1.0
   */
-trait Grading(weight: Int = 0) extends GradingSuite, Reporting, DualTimeLimits, NoStackOverflowError:
+trait Grading(weight: Int = 0)
+    extends GradingSuite,
+      Reporting,
+      DualTimeLimits,
+      NoStackOverflowError:
    self: TestSuite =>
 
    val reporter: Grader & Reporter = WeightedGrader(weight.toDouble)
