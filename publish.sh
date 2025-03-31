@@ -19,3 +19,4 @@ for d in *; do
 done
 
 rm -rf $docs/maven-add
+git add docs

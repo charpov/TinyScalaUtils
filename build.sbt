@@ -1,7 +1,7 @@
 val ScalaTest = "org.scalatest"    %% "scalatest-funsuite" % "3.2.19"
-val JUnit     = "org.junit.jupiter" % "junit-jupiter"      % "5.11.4"
+val JUnit     = "org.junit.jupiter" % "junit-jupiter"      % "5.12.1"
 
-ThisBuild / version       := "1.6.0"
+ThisBuild / version       := "1.6.1"
 ThisBuild / scalaVersion  := "3.3.5"
 ThisBuild / versionScheme := Some("semver-spec")
 
@@ -47,14 +47,14 @@ ThisBuild / scalacOptions := Seq(
   "-new-syntax",    // Require `then` and `do` in control expressions.
   "-source:future", // source version.
   "-language:noAutoTupling", // no auto-tupling
-  "-Wunused:all",            // unused stuff
+  "-Wunused:linted",         // unused stuff
   "-java-output-version:11", // Target Java 11, which is needed anyway
 )
 
 val docOptions = Compile / doc / scalacOptions := Seq(
   "-project:TinyScalaUtils",
   s"-project-version:${version.value}",
-  "-project-footer:Copyright Michel Charpentier, 2024",
+  "-project-footer:Copyright Michel Charpentier, 2025",
   "-siteroot:./site",
   "-doc-root-content:./api.md",
   "-author",

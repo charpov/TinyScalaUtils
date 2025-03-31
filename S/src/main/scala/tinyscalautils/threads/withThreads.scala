@@ -33,7 +33,7 @@ transparent inline def withThreads[A, Exec](executor: Exec, inline shutdown: Boo
       case g: (Exec => Future[?]) =>
          _withThreadPoolAndWait(executor, shutdown)(g)
       case _ =>
-         _withThreadPoolAndWait(executor, shutdown)(exec => { code(using exec); Future.unit })
+         _withThreadPoolAndWait(executor, shutdown)(exec => { f(exec); Future.unit })
 
 /** Runs code within an implicit execution context.
   *
@@ -119,7 +119,7 @@ transparent inline def _withThreads[A](n: Int, awaitTermination: Boolean)(
       case g: (ExecutionContextExecutorService => Future[?]) =>
          _withThreadsAndWait(n, awaitTermination)(g)
       case _ =>
-         _withThreadsAndWait(n, awaitTermination)(exec => { code(using exec); Future.unit })
+         _withThreadsAndWait(n, awaitTermination)(exec => { f(exec); Future.unit })
 
 def _withThreadsAndWait[A](maxThreads: Int, awaitTermination: Boolean = false)(
     code: ExecutionContextExecutorService => Future[A]
