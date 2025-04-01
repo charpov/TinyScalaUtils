@@ -11,10 +11,11 @@ import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.util.Random
 
 class FastRandomSuite extends AnyFunSuite:
-   private def same(x: BaseStream[?, ?], other: Any) = other.asMatchable match
-      case y: BaseStream[?, ?] =>
-         x.iterator.asScala.take(10).sameElements(y.iterator.asScala.take(10))
-      case _ => false
+   private def same(x: BaseStream[?, ?], other: Any) =
+      other.asMatchable match
+         case y: BaseStream[?, ?] =>
+            x.iterator.asScala.take(10).sameElements(y.iterator.asScala.take(10))
+         case _ => false
 
    private given Equality[IntStream] with
       def areEqual(x: IntStream, value: Any): Boolean = same(x, value)
@@ -34,7 +35,17 @@ class FastRandomSuite extends AnyFunSuite:
    test("cannot re-seed"):
       assertThrows[UnsupportedOperationException](FastRandom.setSeed(42L))
 
-   test("seeded"):
+   test("types"):
+      assert(FastRandom.self eq ThreadLocalRandomAdapter)
+      assert(FastRandom(42).self.isInstanceOf[SplittableRandomAdapter])
+
+   test("seeded 1"):
+      val rand = FastRandom(42)
+      val n    = rand.nextInt()
+      rand.setSeed(42)
+      assert(rand.nextInt() == n)
+
+   test("seeded 2"):
       val rand1 = FastRandom(42)
       val rand2 = SplittableRandom(42L)
       assert(rand1.nextInt() == SplittableRandom(42L).nextInt())
@@ -49,6 +60,8 @@ class FastRandomSuite extends AnyFunSuite:
          assert(rand1.nextLong() == rand2.nextLong())
          assert(rand1.nextBoolean() == rand2.nextBoolean())
          assert(rand1.nextDouble() == rand2.nextDouble())
+         assert(rand1.nextFloat() == rand2.nextFloat())
+         assert(rand1.nextGaussian() == rand2.nextGaussian())
 
          assert(rand1.self.ints === rand2.ints)
          assert(rand1.self.ints(10) === rand2.ints(10))
@@ -62,6 +75,32 @@ class FastRandomSuite extends AnyFunSuite:
          assert(rand1.self.doubles(10) === rand2.doubles(10))
          assert(rand1.self.doubles(1.0, 2.0) === rand2.doubles(1.0, 2.0))
          assert(rand1.self.doubles(10, 1.0, 2.0) === rand2.doubles(10, 1.0, 2.0))
+
+   test("seeded 3"):
+      def sample(rand: Random) =
+         Seq(
+           rand.nextInt(),
+           rand.nextInt(100),
+           rand.nextLong(),
+           rand.nextLong(100L),
+           rand.nextFloat(),
+           rand.nextDouble(),
+           rand.nextGaussian(),
+           rand.nextBoolean(),
+           rand.nextBytes(10).toSeq,
+           rand.alphanumeric.take(10).toList,
+           rand.nextPrintableChar(),
+           rand.nextString(10),
+           rand.between(1, 10),
+           rand.between(1L, 10L),
+           rand.between(1.0, 10.0),
+           rand.between(1.0f, 10.0f),
+         )
+      val rand = FastRandom(42)
+      val seq1 = sample(rand)
+      rand.setSeed(42)
+      val seq2 = sample(rand)
+      assert(seq1 == seq2)
 
    for (r, s) <- Seq(
         (() => FastRandom, "FastRandom"),
@@ -100,4 +139,24 @@ class FastRandomSuite extends AnyFunSuite:
            rand =>
               try rand.setSeed(8L)
               catch case _: UnsupportedOperationException => ()
+         )
+
+   test("stable"):
+      val r = FastRandom(42)
+      assertResult(
+        Seq(
+          true, 909395113, 81, 0.76145077f, 0.03803016854024621, -31, 4028864712777624925L, 19L,
+          0.6246355380734417
+        )
+      ):
+         Seq(
+           r.nextBoolean(),
+           r.nextInt(),
+           r.nextInt(100),
+           r.nextFloat(),
+           r.nextDouble(),
+           r.nextBytes(2).sum,
+           r.nextLong(),
+           r.nextLong(100),
+           r.nextGaussian()
          )

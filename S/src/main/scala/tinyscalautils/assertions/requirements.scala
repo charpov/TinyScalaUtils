@@ -10,7 +10,7 @@ package tinyscalautils.assertions
   *
   * @since 1.0
   */
-inline def checkNonNull[A <: AnyRef](obj: A): obj.type =
+inline def checkNonNull(obj: AnyRef): obj.type =
    if obj eq null then throw IllegalArgumentException("no nulls") else obj
 
 /** Simple argument assertion, with message.

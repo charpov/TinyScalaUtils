@@ -8,20 +8,21 @@ import tinyscalautils.timing.*
 import scala.compiletime.asMatchable
 import scala.io.Source
 
-// @org.scalatest.Ignore
+//@org.scalatest.Ignore
 // Note: This suite takes 50 minutes and 40 seconds to run.
 class SlowSuite extends AnyFunSuite with Tolerance:
    private given Equality[Double] with
-      def areEqual(x: Double, value: Any): Boolean = value.asMatchable match
-         case y: Double => x === y +- y / 10.0
-         case _         => false
+      def areEqual(x: Double, value: Any): Boolean =
+         value.asMatchable match
+            case y: Double => x === y +- y / 10.0
+            case _         => false
 
-   private def newlines = new Iterator[Char]:
-      def hasNext = true
-      def next()  = '\n'
+   private def newlines =
+      new Iterator[Char]:
+         def hasNext = true
+         def next()  = '\n'
 
-   private def consume(iterator: Iterator[Char]) =
-      timeOf(while iterator.hasNext do iterator.next())
+   private def consume(iterator: Iterator[Char]) = timeOf(while iterator.hasNext do iterator.next())
 
    for
       time   <- Seq(1.0, 5.0, 10.0, 60.0)

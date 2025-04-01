@@ -2,7 +2,8 @@ package tinyscalautils.threads
 
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
-import tinyscalautils.timing.{ sleep, timeIt, timeOf, zipWithDuration }
+import tinyscalautils.lang.unit
+import tinyscalautils.timing.{sleep, timeIt, timeOf, zipWithDuration}
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
@@ -19,26 +20,32 @@ class TimerSuite extends AnyFunSuite with Tolerance:
          future.map((_, time) => assert(time === 1.5 +- 0.1))
 
    test("DelayedFuture"):
-      withThreads(Executors.newTimer(1), true):
+      withThreads(Executors.newTimer(1), shutdown = true):
          val latch  = CountDownLatch(1)
          val future = DelayedFuture(1.5)(latch.countDown()).zipWithDuration
          assert(timeOf(latch.await()) === 1.5 +- 0.1)
          future.map((_, time) => assert(time === 1.5 +- 0.1))
 
-   test("Execute"):
-      withThreads(Executors.newTimer(1), true):
+   test("RunAfter 1"):
+      withThreads(Executors.newTimer(1), shutdown = true):
          val latch = CountDownLatch(1)
-         ExecuteAfter(1.5)(latch.countDown())
+         RunAfter(1.5)(latch.countDown())
          assert(timeOf(latch.await()) === 1.5 +- 0.1)
          Future.unit
+
+   test("RunAfter 2"):
+      withThreads(Executors.newTimer(1), shutdown = true):
+         val task: Runnable = () => unit
+         RunAfter(0.1)(task: AnyRef)
+         assertDoesNotCompile("ExecuteAfter(0.1)(task)")
 
    test("repeat"):
       val timer   = Executors.newTimer(2)
       val repeats = AtomicInteger()
       val latch   = CountDownLatch(1)
       timer.schedule(2.5)(latch.countDown())
-      timer.scheduleAtFixedRate(0.0, 1.0)(repeats.incrementAndGet())
-      timer.scheduleWithFixedDelay(0.0, 1.0)(repeats.incrementAndGet())
+      timer.runAtFixedRate(0.0, 1.0)(repeats.incrementAndGet())
+      timer.runWithFixedDelay(0.0, 1.0)(repeats.incrementAndGet())
       sleep(1.5)
       timer.shutdown()
       assert(timeOf(latch.await()) === 1.0 +- 0.1)

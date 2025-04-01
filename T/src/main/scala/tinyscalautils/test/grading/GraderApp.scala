@@ -26,37 +26,39 @@ open class GraderApp(suites: GradingSuites):
    def this(suites: GradingSuite*) = this(GradingSuites(suites*))
 
    def main(args: Array[String]): Unit =
-      val failedTests = readFailedTests()
-      val verbose     = args.nonEmpty && args(0) == "-v"
+      val failedTests          = readFailedTests()
+      val verbose              = args.nonEmpty && args(0) == "-v"
+      val expectedTests        = suites.expectedTestCount(Filter.default)
+      def testsStr(tests: Int) = s"$tests ${plural(tests, "test")}"
+
       if verbose then info(newlines = 1)
-      val expectedTests = suites.expectedTestCount(Filter.default)
       println(s"""Starting run for $expectedTests ${plural(expectedTests, "test")}:""")
       val time = timeOf:
          for suite <- suites.nestedSuites do
-            suite.execute(
-              durations = true,
-              color = false,
-              shortstacks = true,
-              configMap = failedTests
-            )
+            val subTime = timeOf:
+               suite.execute(
+                 durations = true,
+                 color = false,
+                 shortstacks = true,
+                 configMap = failedTests
+               )
             println:
                val name   = suite.suiteName
                val weight = suite.grader.totalWeight
                val grade  = suite.grader.grade * weight
                val tests  = suite.grader.testCount
-               f"""$name: $grade%.1f / $weight%.1f ($tests ${plural(tests, "test")})"""
+               f"""$name: $grade%.1f / $weight%.1f (${testsStr(tests)}, ${timeString(subTime)})"""
       println(s"time: ${timeString(time)}")
       println:
          val weight = suites.grader.totalWeight
          val grade  = suites.grader.grade * weight
          val tests  = suites.grader.testCount
-         f"""grade: $grade%.0f / $weight%.0f ($tests ${plural(tests, "test")})"""
+         f"""grade: $grade%.0f / $weight%.0f (${testsStr(tests)})"""
       System.exit(0) // possible hanging threads; forcing termination
 end GraderApp
 
 private def readFailedTests(): ConfigMap =
    import tinyscalautils.io.FileNameIsInput
+   val failedTestsFile     = "failed_tests.txt"
    def parse(line: String) = Some(line.trim).filterNot(str => str.isBlank || str.startsWith("#"))
    ConfigMap("failed" -> readAll(Set)(failedTestsFile, parse, silent = true))
-
-private val failedTestsFile = "failed_tests.txt"

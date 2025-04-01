@@ -9,7 +9,7 @@ import tinyscalautils.timing.{ delay, sleep, timeIt, timeOf }
 import java.util.concurrent.CyclicBarrier
 import scala.concurrent.{ ExecutionContext, Future }
 
-class ContextsSuite extends AnyFunSuite with Tolerance:
+class WithThreadsSuite extends AnyFunSuite with Tolerance:
    for flag <- Seq(false, true) do
       test(s"withThreads, wait (shutdown = $flag)"):
          val exec = Executors.newUnlimitedThreadPool()
@@ -21,7 +21,7 @@ class ContextsSuite extends AnyFunSuite with Tolerance:
       test(s"withThreads, wait (awaitTermination = $flag)"):
          val (time1, time2) = timeIt:
             withThreads(4, awaitTermination = flag):
-               Execute(sleep(2.0))
+               Run(sleep(2.0))
                Future(timeOf(sleep(1.0)))
          val expectedTime = if flag then 2.0 else 1.0
          assert(time1 === 1.0 +- 0.1)
@@ -30,7 +30,7 @@ class ContextsSuite extends AnyFunSuite with Tolerance:
       test(s"withThreads, unlimited, wait (awaitTermination = $flag)"):
          val (time1, time2) = timeIt:
             withThreads(awaitTermination = flag):
-               Execute(sleep(2.0))
+               Run(sleep(2.0))
                Future(timeOf(sleep(1.0)))
          val expectedTime = if flag then 2.0 else 1.0
          assert(time1 === 1.0 +- 0.1)
@@ -48,7 +48,7 @@ class ContextsSuite extends AnyFunSuite with Tolerance:
       test(s"withThreads (awaitTermination = $flag)"):
          val time = timeOf:
             withThreads(4, awaitTermination = flag):
-               10 times Execute(sleep(1.0))
+               10 times Run(sleep(1.0))
          val expectedTime = if flag then 3.0 else 0.0
          assert(time === expectedTime +- 0.1)
 
@@ -57,8 +57,8 @@ class ContextsSuite extends AnyFunSuite with Tolerance:
          val barrier = CyclicBarrier(n)
          val time = timeOf:
             withThreads(awaitTermination = flag):
-               n times Execute(barrier.await())
-               Execute(sleep(1.0))
+               n times Run(barrier.await())
+               Run(sleep(1.0))
          val expectedTime = if flag then 1.0 else 0.0
          assert(time === expectedTime +- 0.1)
    end for
@@ -80,3 +80,12 @@ class ContextsSuite extends AnyFunSuite with Tolerance:
       val (v, time) = timeIt(withThreads()(f))
       assert(v == "X")
       assert(time === 1.0 +- 0.1)
+
+   test("theThreads"):
+      val exec = Executors.newUnlimitedThreadPool()
+      withThreads(exec, shutdown = true):
+         assert(theThreads eq exec)
+
+   test("returned value"):
+      assertResult("X")(withThreads()(Future("X")))
+      assertResult("X")(withThreads()("X"))

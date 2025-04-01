@@ -1,8 +1,8 @@
 package tinyscalautils.collection
 
 import java.util.NoSuchElementException
-import scala.collection.IndexedSeq
 import scala.util.Random
+import scala.collection.Seq
 
 extension [A](collection: Iterable[A])
    /** Picks one element at random.
@@ -19,9 +19,8 @@ extension [A](collection: Iterable[A])
    def pickOne(using rand: Random): A =
       if collection.isEmpty then throw NoSuchElementException("empty.pickOne")
       collection match
-         // both apply and length are efficient on IndexedSeq
-         case seq: IndexedSeq[A] => seq(rand.nextInt(seq.length))
-         case _                  => collection.iterator.drop(rand.nextInt(collection.size)).next()
+         case seq: Seq[A] => seq(rand.nextInt(seq.length))
+         case _           => collection.iterator.drop(rand.nextInt(collection.size)).next()
 
    /** Picks one element at random.
      *

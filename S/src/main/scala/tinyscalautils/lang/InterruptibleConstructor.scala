@@ -9,7 +9,7 @@ package tinyscalautils.lang
   *   ...
   * }}}
   *
-  * If a thread is interrupted, and then attempts to create an instance of `MyFancyClass`, an
+  * If a thread is interrupted and then attempts to create an instance of `MyFancyClass`, an
   * `InterruptedException` will be thrown.
   *
   * @since 1.0

@@ -11,10 +11,11 @@ extension (str: String)
      */
    def cleanCRLF: String =
       @tailrec
-      def clean(chars: List[Char], builder: StringBuilder): String = chars match
-         case Nil               => builder.result()
-         case '\r' :: '\n' :: r => clean(r, builder += '\n')
-         case c :: r            => clean(r, builder += c)
+      def clean(chars: List[Char], builder: StringBuilder): String =
+         chars match
+            case Nil               => builder.result()
+            case '\r' :: '\n' :: r => clean(r, builder += '\n')
+            case c :: r            => clean(r, builder += c)
 
       clean(str.toList, StringBuilder(str.length))
    end cleanCRLF
@@ -29,6 +30,9 @@ extension (str: String)
      *
      * @param maxLen
      *   the guaranteed maximum length of the string being returned.
+     *
+     * @throws IllegalArgumentException
+     *   if `maxLen` is less than 3.
      *
      * @since 1.0
      */
@@ -45,6 +49,9 @@ extension (str: String)
      *
      * @param padding
      *   the character used to pad.
+     *
+     * @throws IllegalArgumentException
+     *   if `minLen` is negative.
      *
      * @since 1.0
      */

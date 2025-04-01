@@ -1,7 +1,6 @@
 package tinyscalautils.test.threads
 
 import org.scalatest.Assertion
-//import scala.language.implicitConversions
 import scala.concurrent.Future
 
 /** An implicit conversion from `Assertion` to `Future[Assertion]`. This is similar to what is in
@@ -9,4 +8,5 @@ import scala.concurrent.Future
   *
   * @since 1.0
   */
+@deprecated("not needed with new implementation of withThreads", since = "1.7")
 given AssertionFutureConversion: Conversion[Assertion, Future[Assertion]] = Future.successful(_)

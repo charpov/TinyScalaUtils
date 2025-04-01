@@ -198,11 +198,19 @@ class GradingTests extends AnyFunSuite with Tolerance:
 
    test("config map"):
       class Tests extends AnyFunSuite with Grading:
-         test("the test")(unit)
+         test("the (test)")(unit)
       end Tests
 
-      val config = ConfigMap("failed" -> Set("the test"))
-      assert(!Tests().run(None, Args(R).copy(configMap = config)).succeeds())
+      val config1 = ConfigMap("failed" -> Set("test"))
+      val config2 = ConfigMap("failed" -> Set("the (test)"))
+      val config3 = ConfigMap("failed" -> Set(".*test.*"))
+      val config4 = ConfigMap("failed" -> Set(""""the (test)""""))
+
+      assert(Tests().run(None, Args(R).copy(configMap = config1)).succeeds())
+      assert(Tests().run(None, Args(R).copy(configMap = config2)).succeeds())
+      assert(!Tests().run(None, Args(R).copy(configMap = config3)).succeeds())
+      assert(!Tests().run(None, Args(R).copy(configMap = config4)).succeeds())
+
       R.lastEvent match
          case Some(ev: TestFailed) => assert(ev.message == """test name in "failed" set""")
          case other                => fail(s"unexpected: $other ")

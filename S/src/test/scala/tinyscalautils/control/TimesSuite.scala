@@ -13,8 +13,8 @@ class TimesSuite extends AnyFunSuite:
       10 times (count += 1)
       assert(count == 10)
 
-      10 times (count -= 1)
-      assert(count == 0)
+      5 times (count -= 1)
+      assert(count == 5)
 
    test("times, exception"):
       assertThrows[IllegalArgumentException](-1 times unit)

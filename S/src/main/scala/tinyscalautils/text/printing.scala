@@ -20,11 +20,9 @@ def println(arg: Any)(using mode: PrintingMode): Unit = mode.print(arg, newline 
 
 /** Formatted printing with a format.
   *
-  * might produce `main: message`.
+  * @since 1.0
   *
   * @see
   *   [[PrintingMode]]
-  *
-  * @since 1.0
   */
 def printf(format: String, args: Any*)(using mode: PrintingMode): Unit = mode.printf(format, args*)

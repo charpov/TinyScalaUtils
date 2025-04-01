@@ -21,7 +21,10 @@ private val maxSeconds: Double = java.lang.Double.valueOf("0x1.517ffffea033p47")
 def timeString(seconds: Double, unitsCount: Int = 2): String =
    require(seconds >= 0.0, s"duration must be non-negative, not $seconds")
    require(unitsCount > 0, s"unit count must be positive, not $unitsCount")
-   require(seconds < maxSeconds, s"no more than ${Int.MaxValue} days")
+   require(
+     seconds < maxSeconds,
+     s"duration must be no more than ${Int.MaxValue} days, not $seconds seconds"
+   )
 
    if seconds < 0.0005 then "0 second"
    else

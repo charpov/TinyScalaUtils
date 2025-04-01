@@ -13,5 +13,5 @@ extension (rand: Random)
      * Range argument cannot be empty.
      */
    def nextInt(range: Range): Int =
-      require(range.nonEmpty, "range is empty")
+      require(range.nonEmpty, "range must be non-empty")
       range(rand.nextInt(range.length))
