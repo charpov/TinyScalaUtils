@@ -8,13 +8,13 @@ import scala.concurrent.duration.NANOSECONDS
 extension (exec: ExecutorService)
    /** Shuts down the executor and waits for termination.
      *
-     * If the executor fails to terminate and `force` is set to true, invokes `shutdownNow`.
+     * If the executor fails to terminate (before a timeout or an interrupt) and `force` is set to true, invokes `shutdownNow`.
      *
      * @param seconds
      *   timeout, in seconds.
      *
      * @param force
-     *   if true, `shutdownNow` is invoked after a timeout.
+     *   if true, `shutdownNow` is invoked after a timeout or an interrupt.
      *
      * @return
      *   true if the executor terminates before the timeout.
@@ -24,10 +24,14 @@ extension (exec: ExecutorService)
    @throws[InterruptedException]
    def shutdownAndWait(seconds: Double, force: Boolean = false): Boolean =
       exec.shutdown()
-      exec.awaitTermination(seconds.toNanos, NANOSECONDS) || {
+      try
+         exec.awaitTermination(seconds.toNanos, NANOSECONDS) || {
+            if force then exec.shutdownNow()
+            false
+         }
+      catch case ex: InterruptedException =>
          if force then exec.shutdownNow()
-         false
-      }
+         throw ex
 
    /** Shuts down the executor and waits forever for termination.
      *
@@ -37,12 +41,27 @@ extension (exec: ExecutorService)
      * @since 1.0
      */
    @throws[InterruptedException]
-   def shutdownAndWait(): Boolean = shutdownAndWait(Double.PositiveInfinity)
+   def shutdownAndWait(): Boolean = shutdownAndWait(force = false)
+
+   /** Shuts down the executor and waits forever for termination.
+     *
+     * @return
+     *   true.
+     *
+     * @param force
+     *   if true, `shutdownNow` is invoked after a timeout.
+     *
+     * @since 1.7
+     */
+   @throws[InterruptedException]
+   def shutdownAndWait(force: Boolean): Boolean =
+      shutdownAndWait(Double.PositiveInfinity, force = force)
 
    /** Floating seconds version of `awaitTermination`.
      *
      * @param seconds
      *   timeout, in seconds.
+     *
      * @see
      *   [[java.util.concurrent.ExecutorService#awaitTermination]]
      * @since 1.0

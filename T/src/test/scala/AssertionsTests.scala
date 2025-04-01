@@ -4,19 +4,14 @@ import org.scalatest.funsuite.AnyFunSuite
 import tinyscalautils.test.assertions.assertExpr
 
 class AssertionsTests extends AnyFunSuite:
-
-   test("assertExpr") {
+   test("assertExpr"):
       class Tests extends AnyFunSuite:
-         test("success") {
-            assertExpr(Seq(1,2)) {
+         test("success"):
+            assertExpr(Seq(1, 2)):
                List(1) ::: List(2)
-            }
-         }
-         test("failed") {
-            assertExpr(42, ": not good") {
+         test("failed"):
+            assertExpr(42, ": not good"):
                40 + 1
-            }
-         }
       end Tests
 
       val suite = Tests()
@@ -24,5 +19,4 @@ class AssertionsTests extends AnyFunSuite:
       assert(!suite.run(Some("failed"), Args(R)).succeeds())
       R.lastEvent match
          case Some(ev: TestFailed) => assert(ev.message == "Expected 41, but got 42 : not good")
-         case other => fail(s"unexpected: $other ")
-   }
+         case other                => fail(s"unexpected: $other ")

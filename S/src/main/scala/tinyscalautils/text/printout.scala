@@ -1,7 +1,7 @@
 package tinyscalautils.text
 
-import java.io.{ ByteArrayOutputStream, PrintStream }
-import java.nio.charset.Charset
+import java.io.{ByteArrayOutputStream, PrintStream}
+import java.nio.charset.{Charset, StandardCharsets}
 
 /** Captures the output of print statements into a string.
   *
@@ -18,14 +18,14 @@ import java.nio.charset.Charset
   * `printout` function:
   *
   * {{{
-  * val str = printout {
+  * val str = printout:
   *   val exec = Executors.newThreadPool(n)
   *   exec.execute(...)
-  * }
   * }}}
   *
   * @see
   *   [[java.lang.System.setOut]]
+  *
   * @see
   *   [[Console.withOut]]
   *
@@ -34,10 +34,11 @@ import java.nio.charset.Charset
 def printout[A](
     includeErr: Boolean = false,
     includeSystem: Boolean = false,
-    charset: Charset = Charset.defaultCharset()
+    charset: Charset = StandardCharsets.UTF_8
 )(
     code: => A
-): String = (if includeSystem then printoutWithSystem else printoutSimple)(code, includeErr, charset)
+): String =
+   (if includeSystem then printoutWithSystem else printoutSimple) (code, includeErr, charset)
 
 /** Captures the output of print statements into a string.
   *
@@ -53,7 +54,7 @@ private def printoutSimple[A](code: => A, includeErr: Boolean, charset: Charset)
    buffer.toString(charset)
 
 private def printoutWithSystem[A](code: => A, includeErr: Boolean, charset: Charset) =
-   val buffer = ByteArrayOutputStream()// assumed to be thread-safe
+   val buffer = ByteArrayOutputStream() // assumed to be thread-safe
    val stream = PrintStream(buffer)
    val out    = System.out
    val err    = System.err

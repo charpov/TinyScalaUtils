@@ -3,11 +3,13 @@ package tinyscalautils.threads
 import org.scalactic.Tolerance
 import org.scalatest.funsuite.AnyFunSuite
 import tinyscalautils.control.times
+import tinyscalautils.lang.unit
 import tinyscalautils.threads.shutdownAndWait
 import tinyscalautils.timing.timeOf
 
 import java.util.concurrent.ThreadPoolExecutor.DiscardPolicy
-import java.util.concurrent.{ ConcurrentLinkedQueue, RejectedExecutionException }
+import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.{ Callable, ConcurrentLinkedQueue, RejectedExecutionException }
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
 
@@ -89,6 +91,31 @@ class ExecutorsSuite extends AnyFunSuite with Tolerance:
       assert(tf2.allThreads.nonEmpty && tf2.allThreads.size <= 10)
       exec1.execute(noOp)
       exec2.execute(noOp)
+
+   test("run 1"):
+      val main   = Thread.currentThread
+      val runner = AtomicReference[Thread]()
+      val exec   = Executors.newUnlimitedThreadPool()
+      exec.run(runner.set(Thread.currentThread))
+      exec.shutdownAndWait()
+      assert(runner.get != main)
+
+   test("run 2"):
+      val main   = Thread.currentThread
+      val runner = AtomicReference[Thread]()
+      withThreads(awaitTermination = true):
+         Run(runner.set(Thread.currentThread))
+      assert(runner.get != main)
+
+   test("run 3"):
+      val task: Runnable = () => unit
+      Executors.global.run(task: AnyRef)
+      assertDoesNotCompile("Executors.global.run(task)")
+
+   test("run 4"):
+      val task: Callable[String] = () => ""
+      Executors.global.run(task: AnyRef)
+      assertDoesNotCompile("Executors.global.run(task)")
 
    test("keepAlive 1"):
       val exec    = Executors.newUnlimitedThreadPool(2.0)

@@ -9,10 +9,12 @@ import tinyscalautils.test.tagobjects.{ Async, Fail }
 import tinyscalautils.threads.Executors.global
 import tinyscalautils.threads.runAsync
 
-/** Setup for a grading run. This trait sets default time limits for fast and slow tests (1 second
-  * and 1 minute, to be overridden for customization), uses a `Timeout` tag for specific timeouts,
-  * catches `StackOverflowError`, detects a `Fail` tag to fail a test manually, and relies on
-  * `Async` tags to run tests in separate (interruptible) threads.
+/** Setup for a grading run.
+  *
+  * This trait sets default time limits for fast and slow tests (1 second and 1 minute, to be
+  * overridden for customization), catches `StackOverflowError`, detects a `Fail` tag to fail a test
+  * manually, fails all tests in the `failed` set from the config map, and relies on `Async` tags to
+  * run tests in separate (interruptible) threads.
   *
   * @see
   *   [[tinyscalautils.lang.StackOverflowException]]
@@ -47,9 +49,14 @@ trait Grading(weight: Int = 0)
    val shortTimeLimit: Span = 1.second
    val longTimeLimit: Span  = 1.minute
 
+   private def shouldFail(testName: String, failed: Set[String]): Boolean =
+      failed.exists:
+         case s""""$str"""" => testName == str
+         case regex         => regex.r.matches(testName)
+
    abstract override def withFixture(test: NoArgTest): Outcome =
       val failed = test.configMap.getWithDefault[Set[String]]("failed", Set.empty)
-      if failed.exists(_.r.matches(test.name)) then Failed("""test name in "failed" set""")
+      if shouldFail(test.name, failed) then Failed("""test name in "failed" set""")
       else if test.tags.isEmpty then super.withFixture(test) // no tag (fast path)
       else
          val failTags = test.tags.filter(_.startsWith(Fail.name))

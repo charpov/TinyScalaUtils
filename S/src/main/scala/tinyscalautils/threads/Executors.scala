@@ -1,11 +1,13 @@
 package tinyscalautils.threads
 
 import tinyscalautils.assertions.require
+import tinyscalautils.lang.unit
 import tinyscalautils.timing.toNanos
 
 import java.util
 import java.util.concurrent.*
 import java.util.logging.Logger
+import scala.compiletime.{ erasedValue, error }
 import scala.concurrent.duration.{ NANOSECONDS, SECONDS }
 import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService }
 
@@ -21,8 +23,8 @@ import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService }
   * Instances of this class are immutable. They are created through the companion object, e.g.:
   *
   * {{{
-  * val f1 = Executors.silent
-  * val f2 = Executors.silent.withFactory(tf)
+  * val p1 = Executors.silent.newUnlimitedThreadPool()
+  * val p2 = Executors.silent.withFactory(tf).newThreadPool(4)
   * }}}
   *
   * @since 1.0
@@ -38,9 +40,11 @@ class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutio
      * @param keepAlive
      *   the duration pool threads are kept alive when idle, in seconds; 0 means indefinitely.
      *
+     * @throws IllegalArgumentException
+     *   if the specified size is not positive or the keep alive time is negative.
+     *
      * @since 1.0
      */
-   @throws[IllegalArgumentException]("if the specified size is not positive")
    def newThreadPool(size: Int, keepAlive: Double = 0.0): ExecutionContextExecutorService =
       require(size > 0, s"thread pool size must be positive, not $size")
       require(keepAlive >= 0.0, s"keep alive time must be nonnegative, not $keepAlive")
@@ -62,11 +66,13 @@ class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutio
      * Uses the rejected execution handler and thread factory of the current instance.
      *
      * @param keepAlive
-     *   time to keep idle threads alive, in seconds.
+     *   the duration pool threads are kept alive when idle, in seconds; 0 means indefinitely.
+     *
+     * @throws IllegalArgumentException
+     *   if the keep alive time is negative.
      *
      * @since 1.0
      */
-   @throws[IllegalArgumentException]("if the specified keepalive time is not positive")
    def newUnlimitedThreadPool(keepAlive: Double = 1.0): ExecutionContextExecutorService =
       require(keepAlive >= 0.0, s"keep alive time must be nonnegative, not $keepAlive")
       ExecutionContext.fromExecutorService:
@@ -87,9 +93,11 @@ class Executors private (tf: Option[ThreadFactory], rej: Option[RejectedExecutio
      * @param size
      *   the number of threads in the pool; must be positive.
      *
+     * @throws IllegalArgumentException
+     *   if the specified size is not positive.
+     *
      * @since 1.0
      */
-   @throws[IllegalArgumentException]("if the specified size is not positive")
    def newTimer(size: Int): ExecutionContextExecutorService & Timer =
       require(size > 0, s"thread pool size must be positive, not $size")
       TimerPool(
@@ -151,45 +159,92 @@ object Executors extends Executors(None, None):
      *
      * @since 1.0
      */
-   given global: ExecutionContextExecutorService = ExecutionContext.fromExecutorService:
-      val threadFactory: ThreadFactory =
-         val regex   = """pool-\d+""".r
-         val default = util.concurrent.Executors.defaultThreadFactory()
-         r =>
-            val t = default.newThread(r)
-            t.setName(regex.replaceFirstIn(t.getName, "tiny-global"))
-            t
+   given global: ExecutionContextExecutorService =
+      ExecutionContext.fromExecutorService:
+         val threadFactory: ThreadFactory =
+            val regex   = """pool-\d+""".r
+            val default = util.concurrent.Executors.defaultThreadFactory()
+            r =>
+               val t = default.newThread(r)
+               t.setName(regex.replaceFirstIn(t.getName, "tiny-global"))
+               t
 
-      new ThreadPoolExecutor(
-        0,
-        Integer.MAX_VALUE,
-        1L,
-        SECONDS,
-        SynchronousQueue(),
-        threadFactory
-      ):
-         override def shutdown(): Unit =
-            try super.shutdown()
-            finally Logger.getLogger("tinyscalautils").warning("global thread pool shut down")
+         new ThreadPoolExecutor(
+           0,
+           Integer.MAX_VALUE,
+           1L,
+           SECONDS,
+           SynchronousQueue(),
+           threadFactory
+         ):
+            override def shutdown(): Unit =
+               try super.shutdown()
+               finally Logger.getLogger("tinyscalautils").warning("global thread pool shut down")
 
-         override def shutdownNow(): util.List[Runnable] =
-            try super.shutdownNow()
-            finally Logger.getLogger("tinyscalautils").warning("global thread pool shut down (now)")
+            override def shutdownNow(): util.List[Runnable] =
+               try super.shutdownNow()
+               finally
+                  Logger.getLogger("tinyscalautils").warning("global thread pool shut down (now)")
 end Executors
 
 extension (exec: Executor | ExecutionContext)
-   /** Allows a by-name argument to replace an explicit `Runnable`.
+   /** Allows an unevaluated argument to replace an explicit `Runnable`.
      *
      * Instead of `exec.execute(() => code)`, you can write `exec.run(code)`.
+     *
+     * @note
+     *   `code` is rejected if it has type `Runnable` or `Callable` because it's probably a mistake:
+     *   `exec.run(code)` was written when `exec.execute(code)` or `exec.run(code.run())` or
+     *   `exec.run(code.call())` was intended. In the unlikely case that `exec.run(code)` was
+     *   desired, add a type ascription: `exec.run(code: AnyRef)`.
      */
-   def run[U](code: => U): Unit = exec match
-      case e: Executor         => e.execute(() => code)
-      case e: ExecutionContext => e.execute(() => code)
+   inline def run[U](inline code: U): Unit =
+      checkNoTaskType[U & Matchable]
+      exec match
+         case e: Executor         => e.execute(() => code)
+         case e: ExecutionContext => e.execute(() => code)
+
+object Run:
+   /** Like `Future {..}`, but does not construct a future.
+     *
+     * @note
+     *   `code` is rejected if it has type `Runnable` or `Callable` because it's probably a mistake:
+     *   `Execute(code)` was written when `Execute(code.run())` or `Execute(code.call())` was
+     *   intended. In the unlikely case that `Execute(code)` was desired, add a type ascription:
+     *   `Execute(code: AnyRef)`.
+     */
+   def apply[U <: Matchable](code: => U)(using exec: Executor | ExecutionContext): Unit =
+      exec.run(code)
 
 object Execute:
-   /** Like `Future {..}`, but does not construct a future. */
-   def apply[U](code: => U)(using exec: Executor | ExecutionContext): Unit = exec.run(code)
+   @deprecated("renamed Run", since = "1.7")
+   def apply[U <: Matchable](code: => U)(using exec: Executor | ExecutionContext): Unit =
+      exec.run(code)
+
+object RunAfter:
+   /** Like `DelayedFuture {...}`, but does not construct a future.
+     * @note
+     *   `code` is rejected if it has type `Runnable` or `Callable` because it's probably a mistake:
+     *   `ExecuteAfter(...)(code)` was written when `ExecuteAfter(...)(code.run())` or
+     *   `ExecuteAfter(...)(code.call())` was intended. In the unlikely case that
+     *   `ExecuteAfter(...)(code)` was desired, add a type ascription:
+     *   `ExecuteAfter(...)(code: AnyRef)`.
+     */
+   inline def apply[U](delay: Double)(inline code: U)(using timer: Timer): Unit =
+      checkNoTaskType[U & Matchable]
+      timer.run(delay)(code)
 
 object ExecuteAfter:
-   /** Like `DelayedFuture {...}`, but does not construct a future. */
-   def apply[U](delay: Double)(code: => U)(using timer: Timer): Unit = timer.execute(delay)(code)
+   @deprecated("renamed RunAfter", since = "1.7")
+   inline def apply[U](delay: Double)(inline code: U)(using timer: Timer): Unit =
+      checkNoTaskType[U & Matchable]
+      timer.run(delay)(code)
+
+//noinspection UnitMethodIsParameterless
+private inline def checkNoTaskType[A <: Matchable] =
+   inline erasedValue[A] match
+      case _: Runnable =>
+         error("code target cannot be Runnable; use type ascription if needed")
+      case _: Callable[?] =>
+         error("code target cannot be Callable; use type ascription if needed")
+      case _ => unit

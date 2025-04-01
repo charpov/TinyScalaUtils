@@ -11,9 +11,9 @@ extension [Num: Numeric](n: Num)
       case char: Char             => char == 0
       case short: Short           => short == 0
       case int: Int               => int == 0
-      case long: Long             => long == 0
-      case float: Float           => float == 0
-      case double: Double         => double == 0
+      case long: Long             => long == 0L
+      case float: Float           => float == 0f
+      case double: Double         => double == 0.0
       case bigInt: BigInt         => bigInt.signum == 0
       case bidDecimal: BigDecimal => bidDecimal.signum == 0
       case _                      => n.sign.toInt == 0

@@ -303,6 +303,18 @@ val col = java.util.HashSet[Int]()
 col.nonEmpty // false
 ```
 
+### `allDistinct`
+
+Checks that a collection contains no duplicates:
+
+```scala
+import tinyscalautils.collection.allDistinct
+Seq(1, 2, 3, 4).allDistinct // true
+Seq(1, 2, 3, 2).allDistinct // false
+Seq.empty.allDistinct       // true
+```
+
+
 ## Package `assertions`
 
 ### `require` / `requireState`
@@ -541,7 +553,7 @@ import tinyscalautils.threads.Executors
 
 val timer = Executors.newTimer(size = 2)
 
-timer.execute(2.5):
+timer.run(2.5):
    // code
    
 val future = timer.schedule(1.5):
@@ -551,11 +563,11 @@ val future = timer.schedule(1.5):
 or implicitly:
 
 ```scala
-import tinyscalautils.threads.{ DelayedFuture, Executors, ExecuteAfter }
+import tinyscalautils.threads.{ DelayedFuture, Executors, RunAfter }
 
 given Timer = Executors.newTimer(2)
 
-ExecuteAfter(2.5):
+RunAfter(2.5):
    // code
 
 val future = DelayedFuture(1.5):
@@ -660,7 +672,7 @@ val f: Future[Int] = ...
 // completes with value of f, or TimeoutException after 3 seconds
 val f1: Future[Int] = f.orTimeout(3.0)
 
-// same, but executes cancelCode after the timeout
+// same, but runs cancelCode after the timeout
 val f2: Future[Int] = f.orTimeout(3.0, cancelCode = ...)
 
 // completes with value of f, or of altCode if f times out after 3 seconds
@@ -725,23 +737,26 @@ given ExecutionContext = tinyscalautils.threads.Executors.global
 val f = Future { ... } // runs on global thread pool
 ```
 
-### `run` / `Execute/ExecuteAfter`
+### `run` / `Run/RunAfter`
 
-Executes code on an executor:
+Runss code on an executor:
 
 ```scala
-import tinyscalautils.threads.{ run, Execute, ExecuteAfter }
+import tinyscalautils.threads.{ run, Run, RunAfter }
 
 given exec: Executor = ...
 
 exec.run:
    // code
 
-Execute:
+Run:
    // code
+   
+RunAfter(2.5):
+   // code   
 ```
 
-Both functions return `Unit` (no future).
+All functions return `Unit` (no future).
 
 ### `KeepThreadsFactory`
 
@@ -926,9 +941,8 @@ Additionally, if `awaitTermination` is set to true, the constructs also waits fo
 All waiting is done without a timeout.
 Exists also as a `withThreads()` variant for an unbounded thread pool.
 
-The construct can also be used with "fire-and-forget" code that does not produce a future.
-In this case, it returns _unit_.
-If instead one wants to return a value `v`, simply return `Future.successful(v)` (including in the rare case where `v` is a future).
+The construct can also be used with code that does not produce a future.
+It returns the value produces by the code.
 
 Instead of creating (and shutting down) a new thread pool, the construct can also reuse an existing thread pool:
 
@@ -1090,7 +1104,7 @@ val rand: Random = FastRandom(42L) // fast, but not thread-safe
 val rand: Random = FastRandom // fast, thread-safe, but cannot be seeded
 ```
 
-The implementation relies on `ThreadLocalRandom` and `SplittableRandom`, available in Java 11, not on the fancier generators that were added to Java 17. 
+The implementation relies on `ThreadLocalRandom` and `SplittableRandom`. 
 
 ### `nextInt`
 
@@ -1172,3 +1186,33 @@ n.isZero && !(n + 1).isZero // true
 ```
 
 The intent is to be more efficient (maybe) than `n == 0` on some types.
+
+### `isEven/isOdd`
+
+Check if numbers are even/odd:
+
+```scala
+import tinyscalautils.util.{ isEven, isOdd }
+
+val n = 2
+n.isEven      // true
+(n + 1).isOdd // true
+```
+
+This is implemented for both `Int` and `Long`.
+
+### `pow`
+
+Integer power of a number:
+
+```scala
+val n: Int = ...
+val m: BigDecimal = ...
+val p: Double = ...
+
+n.pow(7)
+m.pow(7)
+p.pow(7)
+```
+
+This is implemented for the `Numeric` classtype, with optimizations for common types.

@@ -17,7 +17,7 @@ extension (number: Int)
      * @since 1.0
      */
    infix inline def times(inline code: Any): Unit =
-      require(number >= 0, s"target number $number is negative")
+      require(number >= 0, s"target number must be non-negative, not $number")
       var i = number
       while i > 0 do
          i -= 1

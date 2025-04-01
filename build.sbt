@@ -1,8 +1,8 @@
 val ScalaTest = "org.scalatest"    %% "scalatest-funsuite" % "3.2.19"
-val JUnit     = "org.junit.jupiter" % "junit-jupiter"      % "5.12.1"
+val JUnit     = "org.junit.jupiter" % "junit-jupiter"      % "5.12.2"
 
-ThisBuild / version       := "1.6.1"
-ThisBuild / scalaVersion  := "3.3.5"
+ThisBuild / version       := "1.7.0"
+ThisBuild / scalaVersion  := "3.3.6"
 ThisBuild / versionScheme := Some("semver-spec")
 
 ThisBuild / Test / fork                 := true
@@ -38,7 +38,7 @@ ThisBuild / releaseNotesURL := Some(url("https://github.com/charpov/TinyScalaUti
 ThisBuild / publishMavenStyle := true
 ThisBuild / publishTo := Some(MavenCache("local-maven", baseDirectory.value / "docs" / "maven-add"))
 
-ThisBuild / javacOptions := Seq("--release", "11")
+ThisBuild / javacOptions := Seq("--release", "17")
 
 ThisBuild / scalacOptions := Seq(
   "-deprecation",   // Emit warning and location for usages of deprecated APIs.
@@ -48,7 +48,7 @@ ThisBuild / scalacOptions := Seq(
   "-source:future", // source version.
   "-language:noAutoTupling", // no auto-tupling
   "-Wunused:linted",         // unused stuff
-  "-java-output-version:11", // Target Java 11, which is needed anyway
+  "-java-output-version:17", // Target Java 17, which is needed anyway
 )
 
 val docOptions = Compile / doc / scalacOptions := Seq(
@@ -60,7 +60,7 @@ val docOptions = Compile / doc / scalacOptions := Seq(
   "-author",
   "-groups",
   "-external-mappings:.*scala/.*::scaladoc3::https://scala-lang.org/api/3.x/," +
-     ".*java/.*::javadoc::https://docs.oracle.com/en/java/javase/11/docs/api/java.base/",
+     ".*java/.*::javadoc::https://docs.oracle.com/en/java/javase/17/docs/api/java.base/",
   "-source-links:github://charpov/TinyScalaUtils/main",
 )
 

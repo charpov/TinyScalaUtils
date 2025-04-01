@@ -9,4 +9,4 @@ extension [A](left: A)
      *
      * @since 1.5.0
      */
-   inline infix def before[U](@unused right: U): A = left
+   inline infix def before[U](@unused right: U): left.type = left

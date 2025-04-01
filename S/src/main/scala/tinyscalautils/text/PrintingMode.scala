@@ -6,7 +6,9 @@ import tinyscalautils.timing.now
   *
   * For instance,
   *
-  * {{{printf("(%d,%d)%n", x, y)}}}
+  * {{{
+  * printf("(%d,%d)%n", x, y)
+  * }}}
   *
   * might produce output of the form: `T1 at 09:15:49.525: (2,3)` where `T1` is the name of the
   * thread that called `printf`.
@@ -43,6 +45,7 @@ end PrintingMode
 private def thread =
    val theThread = Thread.currentThread
    val name      = theThread.getName
+   // replace getId with threadId in Java 19+
    if name.nonEmpty then name else "anonymous thread " + theThread.getId
 
 /** Standard printing. Equivalent to `Predef.printf/println`. */
@@ -79,8 +82,8 @@ given threadTimeMode: PrintingMode with
       val format = if newline then "%1$s at %2$TT.%2$TL: %3$s%n" else "%1$s at %2$TT.%2$TL: %3$s"
       Predef.printf(format, thread, now(), arg)
 
-/** Adds thread name and time, but hides hours and minutes. Strings are printed as: `<thread> at
-  * XX:XX:SS.millis: <string>`
+/** Adds thread name and time, but hides hours and minutes. Strings are printed as:
+  * `<thread> at XX:XX:SS.millis: <string>`
   */
 given threadTimeDemoMode: PrintingMode with
    def print(arg: Any, newline: Boolean): Unit =

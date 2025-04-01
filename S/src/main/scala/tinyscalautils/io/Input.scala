@@ -1,12 +1,13 @@
 package tinyscalautils.io
 
-import java.io.{ Closeable, File, IOException, InputStream }
+import java.io.{ Closeable, File, InputStream }
 import java.net.{ URI, URL }
 import java.nio.file.{ Files, Path }
 import scala.collection.{ AbstractIterator, IterableFactory }
 import scala.io.Codec.UTF8
 import scala.io.{ Codec, Source }
 import scala.util.Using
+import scala.util.control.NonFatal
 
 private lazy val nonEmpty = (str: String) => Option.unless(str.isBlank)(str)
 
@@ -59,8 +60,7 @@ given URLStringIsInput: Input[String]        = Source.fromURL(_)
   *   a factory for the desired collection type.
   *
   * @param silent
-  *   if true, I/O errors (unreadable files, non-text files, ...) are ignored, and an empty
-  *   collection is returned.
+  *   if true, errors are ignored, and an empty collection is returned.
   *
   * @since 1.3
   */
@@ -68,9 +68,12 @@ def readAll[A, C[_], I: Input](
     factory: IterableFactory[C]
 )(in: I, parser: String => IterableOnce[A] = nonEmpty, silent: Boolean = false): C[A] =
    try Using.resource(in.source)(_.getLines().flatMap(parser).to(factory))
-   catch case e: IOException => if silent then factory.empty else throw e
+   catch case NonFatal(e) => if silent then factory.empty else throw e
 
-/** Simplified form of `readAll` that uses `List` as the factory. */
+/** Simplified form of `readAll` that uses `List` as the factory.
+  *
+  * @since 1.3
+  */
 def readAll[A, I: Input](in: I, parser: String => IterableOnce[A], silent: Boolean): List[A] =
    readAll(List)(in, parser, silent = silent)
 
@@ -90,7 +93,7 @@ def readAll[A, I: Input](in: I, parser: String => IterableOnce[A]): List[A] =
 def readAll[I: Input](in: I, silent: Boolean): List[String] = readAll(List)(in, silent = silent)
 
 /** Simplified form of `readAll` that does not parse (blank lines are ignored), uses `List` as the
-  * factory, and uses `false` for the `silent` * argument.
+  * factory, and uses `false` for the `silent` argument.
   *
   * @since 1.3
   */
@@ -105,14 +108,13 @@ def readAll[I: Input](in: I): List[String] = readAll(List)(in, silent = false)
   *   the source to read.
   *
   * @param silent
-  *   if true, I/O errors (unreadable files, non-text files, ...) are ignored, and an empty string
-  *   is returned.
+  *   if true, errors are ignored, and an empty string is returned.
   *
   * @since 1.3
   */
 def read[I: Input](in: I, silent: Boolean = false): String =
    try Using.resource(in.source)(_.mkString)
-   catch case e: IOException => if silent then "" else throw e
+   catch case NonFatal(e) => if silent then "" else throw e
 
 private class CloseableIterator[A](i: Iterator[A], closing: => Unit)
     extends AbstractIterator[A]
@@ -124,9 +126,6 @@ end CloseableIterator
 
 /** Parses a text source (sequence of lines) using a given parser to split each line. Lines that
   * parse to an empty sequence (such as `None`) are ignored. Encoding is UTF8.
-  *
-  * @note
-  *   If the input is closable, this function closes it.
   *
   * @return
   *   an iterator of all the parts of all the lines; closing this iterator closes the underlying

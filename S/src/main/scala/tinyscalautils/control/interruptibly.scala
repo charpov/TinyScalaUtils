@@ -66,5 +66,4 @@ given InterruptiblyExtensions: AnyRef with
    extension [I1, I2, O1, O2](h: ((I1, I2) => O1) => O2)(using d1: DummyImplicit, d2: DummyImplicit)
       /** $text2 */
       @throws[InterruptedException]
-      def interruptibly: ((I1, I2) => O1) => O2 =
-         f => h(f.interruptibly)
+      def interruptibly: ((I1, I2) => O1) => O2 = f => h(f.interruptibly)

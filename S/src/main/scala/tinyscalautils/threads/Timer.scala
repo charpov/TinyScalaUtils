@@ -16,18 +16,27 @@ trait Timer extends AutoCloseable:
    def schedule[A](delay: Double)(code: => A): Future[A]
 
    /** Schedules a task for delayed execution. */
+   def run[U](delay: Double)(code: => U): Unit
+   
+   @deprecated("renamed run", since = "1.7")
    def execute[U](delay: Double)(code: => U): Unit
 
    /** Schedules a task for repeated execution.
      *
      * Note that there is no mechanism to cancel the task, short of shutting down the timer
      */
+   def runAtFixedRate[U](initDelay: Double, rate: Double)(code: => U): Unit
+   
+   @deprecated("renamed runAtFixedRate", since = "1.7")
    def scheduleAtFixedRate[U](initDelay: Double, rate: Double)(code: => U): Unit
 
    /** Schedules a task for repeated execution.
      *
      * Note that there is no mechanism to cancel the task, short of shutting down the timer
      */
+   def runWithFixedDelay[U](initDelay: Double, delay: Double)(code: => U): Unit
+   
+   @deprecated("renamed runWithFixedDelay", since = "1.7")
    def scheduleWithFixedDelay[U](initDelay: Double, delay: Double)(code: => U): Unit
 
    /** Shuts down the timer.
@@ -57,15 +66,23 @@ private class TimerPool(size: Int, tf: ThreadFactory, rej: RejectedExecutionHand
       exec.schedule(task, delay.toNanos, NANOSECONDS)
       p.future
 
-   def execute[U](delay: Double)(code: => U): Unit =
+   def execute[U](delay: Double)(code: => U): Unit = run(delay)(code)
+   
+   def run[U](delay: Double)(code: => U): Unit =
       val task: Runnable = () => code
       exec.schedule(task, delay.toNanos, NANOSECONDS)
 
    def scheduleAtFixedRate[U](initDelay: Double, rate: Double)(code: => U): Unit =
+      runAtFixedRate(initDelay, rate)(code)
+      
+   def runAtFixedRate[U](initDelay: Double, rate: Double)(code: => U): Unit =
       val task: Runnable = () => code
       exec.scheduleAtFixedRate(task, initDelay.toNanos, rate.toNanos, NANOSECONDS)
 
    def scheduleWithFixedDelay[U](initDelay: Double, delay: Double)(code: => U): Unit =
+      runWithFixedDelay(initDelay, delay)(code)
+      
+   def runWithFixedDelay[U](initDelay: Double, delay: Double)(code: => U): Unit =
       val task: Runnable = () => code
       exec.scheduleWithFixedDelay(task, initDelay.toNanos, delay.toNanos, NANOSECONDS)
 

@@ -1,6 +1,7 @@
 package tinyscalautils.java;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Java wrappers for {@code text} package.
@@ -141,11 +142,11 @@ public final class Text {
    * Note that, contrary to the Scala variant, this method sets {@code includeSystem} to true by default.
    */
   public static String printout(Runnable code) {
-    return printout(false, true, Charset.defaultCharset(), code);
+    return printout(false, true, StandardCharsets.UTF_8, code);
   }
 
   public static String printout(boolean includeErr, boolean includeSystem, Runnable code) {
-    return printout(includeErr, includeSystem, Charset.defaultCharset(), code);
+    return printout(includeErr, includeSystem, StandardCharsets.UTF_8, code);
   }
 
   public static String printout(boolean includeErr, boolean includeSystem, Charset charset, Runnable code) {

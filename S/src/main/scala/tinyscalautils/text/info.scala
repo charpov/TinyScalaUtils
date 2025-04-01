@@ -3,7 +3,11 @@ package tinyscalautils.text
 import tinyscalautils.assertions.require
 import scala.util.Properties as Props
 
-/** Basic runtime info. */
+/** Prints basic runtime info.
+  *
+  * @throws IllegalArgumentException
+  *   if `newLines` is negative.
+  */
 def info(newlines: Int = 0): Unit =
    require(newlines >= 0, s"number of newlines must be non-negative, not $newlines")
    val mem   = sys.runtime.maxMemory().toDouble / (1 << 30)

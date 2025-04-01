@@ -1,13 +1,13 @@
 package tinyscalautils.collection
 
 import org.scalatest.funsuite.AnyFunSuite
+import tinyscalautils.lang.unit
 import tinyscalautils.timing.timeOf
 import tinyscalautils.util.FastRandom
 
 import scala.collection.mutable
-import tinyscalautils.lang.unit
-
 import scala.util.Random
+import scala.util.chaining.scalaUtilChainingOps
 
 class PickOneSuite extends AnyFunSuite:
    private val seq  = IndexedSeq.tabulate(1_000_000)(_.toString)
@@ -37,10 +37,7 @@ class PickOneSuite extends AnyFunSuite:
       assert(t2 / t1 > 10.0)
 
    test("ranges"):
-      // This is the same test as in RandomRangeSuite
+      // This is the same test as in util.RandomRangeSuite
       for range <- Seq(0 until 1, 1 to 10, 100 until 200) do
          val set = mutable.BitSet.fromSpecific(range)
-         while set.nonEmpty do
-            val n = range.pickOne
-            assert(n in range)
-            set -= n
+         while set.nonEmpty do set -= range.pickOne.tap(n => assert(n in range))

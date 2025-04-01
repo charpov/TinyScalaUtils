@@ -19,7 +19,7 @@ inline private val SpinningNanos = 2_000_000L
 inline private val MinSleepNanos = 100_000_000L
 
 private def delayNanos(nanos: Long, start: Long = getTime()): Unit =
-   if !Thread.currentThread().isInterrupted then
+   if nanos > 0L && !Thread.currentThread.isInterrupted then
       val end       = start + nanos
       var sleepTime = (end - getTime()) / 2
       try
@@ -31,36 +31,23 @@ private def delayNanos(nanos: Long, start: Long = getTime()): Unit =
 
 /** Adds sleep time so code takes up specified duration.
   *
-  * An argument can be used to specify the starting clock, as per [[getTime]]; this is useful when
-  * preliminary computation needs to be performed before sleeping.
-  *
   * This method does not throw `InterruptedException`. If the thread is interrupted, the sleeping
   * stops and the thread is left interrupted.
   *
   * If the code fails, the exception is thrown _after_ the specified delay.
+  *
+  * An argument can be used to specify the starting clock, as per [[getTime]]; this is useful when a
+  * preliminary computation needs to be performed before sleeping. The value of this argument is
+  * assumed to be _in the past_. (In particular, delaying by a negative amount of time does not
+  * delay, independently from the `start` value.)
   *
   * @param start
   *   A starting point for sleep time, as per [[getTime]].
   *
   * @since 1.0
   */
-inline def delay[A](seconds: Double, start: Long)(inline code: A): A =
-   Try(code).before(delayNanos(seconds.toNanos, start)).get
-
-/** Adds sleep time so code takes up specified duration.
-  *
-  * This method does not throw `InterruptedException`. If the thread is interrupted, the sleeping
-  * stops and the thread is left interrupted.
-  *
-  * If the code fails, the exception is thrown _after_ the specified delay.
-  *
-  * @since 1.0
-  */
-def delay[A](seconds: Double)(code: => A): A =
-   if seconds <= 0.0 then code
-   else
-      val start = getTime()
-      Try(code).before(delayNanos(seconds.toNanos, start)).get
+inline def delay[A](seconds: Double, start: Long = getTime())(inline code: A): A =
+   if seconds <= 0.0 then code else Try(code).before(delayNanos(seconds.toNanos, start)).get
 
 /** Pauses the calling thread for the specified amount of time.
   *
@@ -68,6 +55,11 @@ def delay[A](seconds: Double)(code: => A): A =
   *   - durations are specified in seconds as a floating point number.
   *   - the method never undershoots, as it sometimes happens with `Thread.sleep` on some platforms.
   *   - `InterruptedException` is not thrown; the thread is left interrupted instead.
+  *
+  * An argument can be used to specify the starting clock, as per [[getTime]]; this is useful when a
+  * preliminary computation needs to be performed before sleeping. The value of this argument is
+  * assumed to be _in the past_. (In particular, delaying by a negative amount of time does not
+  * delay, independently from the `start` value.)
   *
   * @param start
   *   A starting point for sleep time, as per [[getTime]].
@@ -107,11 +99,12 @@ given SlowIterator: AnyRef with
          var delay     = 0L
 
          new Iterator[A]():
-            def hasNext = source.hasNext || (remaining > 0) && {
-               delayNanos(remaining)
-               remaining = 0L
-               false
-            }
+            def hasNext =
+               source.hasNext || (remaining > 0) && {
+                  delayNanos(remaining)
+                  remaining = 0L
+                  false
+               }
 
             def next() =
                if remaining > 0 then

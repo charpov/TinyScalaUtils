@@ -3,12 +3,31 @@ package tinyscalautils.threads
 import java.util.concurrent.ExecutorService
 import scala.compiletime.summonInline
 import scala.concurrent.duration.Duration
-import scala.concurrent.{ Await, ExecutionContextExecutorService, Future }
+import scala.concurrent.duration.Duration.Inf
+import scala.concurrent.{ Await, Awaitable, ExecutionContextExecutorService, Future }
+import tinyscalautils.control.before
+
+/** The given thread pool.
+  *
+  * For instance:
+  * {{{
+  *   withThreads(16):
+  *     val exec = theThreads
+  *     ...
+  * }}}
+  *
+  * @note
+  *   This is the same as `summon[ExecutionContextExecutorService]`.
+  *
+  * @since 1.7
+  */
+def theThreads(using exec: ExecutionContextExecutorService): ExecutionContextExecutorService = exec
 
 /** Runs code within an implicit execution context.
   *
-  * If the code produces a future, this construct waits for completion of this future and returns
-  * its value. Otherwise, it returns _unit_.
+  * If the code produces a future (or more generally, an `Awaitable`), this construct waits for
+  * completion of this future and returns its value. Otherwise, it returns the value of the code
+  * itself.
   *
   * For example:
   *
@@ -25,30 +44,33 @@ import scala.concurrent.{ Await, ExecutionContextExecutorService, Future }
   * @since 1.6
   */
 @throws[InterruptedException]
-transparent inline def withThreads[A, Exec](executor: Exec, inline shutdown: Boolean)(
+transparent inline def withThreads[Exec, A](executor: Exec, inline shutdown: Boolean)(
     code: Exec ?=> A
-) =
-   val f = exec => code(using exec)
-   inline f match
-      case g: (Exec => Future[?]) =>
-         _withThreadPoolAndWait(executor, shutdown)(g)
-      case _ =>
-         _withThreadPoolAndWait(executor, shutdown)(exec => { f(exec); Future.unit })
+): Any =
+   try _run(executor)(exec => code(using exec))
+   finally if shutdown then summonInline[Exec <:< ExecutorService](executor).shutdown()
+
+private transparent inline def _run[Exec, A](executor: Exec)(code: Exec => A) =
+   inline code match
+      case futureCode: Function[Exec, Awaitable[?]] => Await.result(futureCode(executor), Inf)
+      case _ => Await.result(Future.successful(code(executor)), Inf)
 
 /** Runs code within an implicit execution context.
   *
-  * This is equivalent to `withThreads(exec, shutdown = false)(code)`.
+  * This is equivalent to `withThreads(executor, shutdown = false)(code)`.
   *
   * @since 1.6
   */
 @throws[InterruptedException]
-transparent inline def withThreads[A, Exec](exec: Exec)(code: Exec ?=> A): Any =
-   withThreads(exec, shutdown = false)(code)
+transparent inline def withThreads[Exec, A](executor: Exec)(
+    code: Exec ?=> A
+): Any = withThreads(executor, shutdown = false)(code)
 
 /** Runs code within a newly created implicit thread pool.
   *
-  * If the code produces a future, this construct waits for completion of this future and returns
-  * its value. Otherwise, it returns _unit_.
+  * If the code produces a future (or more generally, an `Awaitable`), this construct waits for
+  * completion of this future and returns its value. Otherwise, it returns the value of the code
+  * itself.
   *
   * The thread pool is shutdown and, if `awaitTermination` is true, the code waits for its
   * termination.
@@ -64,6 +86,7 @@ transparent inline def withThreads[A, Exec](exec: Exec)(code: Exec ?=> A): Any =
   *
   * @throws IllegalArgumentException
   *   if `maxThreads` is not positive.
+  *
   * @since 1.6
   */
 @throws[InterruptedException]
@@ -94,6 +117,7 @@ transparent inline def withThreads[A](
   * @note
   *   This is not quite equivalent to `withThreads(someLargeNumber, awaitTermination)(code)` because
   *   the keepalive time is 1 second on unlimited thread pools but is unlimited on bounded pools.
+  *
   * @since 1.6
   */
 @throws[InterruptedException]
@@ -108,34 +132,16 @@ transparent inline def withThreads[A](awaitTermination: Boolean)(
   * @since 1.6
   */
 @throws[InterruptedException]
-transparent inline def withThreads[A]()(code: ExecutionContextExecutorService ?=> A): Any =
+transparent inline def withThreads[A]()(code: ExecutionContextExecutorService ?=> A) =
    _withThreads(0, awaitTermination = false)(code)
 
-transparent inline def _withThreads[A](n: Int, awaitTermination: Boolean)(
+private transparent inline def _withThreads[A](n: Int, awaitTermination: Boolean)(
     code: ExecutionContextExecutorService ?=> A
-) =
-   val f = exec => code(using exec)
-   inline f match
-      case g: (ExecutionContextExecutorService => Future[?]) =>
-         _withThreadsAndWait(n, awaitTermination)(g)
-      case _ =>
-         _withThreadsAndWait(n, awaitTermination)(exec => { f(exec); Future.unit })
-
-def _withThreadsAndWait[A](maxThreads: Int, awaitTermination: Boolean = false)(
-    code: ExecutionContextExecutorService => Future[A]
-): A =
-   val exec =
-      if maxThreads == 0 then Executors.newUnlimitedThreadPool()
-      else Executors.newThreadPool(maxThreads)
-   val result = _withThreadPoolAndWait(exec, shutdown = true)(code)
-   if awaitTermination then exec.awaitTermination()
-   result
-
-inline def _withThreadPoolAndWait[A, Exec](exec: Exec, inline shutdown: Boolean = false)(
-    code: Exec => Future[A]
-): A =
-   try Await.result(code(exec), Duration.Inf)
-   finally if shutdown then summonInline[Exec <:< ExecutorService](exec).shutdown()
+): Any =
+   val executor = if n == 0 then Executors.newUnlimitedThreadPool() else Executors.newThreadPool(n)
+   if awaitTermination then
+      withThreads(executor, shutdown = true)(code) before executor.awaitTermination()
+   else withThreads(executor, shutdown = true)(code)
 
 @deprecated("use withThreads instead", since = "1.6")
 inline def withThreadPoolAndWait[A, Exec](exec: Exec, inline shutdown: Boolean = false)(
@@ -165,9 +171,10 @@ def withUnlimitedThreadsAndWait[A](awaitTermination: Boolean = false)(
 @deprecated("use withThreads instead", since = "1.6")
 def withUnlimitedThreads[U](awaitTermination: Boolean = false)(
     code: ExecutionContextExecutorService ?=> U
-): Unit = withUnlimitedThreadsAndWait(awaitTermination):
-   code
-   Future.unit
+): Unit =
+   withUnlimitedThreadsAndWait(awaitTermination):
+      code
+      Future.unit
 
 @deprecated("use withThreads instead", since = "1.6")
 def withUnlimitedThreadsAndWait[A](code: ExecutionContextExecutorService ?=> Future[A]): A =

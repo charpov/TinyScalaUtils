@@ -7,8 +7,8 @@ import tinyscalautils.assertions.*
   * @since 1.1
   */
 def plural[A: Numeric](x: A, singularForm: String, pluralForm: String): String =
-   val num = Numeric[A]
-   if num.lteq(x, num.one) then singularForm else pluralForm
+   val numeric = Numeric[A]
+   if numeric.lteq(x, numeric.one) then singularForm else pluralForm
 
 /** A variant of `plural` that guesses the plural form (e.g., cat -> cats, DOG -> DOGS, platypus ->
   * platypuses).
@@ -17,9 +17,10 @@ def plural[A: Numeric](x: A, singularForm: String, pluralForm: String): String =
   */
 def plural[A: Numeric](x: A, str: String): String =
    require(str.nonEmpty)
-   val ext = str.last match
-      case 's'            => "es"
-      case 'S'            => "ES"
-      case c if c.isUpper => "S"
-      case _              => "s"
+   val ext =
+      str.last match
+         case 's'            => "es"
+         case 'S'            => "ES"
+         case c if c.isUpper => "S"
+         case _              => "s"
    plural(x, str, str + ext)

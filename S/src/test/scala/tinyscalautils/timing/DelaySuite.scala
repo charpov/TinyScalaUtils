@@ -10,6 +10,11 @@ class DelaySuite extends AnyFunSuite with Tolerance:
       Thread.sleep(millis)
       true
 
+   test("no delay"):
+      assert(timeOf(delay(0.0)(slowTrue(1000))) === 1.0 +- 0.1)
+      assert(timeOf(delay(-1.0)(slowTrue(1000))) === 1.0 +- 0.1)
+      assert(timeOf(delay(-1.0, 42L)(slowTrue(1000))) === 1.0 +- 0.1)
+
    test("delay, start"):
       val (v, t) = timeIt:
          val start = getTime()

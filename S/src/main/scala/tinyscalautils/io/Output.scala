@@ -1,7 +1,7 @@
 package tinyscalautils.io
 
 import java.io.{ File, OutputStream, OutputStreamWriter }
-import java.nio.charset.StandardCharsets
+import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.{ Files, Path }
 import scala.util.Using
 
@@ -18,8 +18,6 @@ object Output:
 extension [O: Output](out: O)
    /** Opens the output as a stream. */
    def destination: OutputStream = Output[O].destination(out)
-
-private val UTF8 = StandardCharsets.UTF_8
 
 given OutputStreamIsOutput: Output[OutputStream] = identity
 given PathIsOutput: Output[Path]                 = Files.newOutputStream(_)
@@ -43,7 +41,7 @@ given FileIsOutput: Output[File]                 = _.toPath.destination
   *   when true, adds a final newline to the output.
   */
 def write[O: Output](out: O, newline: Boolean = false)(str: CharSequence): Unit =
-   Using.resource(OutputStreamWriter(out.destination, UTF8)): writer =>
+   Using.resource(OutputStreamWriter(out.destination, UTF_8)): writer =>
       writer.write(str.toString)
       if newline then writer.write('\n')
 
@@ -59,7 +57,7 @@ def write[O: Output](out: O, newline: Boolean = false)(str: CharSequence): Unit 
 def writeAll[A, O: Output](pre: String = "", sep: String = "", post: String = "")(
     out: O
 )(values: IterableOnce[A]): Unit =
-   Using.resource(OutputStreamWriter(out.destination, UTF8)): writer =>
+   Using.resource(OutputStreamWriter(out.destination, UTF_8)): writer =>
       writer.write(pre)
       val i = values.iterator
       if i.nonEmpty then
