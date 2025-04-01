@@ -1,1 +1,2 @@
 - atomic stamped Boolean
+- 'then' operator for sequential composition, similar to 'before'. Is it worth it?
