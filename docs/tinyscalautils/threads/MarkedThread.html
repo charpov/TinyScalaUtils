@@ -7,13 +7,13 @@
 </div>
 <div class="main-signature mono-small-block">
  <div class="signature">
-  <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">trait </span></span><a href="https://scala-lang.org/api/3.x/tinyscalautils/threads/MarkedThread.html" t="n" class="documentableName ">MarkedThread</a><span t="k"> extends </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Thread.html" t="t">Thread</a></span><span class="signature-long"></span>
+  <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">trait </span></span><a href="MarkedThread.html" t="n" class="documentableName ">MarkedThread</a><span t="k"> extends </span><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Thread.html" t="t">Thread</a></span><span class="signature-long"></span>
  </div>
 </div>
 <div class="cover">
  <div class="doc">
   <p>A marker trait for test threads.</p>
-  <p>This can be used as a cheap alternative to <a href="https://scala-lang.org/api/3.x/tinyscalautils/threads/KeepThreadsFactory.html">KeepThreadsFactory</a> to keep track of threads created by a factory, as a group.</p>
+  <p>This can be used as a cheap alternative to <a href="KeepThreadsFactory.html">KeepThreadsFactory</a> to keep track of threads created by a factory, as a group.</p>
  </div>
  <section id="attributes">
   <h2 class="h500">Attributes</h2>
@@ -24,7 +24,7 @@
    <dd class="body-medium">
     <div>
      <div>
-      <p><span data-unresolved-link="">isMarkedThread</span></p>
+      <p><a href="../threads.html#isMarkedThread-fffffbc2">isMarkedThread</a></p>
      </div>
     </div>
    </dd>
@@ -48,7 +48,7 @@
      <button type="button" class="label-only-button" onclick="zoomOut()">Reset zoom</button><button type="button" class="label-only-button" onclick="hideGraph()">Hide graph</button><button type="button" class="label-only-button" onclick="showGraph()">Show graph</button>
      <svg id="graph"></svg>
      <script type="text/dot" id="dot"> digraph g {
- node0 [id=node0, label="<span style=\"color: #FFFFFF;\">trait <a href=\"https://scala-lang.org/api/3.x/tinyscalautils/threads/MarkedThread.html\" t=\"n\">MarkedThread</a></span>", class="trait vertex"];
+ node0 [id=node0, label="<span style=\"color: #FFFFFF;\">trait <a href=\"MarkedThread.html\" t=\"n\">MarkedThread</a></span>", class="trait vertex"];
 node1 [id=node1, label="<span style=\"color: #FFFFFF;\">class <a href=\"https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Thread.html\" t=\"n\">Thread</a></span>", class="class vertex"];
 node2 [id=node2, label="<span style=\"color: #FFFFFF;\">class <a href=\"https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Object.html\" t=\"n\">Object</a></span>", class="class vertex"];
 node3 [id=node3, label="<span style=\"color: #FFFFFF;\">class <span data-unresolved-link=\"\" t=\"n\">Any</span></span>", class="class vertex"];
@@ -111,36 +111,6 @@ node5 -> node2;
         <div class="documentableList-expander">
          <button class="icon-button show-content expand"></button>
          <h4 class="groupHeader h200">Inherited methods</h4>
-        </div>
-        <div class="documentableElement" id="checkAccess-94c" data-f-keywords="final" data-f-inherited="Thread">
-         <div class="documentableElement-expander">
-          <button class="icon-button ar show-content"></button>
-          <div class="header monospace mono-medium">
-           <div class="signature">
-            <span class="modifiers"><span t="k">final </span></span><span class="kind"><span t="k">def </span></span><a href="MarkedThread.html#checkAccess-94c" t="n" class="documentableName ">checkAccess</a>(<span t="k"></span>): <a href="https://scala-lang.org/api/3.x/scala/Unit.html" t="t">Unit</a>
-           </div>
-          </div>
-         </div>
-         <div class="docs">
-          <span class="modifiers"></span>
-          <div>
-           <div class="originInfo"></div>
-           <div class="memberDocumentation">
-            <div class="cover">
-             <div class="doc"></div>
-             <h2 class="h200">Attributes</h2>
-             <dl class="attributes attributes-small">
-              <dt class="body-small">
-               Inherited from:
-              </dt>
-              <dd class="body-medium">
-               <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Thread.html#checkAccess--">Thread</a>
-              </dd>
-             </dl>
-            </div>
-           </div>
-          </div>
-         </div>
         </div>
         <div class="documentableElement" id="getContextClassLoader-fffff9d7" data-f-inherited="Thread">
          <div class="documentableElement-expander">
@@ -852,6 +822,45 @@ node5 -> node2;
          <button class="icon-button show-content expand"></button>
          <h4 class="groupHeader h200">Deprecated and Inherited methods</h4>
         </div>
+        <div class="documentableElement" id="checkAccess-94c" data-f-keywords="final" data-f-inherited="Thread">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div>
+           <span class="annotations monospace"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Deprecated.html" t="t">@Deprecated</a>(since = "17", forRemoval = true) </span>
+          </div>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">final </span></span><span class="kind"><span t="k">def </span></span><a href="MarkedThread.html#checkAccess-94c" t="n" class="documentableName deprecated">checkAccess</a>(<span t="k"></span>): <a href="https://scala-lang.org/api/3.x/scala/Unit.html" t="t">Unit</a>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">
+               Deprecated
+              </dt>
+              <dd class="body-medium">
+               true
+              </dd>
+              <dt class="body-small">
+               Inherited from:
+              </dt>
+              <dd class="body-medium">
+               <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Thread.html#checkAccess--">Thread</a>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
         <div class="documentableElement" id="countStackFrames-ffffff27" data-f-inherited="Thread">
          <div class="documentableElement-expander">
           <button class="icon-button ar show-content"></button>
@@ -895,7 +904,7 @@ node5 -> node2;
          <div class="documentableElement-expander">
           <button class="icon-button ar show-content"></button>
           <div>
-           <span class="annotations monospace"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Deprecated.html" t="t">@Deprecated</a>(since = "1.2") </span>
+           <span class="annotations monospace"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Deprecated.html" t="t">@Deprecated</a>(since = "1.2", forRemoval = true) </span>
           </div>
           <div class="header monospace mono-medium">
            <div class="signature">
@@ -973,7 +982,7 @@ node5 -> node2;
          <div class="documentableElement-expander">
           <button class="icon-button ar show-content"></button>
           <div>
-           <span class="annotations monospace"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Deprecated.html" t="t">@Deprecated</a>(since = "1.2") </span>
+           <span class="annotations monospace"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Deprecated.html" t="t">@Deprecated</a>(since = "1.2", forRemoval = true) </span>
           </div>
           <div class="header monospace mono-medium">
            <div class="signature">
