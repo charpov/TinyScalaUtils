@@ -7,7 +7,7 @@ import tinyscalautils.test.text.{ TruncatingPrettifier, noAnalysis }
   *
   * @since 1.2
   */
-def gradingPrettifier(bypass: Matchable => Boolean = _ => false): Prettifier =
+def gradingPrettifier(prettify: Matchable => Boolean = _ => true): Prettifier =
    val p1 = Prettifier.truncateAt(SizeLimit(32))
-   val p2 = TruncatingPrettifier(256)(o => if bypass(o) then o.toString else p1(o))
+   val p2 = TruncatingPrettifier(256)(o => if prettify(o) then p1(o) else o.toString)
    p2.noAnalysis

@@ -212,5 +212,5 @@ class GradingTests extends AnyFunSuite with Tolerance:
       assert(!Tests().run(None, Args(R).copy(configMap = config4)).succeeds())
 
       R.lastEvent match
-         case Some(ev: TestFailed) => assert(ev.message == """test name in "failed" set""")
+         case Some(ev: TestFailed) => assert(ev.message == "test name in 'failed' set")
          case other                => fail(s"unexpected: $other ")

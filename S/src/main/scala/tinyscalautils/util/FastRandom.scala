@@ -39,8 +39,11 @@ object FastRandom extends FastRandom(ThreadLocalRandomAdapter):
    /** Interruptible variant, same as the `interruptible` extension, but cached for performance. */
    lazy val interruptible: Random = InterruptibleRandom(this)
 end FastRandom
+// Maybe Random.from could help here (it does very much the same thing as RandomAdapter),
+// but it's Java 19.
 
-private abstract class RandomAdapter(seed: Long) extends ju.Random(seed):
+// The seed 0L is unimportant, but we don't have access to the Random private constructor.
+private[tinyscalautils] abstract class RandomAdapter extends ju.Random(0L):
    // _rand is set in super constructor, via setSeed.
    // must use uninitialized because an explicit assignment to null would overwrite the value
    // set by setSeed.
@@ -105,21 +108,22 @@ private abstract class RandomAdapter(seed: Long) extends ju.Random(seed):
 end RandomAdapter
 
 // wrapper on a SplittableRandom, which can be seeded
-private final class SplittableRandomAdapter(seed: Long) extends RandomAdapter(seed):
+private final class SplittableRandomAdapter(seed: Long) extends RandomAdapter:
    // super.setSeed(seed) would be needed to reset haveNextNextGaussian, but the value doesn't
    // matter because we bypass the nextGaussian implementation from Random
-   override def setSeed(seed: Long): Unit = _rand = SplittableRandom(seed)
-   def rand                               = _rand
+   override def setSeed(unused: Long): Unit = _rand = SplittableRandom(seed)
+
+   protected def rand = _rand
 end SplittableRandomAdapter
 
 /* wrapper on ThreadLocalRandom.current, so each thread has its own */
-private object ThreadLocalRandomAdapter extends RandomAdapter(0L):
-   protected def rand = ThreadLocalRandom.current
-
+private object ThreadLocalRandomAdapter extends RandomAdapter:
    // _rand is null during super-construction, including an initial call to setSeed
-   override def setSeed(seed: Long): Unit =
+   override def setSeed(unused: Long): Unit =
       if _rand ne null then throw UnsupportedOperationException("cannot be seeded")
       _rand = Random.self // anything not null; never used
+
+   protected def rand = ThreadLocalRandom.current
 end ThreadLocalRandomAdapter
 
 private final class InterruptibleRandom(rand: Random) extends Random(rand.self):

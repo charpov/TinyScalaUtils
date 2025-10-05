@@ -1,7 +1,7 @@
 val ScalaTest = "org.scalatest"    %% "scalatest-funsuite" % "3.2.19"
-val JUnit     = "org.junit.jupiter" % "junit-jupiter"      % "5.12.2"
+val JUnit     = "org.junit.jupiter" % "junit-jupiter"      % "5.13.4"
 
-ThisBuild / version       := "1.7.0"
+ThisBuild / version       := "1.8.0"
 ThisBuild / scalaVersion  := "3.3.6"
 ThisBuild / versionScheme := Some("semver-spec")
 
@@ -9,7 +9,7 @@ ThisBuild / Test / fork                 := true
 ThisBuild / Test / parallelExecution    := false
 ThisBuild / Test / run / outputStrategy := Some(StdoutOutput)
 
-ThisBuild / organization         := "com.github.charpov"
+ThisBuild / organization         := "io.github.charpov"
 ThisBuild / organizationName     := "charpov"
 ThisBuild / organizationHomepage := Some(url("https://github.com/charpov"))
 
@@ -36,7 +36,11 @@ ThisBuild / apiURL          := Some(url("https://charpov.github.io/TinyScalaUtil
 ThisBuild / releaseNotesURL := Some(url("https://github.com/charpov/TinyScalaUtils/releases"))
 
 ThisBuild / publishMavenStyle := true
-ThisBuild / publishTo := Some(MavenCache("local-maven", baseDirectory.value / "docs" / "maven-add"))
+ThisBuild / pomIncludeRepository := { _ => false }
+ThisBuild / publishTo := {
+  if (isSnapshot.value) Some(MavenCache("local-maven", baseDirectory.value / "docs" / "maven-add"))
+  else localStaging.value
+}  
 
 ThisBuild / javacOptions := Seq("--release", "17")
 

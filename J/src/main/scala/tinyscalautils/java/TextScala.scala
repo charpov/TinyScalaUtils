@@ -9,6 +9,8 @@ private final class TextScala:
       )
 
    def info(): Unit = tinyscalautils.text.info()
+   
+   def info(newlines: Int): Unit = tinyscalautils.text.info(newlines)
 
    def plural(x: Number, singularForm: String, pluralForm: String): String =
       tinyscalautils.text.plural(x.doubleValue(), singularForm, pluralForm)

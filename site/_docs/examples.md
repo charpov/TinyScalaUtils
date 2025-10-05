@@ -1142,6 +1142,18 @@ log2(8) // 3
 log2(1L << 62) // 62
 ```
 
+### `isPowerOf2`
+
+True if a number is a power of two:
+
+```scala
+import tinyscalautils.util.isPowerOf2
+
+5.isPowerOf2 // false
+8.isPowerOf2 // true
+1.isPowerOf2 // true
+```
+
 ### `average`
 
 Calculates an average by ignoring a fixed number of low/high values:

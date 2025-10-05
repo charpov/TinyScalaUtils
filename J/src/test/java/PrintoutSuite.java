@@ -9,12 +9,14 @@ public class PrintoutSuite {
   @Test
   void testPrintout() {
     assertEquals("X\n", printout(() -> println("X")));
+    assertEquals("\n", printout(() -> println()));
     assertEquals("X", printout(() -> printf("%s","X")));
   }
 
   @Test
   void testPrintoutStandard() {
     assertEquals("X\n", printout(() -> System.out.println("X")));
+    assertEquals("\n", printout(() -> System.out.println()));
     assertEquals("X", printout(() -> System.out.printf("%s","X")));
   }
 }

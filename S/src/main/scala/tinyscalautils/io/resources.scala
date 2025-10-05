@@ -24,7 +24,7 @@ extension (obj: AnyRef)
      */
    def findResource(name: String): URL =
       searchResource(obj, name, trygz = false).getOrElse:
-         throw MissingResourceException("resource not found", name, name)
+         throw MissingResourceException("resource not found", "file", name)
 
    /** Finds the given resource as a URL. This is simply a call to `getClass.getResource` that falls
      * back to a default location instead of returning `null`. Note that this `findResource` variant
@@ -61,7 +61,7 @@ extension (obj: AnyRef)
    def findResourceAsStream(name: String): InputStream =
       openURL:
          searchResource(obj, name, trygz = true).getOrElse:
-            throw MissingResourceException("resource not found", name, name)
+            throw MissingResourceException("resource not found", "file", name)
 
    /** Finds the given resource as a stream. If the resource is not found, then `name.gz` is tried
      * instead. If neither is found locally, the fallback location is used to search for `name.gz`

@@ -46,10 +46,15 @@ class TruncatingPrettifier(prettifier: Prettifier, limit: Int) extends Prettifie
 end TruncatingPrettifier
 
 extension (prettifier: Prettifier)
-   /** Deactivates "analysis", which runs very slow on large data structures. */
-   def noAnalysis: Prettifier = new Prettifier:
-      def apply(o: Any): String = prettifier(o)
+   /** Deactivates "analysis", which runs very slowly on large data structures. */
+   def noAnalysis: Prettifier =
+      new Prettifier:
+         def apply(o: Any): String = prettifier(o)
 
-      override def apply(left: Any, right: Any): PrettyPair =
-         PrettyPair(prettifier(left), prettifier(right), None)
+         override def apply(left: Any, right: Any): PrettyPair =
+            PrettyPair(prettifier(left), prettifier(right), None)
    end noAnalysis
+
+   /** Bypasses prettifying of objects that satisfy the condition. */
+   def bypass(skip: Matchable => Boolean): Prettifier =
+      o => if skip(o.asMatchable) then o.toString else prettifier(o)

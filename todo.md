@@ -1,0 +1,4 @@
+- define a Points tag for tests: Points(2) or 2.points.
+- define an operator that calculates f(f(f(...f(x)))) with n calls to f.
+- implement fast loops.
+- set union and intersection in Java

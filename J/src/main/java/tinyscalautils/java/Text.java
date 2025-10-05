@@ -24,6 +24,10 @@ public final class Text {
     public static void println(Object ignoredArg) {
     }
 
+    // added so SILENT_MODE.println() can easily replace STANDARD_MODE.println()
+    public static void println() {
+    }
+
     public static void printf(String ignoredFormat, Object... ignoredArgs) {
     }
   }
@@ -39,6 +43,11 @@ public final class Text {
 
     public static void println(Object arg) {
       textScala.standardMode().print(arg, true);
+    }
+
+    // added so STANDARD_MODE.println() can easily replace System.out.println()
+    public static void println() {
+      println("");
     }
 
     public static void printf(String format, Object... arg) {
@@ -155,6 +164,10 @@ public final class Text {
 
   public static void info() {
     textScala.info();
+  }
+
+  public static void info(int newlines) {
+    textScala.info(newlines);
   }
 
   public static String plural(Number x, String singularForm, String pluralForm) {

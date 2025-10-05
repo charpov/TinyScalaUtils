@@ -1,6 +1,7 @@
 package tinyscalautils.java;
 
 import java.util.*;
+import java.util.random.RandomGenerator;
 
 public class Collection {
   private Collection() {
@@ -13,15 +14,15 @@ public class Collection {
     return collection.circular(iterable);
   }
 
-  public static <A> Iterator<A> randomly(Iterable<A> iterable, Random rand) {
+  public static <A> Iterator<A> randomly(Iterable<A> iterable, RandomGenerator rand) {
     return collection.randomly(iterable, rand);
   }
 
-  public static <A> A pickOne(Iterable<A> iterable, Random rand) {
+  public static <A> A pickOne(Iterable<A> iterable, RandomGenerator rand) {
     return collection.pickOne(iterable, rand);
   }
 
-  public static <A> Optional<A> pickOneOption(Iterable<A> iterable, Random rand) {
+  public static <A> Optional<A> pickOneOption(Iterable<A> iterable, RandomGenerator rand) {
     return collection.pickOneOption(iterable, rand);
   }
 

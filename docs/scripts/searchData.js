@@ -319,6 +319,8 @@ pages = [{"l":"index.html#","e":false,"i":"","n":"TinyScalaUtils","t":"TinyScala
 {"l":"tinyscalautils/util.html#isEven-f9c","e":false,"i":"extension (n: Long)","n":"isEven","t":"isEven: Boolean","d":"tinyscalautils.util","k":"def","x":""},
 {"l":"tinyscalautils/util.html#isOdd-ffffff99","e":false,"i":"extension (n: Int)","n":"isOdd","t":"isOdd: Boolean","d":"tinyscalautils.util","k":"def","x":""},
 {"l":"tinyscalautils/util.html#isOdd-f9c","e":false,"i":"extension (n: Long)","n":"isOdd","t":"isOdd: Boolean","d":"tinyscalautils.util","k":"def","x":""},
+{"l":"tinyscalautils/util.html#isPowerOf2-ffffff99","e":false,"i":"extension (n: Int)","n":"isPowerOf2","t":"isPowerOf2: Boolean","d":"tinyscalautils.util","k":"def","x":""},
+{"l":"tinyscalautils/util.html#isPowerOf2-f9c","e":false,"i":"extension (n: Long)","n":"isPowerOf2","t":"isPowerOf2: Boolean","d":"tinyscalautils.util","k":"def","x":""},
 {"l":"tinyscalautils/util.html#isZero-fffff5cd","e":false,"i":"extension [Num](n: Num)(using evidence$1: Numeric[Num])","n":"isZero","t":"isZero: Boolean","d":"tinyscalautils.util","k":"def","x":""},
 {"l":"tinyscalautils/util.html#log2-fffffbe0","e":false,"i":"","n":"log2","t":"log2(n: Int): Int","d":"tinyscalautils.util","k":"def","x":""},
 {"l":"tinyscalautils/util.html#log2-fffff563","e":false,"i":"","n":"log2","t":"log2(n: Long): Int","d":"tinyscalautils.util","k":"def","x":""},

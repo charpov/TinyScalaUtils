@@ -1,8 +1,6 @@
 import org.junit.jupiter.api.Test;
 import tinyscalautils.java.Text;
 
-import java.util.stream.Collectors;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static tinyscalautils.java.Text.*;
@@ -12,6 +10,7 @@ public class TextSuite {
   void testSilent() {
     assertTrue(printout(() -> SILENT_MODE.print("X")).isEmpty());
     assertTrue(printout(() -> SILENT_MODE.println("X")).isEmpty());
+    assertTrue(printout(() -> SILENT_MODE.println()).isEmpty());
     assertTrue(printout(() -> SILENT_MODE.printf("%s", "X")).isEmpty());
   }
 
@@ -19,6 +18,7 @@ public class TextSuite {
   void testStandard() {
     assertEquals("X", printout(() -> STANDARD_MODE.print("X")));
     assertEquals("X\n", printout(() -> STANDARD_MODE.println("X")));
+    assertEquals("\n", printout(() -> STANDARD_MODE.println()));
     assertEquals("X", printout(() -> STANDARD_MODE.printf("%s", "X")));
   }
 
@@ -80,11 +80,22 @@ public class TextSuite {
 
   @Test
   void testInfo() {
-    var lines = printout(Text::info).lines().collect(Collectors.toList());
-    assertEquals(3, lines.size());
-    assertTrue(lines.get(0).startsWith("Java"));
-    assertTrue(lines.get(1).endsWith("processors") || lines.get(1).endsWith("processor"));
-    assertTrue(lines.get(2).endsWith("maximum memory"));
+    var lines = printout(Text::info).lines().toList();
+    assertEquals(4, lines.size());
+    assertTrue(lines.get(0).contains("Java"));
+    assertTrue(lines.get(2).endsWith("processors") || lines.get(2).endsWith("processor"));
+    assertTrue(lines.get(3).endsWith("maximum memory"));
+  }
+
+  @Test
+  void testInfoNewlines() {
+    var lines = printout(() -> Text.info(2)).lines().toList();
+    assertEquals(6, lines.size());
+    assertTrue(lines.get(0).contains("Java"));
+    assertTrue(lines.get(2).endsWith("processors") || lines.get(2).endsWith("processor"));
+    assertTrue(lines.get(3).endsWith("maximum memory"));
+    assertTrue(lines.get(4).isEmpty());
+    assertTrue(lines.get(5).isEmpty());
   }
 
   @Test

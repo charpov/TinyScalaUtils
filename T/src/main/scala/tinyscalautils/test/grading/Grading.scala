@@ -1,5 +1,6 @@
 package tinyscalautils.test.grading
 
+import org.scalactic.source.Position
 import org.scalatest.*
 import org.scalatest.concurrent.{ Signaler, ThreadSignaler }
 import org.scalatest.time.Span
@@ -56,7 +57,7 @@ trait Grading(weight: Int = 0)
 
    abstract override def withFixture(test: NoArgTest): Outcome =
       val failed = test.configMap.getWithDefault[Set[String]]("failed", Set.empty)
-      if shouldFail(test.name, failed) then Failed("""test name in "failed" set""")
+      if shouldFail(test.name, failed) then Failed("test name in 'failed' set")
       else if test.tags.isEmpty then super.withFixture(test) // no tag (fast path)
       else
          val failTags = test.tags.filter(_.startsWith(Fail.name))
@@ -64,7 +65,7 @@ trait Grading(weight: Int = 0)
          else if failTags.nonEmpty then // Fail tag
             val failTag = failTags.head
             Fail.regex.findFirstMatchIn(failTag) match
-               case None => Canceled(s"'$failTag' is not a valid tag")
+               case None    => Canceled(s"'$failTag' is not a valid tag")
                case Some(m) =>
                   val message = m.group(1)
                   if message eq null then Failed() else Failed(message)
@@ -73,12 +74,12 @@ trait Grading(weight: Int = 0)
                new NoArgTest:
                   def apply(): Outcome = runAsync(test.apply())(using global)
 
-                  val configMap = test.configMap
-                  val name      = test.name
-                  val scopes    = test.scopes
-                  val text      = test.text
-                  val tags      = test.tags
-                  val pos       = test.pos
+                  val configMap: ConfigMap       = test.configMap
+                  val name: String               = test.name
+                  val scopes: IndexedSeq[String] = test.scopes
+                  val text: String               = test.text
+                  val tags: Set[String]          = test.tags
+                  val pos: Option[Position]      = test.pos
             super.withFixture(newTest)
          else super.withFixture(test) // other tags
 end Grading
