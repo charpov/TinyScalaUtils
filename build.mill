@@ -1,0 +1,82 @@
+import mill.*
+import mill.javalib.PublishModule
+import mill.javalib.publish.*
+import mill.scalalib.*
+
+trait Tiny extends ScalaModule, PublishModule:
+   def publishVersion   = "1.9.0"
+   def scalaVersion     = "3.3.8"
+   def scalaTestVersion = "3.2.20"
+   def jvmVersion       = "17"
+
+   def scalacOptions =
+      Seq(
+        "-deprecation", // Emit warning and location for usages of deprecated APIs.
+        "-feature",     // Emit warning for usages of features that should be imported explicitly.
+        "-unchecked",   // Enable detailed unchecked (erasure) warnings.
+        "-language:noAutoTupling", // Disable automatic tupling.
+        "-Wunused:linted",         // Check unused imports and variables.
+        "-java-output-version:17", // Java version.
+        "-source:future",          // Source version.
+        "-Yfuture-lazy-vals",      // Avoid using deprecated Unsafe class.
+      )
+
+   def versionScheme = Some(VersionScheme.SemVerSpec)
+
+   def pomSettings(description: String) =
+      PomSettings(
+        description = description,
+        organization = "io.github.charpov",
+        url = "https://github.com/charpov/TinyScalaUtils",
+        licenses = Seq(License.`Apache-2.0`),
+        versionControl = VersionControl.github("charpov", "TinyScalaUtils"),
+        developers = Seq(Developer("charpov", "Michel Charpentier", "https://github.com/charpov")),
+      )
+
+   trait Test extends ScalaTests, TestModule.ScalaTest:
+      def scalaTestVersion = Tiny.this.scalaTestVersion
+      def scalaTestStyles  = Seq("funsuite")
+end Tiny
+
+object S extends Tiny:
+   def artifactName = "tiny-scala-utils"
+   def pomSettings = pomSettings("A tiny, no dependencies, Scala library, mostly used for teaching.")
+
+   def scalaDocOptions =
+      Seq(
+        "-project:TinyScalaUtils",
+        s"-project-version:${publishVersion()}",
+        "-project-footer:Copyright Michel Charpentier, 2026",
+        "-doc-root-content",
+        "/Users/charpov/GIT/TinyScalaUtils/S/api.md",
+        "-groups",
+        "-external-mappings:.*scala/.*::scaladoc3::https://scala-lang.org/api/3.x/," +
+           ".*java/.*::javadoc::https://docs.oracle.com/en/java/javase/17/docs/api/java.base/",
+        "-source-links:github://charpov/TinyScalaUtils/main",
+      )
+
+   object test extends Test
+end S
+
+object T extends Tiny:
+   def artifactName = "tiny-scala-utils-test"
+   def pomSettings  = pomSettings("ScalaTests extensions, mostly used for teaching.")
+
+   def moduleDeps = Seq(S)
+   def mvnDeps    = Seq(mvn"org.scalatest::scalatest-funsuite::$scalaTestVersion")
+
+   def scalaDocOptions =
+      Seq(
+        "-project:TinyScalaUtilsTest",
+        s"-project-version:${publishVersion()}",
+        "-project-footer:Copyright Michel Charpentier, 2026",
+        "-groups",
+        "-external-mappings:.*scala/.*::scaladoc3::https://scala-lang.org/api/3.x/," +
+           ".*java/.*::javadoc::https://docs.oracle.com/en/java/javase/17/docs/api/java.base/," +
+           ".*scalatest/.*::scaladoc2::https://www.scalatest.org/scaladoc/3.2.20/," +
+           ".*scalactic/.*::scaladoc2::https://www.scalactic.org/scaladoc/3.2.20/",
+        "-source-links:github://charpov/TinyScalaUtils/main",
+      )
+   object test extends Test:
+      def discoverTestsWithZinc = true // remove after bug fix: https://github.com/com-lihaoyi/mill/issues/7094
+end T
