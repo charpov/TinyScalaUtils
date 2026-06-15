@@ -4,7 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import tinyscalautils.io.*
 
 import java.io.IOException
-import java.nio.file.{ AccessDeniedException, Files, Path }
+import java.nio.file.{ AccessDeniedException, Files }
 import java.util
 import scala.io.Source
 import scala.util.Using

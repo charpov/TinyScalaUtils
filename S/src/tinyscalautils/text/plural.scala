@@ -6,8 +6,7 @@ import tinyscalautils.assertions.*
   *
   * @since 1.1
   */
-def plural[A: Numeric](x: A, singularForm: String, pluralForm: String): String =
-   val numeric = Numeric[A]
+def plural[A: Numeric as numeric](x: A, singularForm: String, pluralForm: String): String =
    if numeric.lteq(x, numeric.one) then singularForm else pluralForm
 
 /** A variant of `plural` that guesses the plural form (e.g., cat -> cats, DOG -> DOGS, platypus ->

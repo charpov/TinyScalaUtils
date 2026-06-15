@@ -4,8 +4,8 @@ import mill.javalib.publish.*
 import mill.scalalib.*
 
 trait Tiny extends ScalaModule, PublishModule:
-   def publishVersion   = "1.9.0"
-   def scalaVersion     = "3.3.8"
+   def publishVersion   = "1.9.1"
+   def scalaVersion     = "3.9.0"
    def scalaTestVersion = "3.2.20"
    def jvmVersion       = "17"
 
@@ -18,7 +18,6 @@ trait Tiny extends ScalaModule, PublishModule:
         "-Wunused:linted",         // Check unused imports and variables.
         "-java-output-version:17", // Java version.
         "-source:future",          // Source version.
-        "-Yfuture-lazy-vals",      // Avoid using deprecated Unsafe class.
       )
 
    def versionScheme = Some(VersionScheme.SemVerSpec)
@@ -63,7 +62,7 @@ object T extends Tiny:
    def pomSettings  = pomSettings("ScalaTests extensions, mostly used for teaching.")
 
    def moduleDeps = Seq(S)
-   def mvnDeps    = Seq(mvn"org.scalatest::scalatest-funsuite::$scalaTestVersion")
+   def mvnDeps    = Seq(mvn"org.scalatest::scalatest-funsuite:$scalaTestVersion")
 
    def scalaDocOptions =
       Seq(

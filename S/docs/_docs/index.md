@@ -5,14 +5,14 @@
 Using `sbt`:
 
 ```scala
-libraryDependencies += "io.github.charpov" %% "tiny-scala-utils" % "1.9.0"
+libraryDependencies += "io.github.charpov" %% "tiny-scala-utils" % "1.9.1"
 ```
 
 Using `Mill`:
 
 ```yaml
 mvnDeps:
-  - io.github.charpov:tiny-scala-utils::1.9.0
+  - io.github.charpov:tiny-scala-utils::1.9.1
   - ...
 ```
 
@@ -37,7 +37,7 @@ repositories: [https://charpov.github.io/TinyScalaUtils/maven]
 
 ## Binary compatibility
 
-Java 17 and Scala 3.3, or newer.
+Java 17 and Scala 3.9, or newer.
 
 ## Structure
 

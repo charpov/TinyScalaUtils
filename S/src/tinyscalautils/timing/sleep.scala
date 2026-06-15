@@ -71,7 +71,7 @@ def sleep(seconds: Double, start: Long = getTime()): Unit = delayNanos(seconds.t
 /** Adds a `slow` method to iterators. */
 // The given is needed because, as of 3.3, Scala cannot handle multiple extensions by the same name
 // if they have default argument values.
-given SlowIterator: AnyRef with
+given SlowIterator: AnyRef:
    extension [A](source: Iterator[A])
       /** Slows down the iterator.
         *
@@ -119,7 +119,7 @@ given SlowIterator: AnyRef with
 /** Adds a `slow` method to sources. */
 // The given is needed because, as of 3.3, Scala cannot handle multiple extensions by the same name
 // if they have default argument values.
-given SlowSource: AnyRef with
+given SlowSource: AnyRef:
    extension (source: Source)
       /** Slows down the source.
         *
@@ -150,7 +150,7 @@ given SlowSource: AnyRef with
 /** Adds a `slow` method to streams. */
 // The given is needed because, as of 3.3, Scala cannot handle multiple extensions by the same name
 // if they have default argument values.
-given SlowLazyList: AnyRef with
+given SlowLazyList: AnyRef:
    extension [A](source: LazyList[A])
       /** Slows down the stream.
         *

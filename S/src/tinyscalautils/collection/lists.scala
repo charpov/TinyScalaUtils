@@ -15,7 +15,7 @@ object ArrayList:
      *
      * @since 1.2
      */
-   given factory: JavaListFactory[util.ArrayList] with
+   given factory: JavaListFactory[util.ArrayList]:
       def from[A](seq: Seq[A]): util.ArrayList[A] = util.ArrayList(seq.asJava)
 
 object LinkedList:
@@ -23,7 +23,7 @@ object LinkedList:
      *
      * @since 1.2
      */
-   given factory: JavaListFactory[util.LinkedList] with
+   given factory: JavaListFactory[util.LinkedList]:
       def from[A](seq: Seq[A]): util.LinkedList[A] = util.LinkedList(seq.asJava)
 
 object JavaList:

@@ -11,7 +11,7 @@ import scala.io.Source
 //@org.scalatest.Ignore
 // Note: This suite takes 50 minutes and 40 seconds to run.
 class SlowSuite extends AnyFunSuite with Tolerance:
-   private given Equality[Double] with
+   private given Equality[Double]:
       def areEqual(x: Double, value: Any): Boolean =
          value.asMatchable match
             case y: Double => x === y +- y / 10.0

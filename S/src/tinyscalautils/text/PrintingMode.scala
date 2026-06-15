@@ -52,35 +52,35 @@ private def thread =
    if name.nonEmpty then name else "anonymous thread " + theThread.getId
 
 /** Standard printing. Equivalent to `Predef.printf/println`. */
-given standardMode: PrintingMode with
+given standardMode: PrintingMode:
    def print(arg: Any, newline: Boolean): Unit =
       if newline then Predef.println(arg) else Predef.print(arg)
 
 /** Silent. Does not print anything. No call to `Predef.printf/println` takes place. */
-given silentMode: PrintingMode with
+given silentMode: PrintingMode:
    def print(arg: Any, newline: Boolean): Unit = ()
 
 /** Adds thread name. Strings are printed as: `<thread>: <string>`. */
-given threadMode: PrintingMode with
+given threadMode: PrintingMode:
    def print(arg: Any, newline: Boolean): Unit =
       val format = if newline then "%s: %s%n" else "%s: %s"
       Predef.printf(format, thread, arg)
 
 /** Adds time. Strings are printed as: `at HH:MM:SS.millis: <string>` */
-given timeMode: PrintingMode with
+given timeMode: PrintingMode:
    def print(arg: Any, newline: Boolean): Unit =
       val format = if newline then "at %1$TT.%1$TL: %2$s%n" else "at %1$TT.%1$TL: %2$s"
       Predef.printf(format, now(), arg)
 
 /** Adds time, but hides hours and minutes. Strings are printed as: `at XX:XX:SS.millis: <string>`
   */
-given timeDemoMode: PrintingMode with
+given timeDemoMode: PrintingMode:
    def print(arg: Any, newline: Boolean): Unit =
       val format = if newline then "at XX:XX:%1$TS.%1$TL: %2$s%n" else "at XX:XX:%1$TS.%1$TL: %2$s"
       Predef.printf(format, now(), arg)
 
 /** Adds thread name and time. Strings are printed as: `<thread> at HH:MM:SS.millis: <string>` */
-given threadTimeMode: PrintingMode with
+given threadTimeMode: PrintingMode:
    def print(arg: Any, newline: Boolean): Unit =
       val format = if newline then "%1$s at %2$TT.%2$TL: %3$s%n" else "%1$s at %2$TT.%2$TL: %3$s"
       Predef.printf(format, thread, now(), arg)
@@ -88,7 +88,7 @@ given threadTimeMode: PrintingMode with
 /** Adds thread name and time, but hides hours and minutes. Strings are printed as:
   * `<thread> at XX:XX:SS.millis: <string>`
   */
-given threadTimeDemoMode: PrintingMode with
+given threadTimeDemoMode: PrintingMode:
    def print(arg: Any, newline: Boolean): Unit =
       val format =
          if newline then "%1$s at XX:XX:%2$TS.%2$TL: %3$s%n" else "%1$s at XX:XX:%2$TS.%2$TL: %3$s"

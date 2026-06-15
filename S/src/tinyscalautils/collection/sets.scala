@@ -15,7 +15,7 @@ object HashSet:
      *
      * @since 1.3.1
      */
-   given factory: JavaSetFactory[util.HashSet] with
+   given factory: JavaSetFactory[util.HashSet]:
       def from[A](seq: Seq[A]): util.HashSet[A] = util.HashSet(seq.asJava)
 
 object TreeSet:
@@ -23,7 +23,7 @@ object TreeSet:
      *
      * @since 1.3.1
      */
-   given factory: JavaSetFactory[util.TreeSet] with
+   given factory: JavaSetFactory[util.TreeSet]:
       def from[A](seq: Seq[A]): util.TreeSet[A] = util.TreeSet(seq.asJava)
 
 object JavaSet:

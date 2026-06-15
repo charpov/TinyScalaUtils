@@ -17,13 +17,13 @@ class FastRandomSuite extends AnyFunSuite:
             x.iterator.asScala.take(10).sameElements(y.iterator.asScala.take(10))
          case _ => false
 
-   private given Equality[IntStream] with
+   private given Equality[IntStream]:
       def areEqual(x: IntStream, value: Any): Boolean = same(x, value)
 
-   private given Equality[LongStream] with
+   private given Equality[LongStream]:
       def areEqual(x: LongStream, value: Any): Boolean = same(x, value)
 
-   private given Equality[DoubleStream] with
+   private given Equality[DoubleStream]:
       def areEqual(x: DoubleStream, value: Any): Boolean = same(x, value)
 
    test("unseeded"):

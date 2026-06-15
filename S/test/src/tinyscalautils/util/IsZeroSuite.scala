@@ -40,7 +40,7 @@ class IsZeroSuite extends AnyFunSuite:
       assert(n.isZero && !(n + 1).isZero)
 
    test("isZero"):
-      given Numeric[String] with
+      given Numeric[String]:
          def fromInt(x: Int): String                  = ".".repeat(x)
          def minus(x: String, y: String): String      = ???
          def negate(x: String): String                = ???

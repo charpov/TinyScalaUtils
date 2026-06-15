@@ -21,7 +21,7 @@ private inline def check[A](inline code: A): A =
 @throws[InterruptedException]
 inline def interruptibly[A](inline code: A): A = check(code)
 
-given InterruptiblyExtensions: AnyRef with
+given InterruptiblyExtensions: AnyRef:
    extension [I, O](f: I => O)
       /** @define text1
         *   Makes a function responsive to interrupts: `f.interruptibly` has the same behavior as

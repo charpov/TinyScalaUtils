@@ -9,10 +9,9 @@ import scala.math.Fractional.Implicits.infixFractionalOps
   *
   * This function returns 0 if the sequence is empty, or all the numbers are ignored.
   */
-def average[A: Fractional](seq: Seq[A], ignoredPairs: Int = 0): A =
+def average[A: Fractional as fractional](seq: Seq[A], ignoredPairs: Int = 0): A =
    require(ignoredPairs >= 0, s"ignoredPairs argument must be non-negative, not $ignoredPairs")
-   val fractional = Fractional[A]
-   val len        = seq.length
+   val len = seq.length
    if ignoredPairs * 2 >= len then fractional.zero
    else
       seq.sorted.view.slice(ignoredPairs, len - ignoredPairs).sum /

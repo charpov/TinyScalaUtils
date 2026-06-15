@@ -5,8 +5,8 @@ import tinyscalautils.assertions.require
 import scala.compiletime.asMatchable
 import scala.math.Numeric.Implicits.infixNumericOps
 
-extension [A: Numeric](n: A)
-   /** Calculates the interger power of a number.
+extension [A: Numeric as numeric](n: A)
+   /** Calculates the integer power of a number.
      *
      * @note
      *   This function does not check for overflows; it also return 1 when `m` is 0, even if `n` is
@@ -20,7 +20,6 @@ extension [A: Numeric](n: A)
    def pow(m: Int): A =
       require(m >= 0, s"pow argument must be non-negative, not $m")
 
-      val numeric      = Numeric[A]
       def pow2(m: Int) = numeric.fromInt(1 << m)
       def times2(x: A) = x * numeric.fromInt(2)
 

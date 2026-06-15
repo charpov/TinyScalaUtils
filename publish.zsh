@@ -3,7 +3,7 @@ set -Feu
 
 cd ~/GIT/TinyScalaUtils
 
-mill S.scalaDocGenerated
+./mill S.scalaDocGenerated
 rm -rf docs
 cp -r out/S/scalaDocGenerated.dest/javadoc ./docs
 git restore docs/maven/
@@ -14,4 +14,4 @@ export MILL_SONATYPE_USERNAME=V60etz
 export MILL_PGP_PASSPHRASE=''
 export MILL_SONATYPE_PASSWORD MILL_PGP_SECRET_BASE64
 
-mill mill.javalib.SonatypeCentralPublishModule/ --shouldRelease false
+./mill mill.javalib.SonatypeCentralPublishModule/ --shouldRelease false

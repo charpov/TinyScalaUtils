@@ -25,7 +25,7 @@ class Log2Suite extends AnyFunSuite:
       assert(log2(1L << 62) == 62)
 
    test("isPowerOf2 Int"):
-      assertThrows[IllegalArgumentException](-1.isPowerOf2)
+      assertThrows[IllegalArgumentException]((-1).isPowerOf2)
       assert(!3.isPowerOf2)
       assert(!5.isPowerOf2)
       assert(!6.isPowerOf2)
