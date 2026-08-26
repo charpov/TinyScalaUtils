@@ -2,8 +2,9 @@ package tinyscalautils.collection
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import Conversion.into
 
-extension [A](collection: IterableOnce[A])
+extension [A](collection: into[IterableOnce[A]])
    /** True if all the collection's elements are distinct.
      *
      * Note that this is true of an empty collection.
