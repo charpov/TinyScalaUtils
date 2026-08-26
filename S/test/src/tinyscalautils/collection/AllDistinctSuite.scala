@@ -2,6 +2,8 @@ package tinyscalautils.collection
 
 import org.scalatest.funsuite.AnyFunSuite
 import tinyscalautils.util.FastRandom
+import java.util
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 class AllDistinctSuite extends AnyFunSuite:
    test("small"):
@@ -20,3 +22,7 @@ class AllDistinctSuite extends AnyFunSuite:
       val one  = nums.pickOne(using FastRandom)
       assert(nums.allDistinct)
       assert(Range(0, n).count(i => nums.updated(i, one).allDistinct) == 1)
+
+   test("into"):
+      given [A] => Conversion[util.List[A], IterableOnce[A]] = _.asScala
+      assert(util.List.of(1, 2, 3).allDistinct)
