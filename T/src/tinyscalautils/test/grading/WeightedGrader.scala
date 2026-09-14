@@ -11,6 +11,7 @@ import java.util.logging.Logger
 private class WeightedGrader(defaultTotalWeight: Double) extends Grader, Reporter:
    private var sumWeight, sumPassed = 0.0
    private var tests                = 0
+   private var failures             = 0
    private var points               = Map.empty[String, Seq[Double]].withDefaultValue(Seq())
 
    private def weightsOfName(name: String): Seq[Double] =
@@ -42,11 +43,9 @@ private class WeightedGrader(defaultTotalWeight: Double) extends Grader, Reporte
    /** Total weight.  By default, this is the sum of the weights of all the tests. */
    def totalWeight: Double = if defaultTotalWeight > 0.0 then defaultTotalWeight else sumWeight
 
-   /** Total number of tests that were run.
-     *
-     * @since 1.1
-     */
    def testCount: Int = tests
+
+   def failureCount: Int = failures
 
    /** Processes an event.
      *
@@ -65,8 +64,7 @@ private class WeightedGrader(defaultTotalWeight: Double) extends Grader, Reporte
       val w = weightOf(name)
       tests += 1
       sumWeight += w
-      if successful then sumPassed += w
-
+      if successful then sumPassed += w else failures += 1
 end WeightedGrader
 
 /** Companion object. */

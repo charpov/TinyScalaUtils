@@ -1,3 +1,2 @@
 - define an operator that calculates f(f(f(...f(x)))) with n calls to f.
 - implement fast loops.
-- make GraderApp exit 0 only if all tests pass.

@@ -30,10 +30,13 @@ open class GraderApp(suites: GradingSuites):
    def main(args: Array[String]): Unit =
       LogManager.getLogManager.getLogger("").setLevel(Level.WARNING)
 
-      val failedTests          = readFailedTests()
-      val verbose              = args.nonEmpty && args(0) == "-v"
-      val expectedTests        = suites.expectedTestCount(Filter.default)
-      def testsStr(tests: Int) = s"$tests ${plural(tests, "test")}"
+      val failedTests   = readFailedTests()
+      val verbose       = args.nonEmpty && args(0) == "-v"
+      val expectedTests = suites.expectedTestCount(Filter.default)
+
+      def testsStr(tests: Int, failures: Int) =
+         val str = s"$tests ${plural(tests, "test")}"
+         if failures > 0 then str + s", $failures ${plural(failures, "failure")}" else str
 
       if verbose then info(newlines = 1)
       println(s"""Starting run for $expectedTests ${plural(expectedTests, "test")}:""")
@@ -50,14 +53,14 @@ open class GraderApp(suites: GradingSuites):
                val name   = suite.suiteName
                val weight = suite.grader.totalWeight
                val grade  = suite.grader.grade * weight
-               val tests  = suite.grader.testCount
-               f"""$name: $grade%.1f / $weight%.1f (${testsStr(tests)}, ${timeString(subTime)})"""
+               val tests  = testsStr(suite.grader.testCount, suite.grader.failureCount)
+               f"$name: $grade%.1f / $weight%.1f ($tests, ${timeString(subTime)})"
       println(s"time: ${timeString(time)}")
       println:
          val weight = suites.grader.totalWeight
          val grade  = suites.grader.grade * weight
-         val tests  = suites.grader.testCount
-         f"""grade: $grade%.0f / $weight%.0f (${testsStr(tests)})"""
+         val tests  = testsStr(suites.grader.testCount, suites.grader.failureCount)
+         f"grade: $grade%.0f / $weight%.0f ($tests)"
       System.exit(0) // possible hanging threads; forcing termination
 end GraderApp
 

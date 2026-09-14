@@ -25,6 +25,8 @@ open class GradingSuites private (
          if defaultTotalWeight > 0.0 then defaultTotalWeight else graders.map(_.totalWeight).sum
 
       lazy val testCount: Int = graders.map(_.testCount).sum
+      
+      lazy val failureCount: Int = graders.map(_.failureCount).sum
 
       lazy val grade: Double =
          graders.map(g => g.grade * g.totalWeight).sum / graders.map(_.totalWeight).sum

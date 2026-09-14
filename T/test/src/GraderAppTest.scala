@@ -2,8 +2,6 @@ import org.scalatest.funsuite.AnyFunSuite
 import tinyscalautils.lang.unit
 import tinyscalautils.test.grading.{ GraderApp, Grading, GradingSuites }
 
-// run inside "T" to fail tests
-
 private class Tests1 extends AnyFunSuite with Grading(20):
    override def suiteName = "Tests1"
    test("pass 1 [2pts]")(unit)
