@@ -1,5 +1,7 @@
 package tinyscalautils.assertions
 
+import java.util.NoSuchElementException
+
 /** Checks if an object is null.
   *
   * @throws IllegalArgumentException
@@ -74,4 +76,37 @@ inline def requireState(condition: Boolean, inline message: String, inline args:
   *
   * @since 1.0
   */
-inline def requireState(condition: Boolean): Unit = if !condition then throw IllegalStateException()
+inline def requireState(condition: Boolean): Unit =
+   if !condition then throw IllegalStateException()
+
+/** Simple element existence assertion, with message.
+  *
+  * @throws java.util.NoSuchElementException
+  *   if the requirement is not satisfied.
+  *
+  * Messages are created lazily, either as:
+  *
+  * {{{requireElement(cond, s"$variable should be $value")}}}
+  *
+  * or:
+  *
+  * {{{requireElement(cond, "%s should be %s", variable, value)}}}
+  *
+  * The message string cannot be `null`.
+  *
+  * @since 1.10
+  */
+inline def requireElement(condition: Boolean, inline message: String, inline args: Any*): Unit =
+   if !condition then throw NoSuchElementException(message.format(args*))
+
+/** Simple element existence assertion.
+  *
+  * @throws java.util.NoSuchElementException
+  *   if the requirement is not satisfied.
+  *
+  * Message in the exception is `null`.
+  *
+  * @since 1.10
+  */
+inline def requireElement(condition: Boolean): Unit =
+   if !condition then throw NoSuchElementException()

@@ -5,14 +5,14 @@
 Using `sbt`:
 
 ```scala
-libraryDependencies += "io.github.charpov" %% "tiny-scala-utils" % "1.9.1"
+libraryDependencies += "io.github.charpov" %% "tiny-scala-utils" % "1.10.0"
 ```
 
 Using `Mill`:
 
 ```yaml
 mvnDeps:
-  - io.github.charpov:tiny-scala-utils::1.9.1
+  - io.github.charpov:tiny-scala-utils::1.10.0
   - ...
 ```
 

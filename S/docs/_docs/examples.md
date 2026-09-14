@@ -317,7 +317,7 @@ Seq.empty.allDistinct       // true
 
 ## Package `assertions`
 
-### `require` / `requireState`
+### `require` / `requireState` / `requireElement`
 
 Simple precondition checking:
 
@@ -332,7 +332,7 @@ require(cond, "bad argument because %s", someMethod())
 ```
 In either case, `someMethod()` is only evaluated if the condition is false.
 
-When a requirement fails, `require` throws `IllegalArgumentException` while `requireState` throws `IllegalStateException`.
+When a requirement fails, `require` throws `IllegalArgumentException`, `requireState` throws `IllegalStateException`, and `requireElement` throws `NoSuchElementException`. 
 
 ### `checkNonNull`
 
