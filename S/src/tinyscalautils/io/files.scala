@@ -4,7 +4,7 @@ import tinyscalautils.assertions.*
 
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.{ Files, Path }
-import scala.collection.IterableFactory
+import scala.collection.{ Factory, IterableFactory }
 import scala.jdk.StreamConverters.*
 import scala.util.Using
 import scala.util.control.NonFatal
@@ -34,12 +34,12 @@ def listPaths(dir: Path, silent: Boolean = false): List[Path] = readPaths(List)(
   *
   * @since 1.0
   */
-def readPaths[C[_]](factory: IterableFactory[C])(dir: Path, silent: Boolean = false): C[Path] =
+def readPaths[C](factory: Factory[Path, C])(dir: Path, silent: Boolean = false): C =
    try
       require(Files.isDirectory(dir), s"$dir is not a directory")
       val contents = Using(Files.list(dir))(stream => stream.toScala(factory))
-      if silent then contents.getOrElse(factory.empty) else contents.get
-   catch case NonFatal(e) => if silent then factory.empty else throw e
+      if silent then contents.getOrElse(factory.fromSpecific(Iterator.empty)) else contents.get
+   catch case NonFatal(e) => if silent then factory.fromSpecific(Iterator.empty) else throw e
 
 //noinspection ScalaDeprecation
 @deprecated("use readAll instead", since = "1.3")

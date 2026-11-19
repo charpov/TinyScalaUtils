@@ -6,6 +6,8 @@ import tinyscalautils.io.*
 import java.io.IOException
 import java.nio.file.{ AccessDeniedException, Files }
 import java.util
+import scala.collection.Factory
+import scala.collection.immutable.TreeSet
 import scala.io.Source
 import scala.util.Using
 import scala.util.chaining.scalaUtilChainingOps
@@ -30,18 +32,43 @@ class InputSuite extends AnyFunSuite:
 
    test("demo 1"):
       import io.FileIsInput
-      val numsSeq: IndexedSeq[Int]          = readAll(IndexedSeq)(file, parse)
-      val nonBlankLines: IndexedSeq[String] = readAll(IndexedSeq)(file)
-      val allLines: IndexedSeq[String]      = readAll(IndexedSeq)(file, noParsing)
-      val numsList: List[Int]               = readAll(file, parse)
-      val nonBlankLinesList: List[String]   = readAll(file)
-      val allLinesList: List[String]        = readAll(file, noParsing)
+      val numsSeq: IndexedSeq[Int]             = readAllInto(IndexedSeq)(file, parse)
+      val nonBlankLines: IndexedSeq[String]    = readAllInto(IndexedSeq)(file)
+      val allLines: IndexedSeq[String]         = readAllInto(IndexedSeq)(file, noParsing)
+      val numsDefault: Seq[Int]                = readAll(file, parse)
+      val nonBlankLinesDefault: Seq[String]    = readAll(file)
+      val allLinesDefault: Seq[String]         = readAll(file, noParsing)
       assert(numsSeq == nums)
       assert(nonBlankLines.length == 5)
       assert(allLines.length == 7)
-      assert(numsList == nums)
-      assert(nonBlankLinesList.length == 5)
-      assert(allLinesList.length == 7)
+      assert(numsDefault == nums)
+      assert(nonBlankLinesDefault.length == 5)
+      assert(allLinesDefault.length == 7)
+
+   test("readAllInto, array factory"):
+      import io.PathIsInput
+      val factory: Factory[Int, Array[Int]] = Array
+      val result: Array[Int] = readAllInto(factory)(path, parse)
+      assert(result.toIndexedSeq == nums)
+      val lineFactory: Factory[String, Array[String]] = Array
+      val lines: Array[String] = readAllInto(lineFactory)(path)
+      assert(lines.length == 5)
+      assertThrows[IOException](readAllInto(factory)(dir, parse))
+      assert(readAllInto(factory)(dir, parse, silent = true).isEmpty)
+
+   test("readAllInto, sorted factory"):
+      import io.PathIsInput
+      val factory: Factory[Int, TreeSet[Int]] = TreeSet
+      val result: TreeSet[Int] = readAllInto(factory)(path, line => parse(line).map(-_))
+      assert(result.toList == List(-5, -4, -3, -2, -1))
+      assert(readAllInto(factory)(dir, parse, silent = true).isEmpty)
+
+   test("readAll, parser and silent"):
+      import io.PathIsInput
+      val result: Seq[Int] = readAll(path, parse, silent = false)
+      assert(result == nums)
+      assert(readAll(dir, parse, silent = true).isEmpty)
+      assertThrows[IOException](readAll(dir, parse, silent = false))
 
    test("demo 2"):
       import io.FileIsInput
@@ -63,145 +90,145 @@ class InputSuite extends AnyFunSuite:
       import io.PathIsInput
       assert(readAll(path, noParsing).length == 7)
 
-   test("readAll InputStream, indexed seq"):
+   test("readAllInto InputStream, indexed seq"):
       import io.InputStreamIsInput
-      val seq: IndexedSeq[Int] = readAll(IndexedSeq)(Files.newInputStream(path), parse)
+      val seq: IndexedSeq[Int] = readAllInto(IndexedSeq)(Files.newInputStream(path), parse)
       assert(seq == nums)
 
-   test("readAll InputStream, indexed seq, default parser"):
+   test("readAllInto InputStream, indexed seq, default parser"):
       import io.InputStreamIsInput
-      val seq: IndexedSeq[String] = readAll(IndexedSeq)(Files.newInputStream(path))
+      val seq: IndexedSeq[String] = readAllInto(IndexedSeq)(Files.newInputStream(path))
       assert(seq.length == 5)
 
-   test("readAll InputStream, list"):
+   test("readAll InputStream, seq"):
       import io.InputStreamIsInput
-      val list: List[Int] = readAll(Files.newInputStream(path), parse)
-      assert(list == nums)
+      val seq: Seq[Int] = readAll(Files.newInputStream(path), parse)
+      assert(seq == nums)
 
-   test("readAll InputStream, list, default parser"):
+   test("readAll InputStream, seq, default parser"):
       import io.InputStreamIsInput
-      val list: List[String] = readAll(Files.newInputStream(path))
-      assert(list.length == 5)
+      val seq: Seq[String] = readAll(Files.newInputStream(path))
+      assert(seq.length == 5)
 
-   test("readAll Path, indexed seq"):
+   test("readAllInto Path, indexed seq"):
       import io.PathIsInput
-      val seq: IndexedSeq[Int] = readAll(IndexedSeq)(path, parse)
+      val seq: IndexedSeq[Int] = readAllInto(IndexedSeq)(path, parse)
       assert(seq == nums)
 
-   test("readAll Path, indexed seq, default parser"):
+   test("readAllInto Path, indexed seq, default parser"):
       import io.PathIsInput
-      val seq: IndexedSeq[String] = readAll(IndexedSeq)(path)
+      val seq: IndexedSeq[String] = readAllInto(IndexedSeq)(path)
       assert(seq.length == 5)
 
-   test("readAll Path, list"):
+   test("readAll Path, seq"):
       import io.PathIsInput
-      val list: List[Int] = readAll(path, parse)
-      assert(list == nums)
+      val seq: Seq[Int] = readAll(path, parse)
+      assert(seq == nums)
 
-   test("readAll Path, list, default parser"):
+   test("readAll Path, seq, default parser"):
       import io.PathIsInput
-      val list: List[String] = readAll(path)
-      assert(list.length == 5)
+      val seq: Seq[String] = readAll(path)
+      assert(seq.length == 5)
 
-   test("readAll URL, indexed seq"):
+   test("readAllInto URL, indexed seq"):
       import io.URLIsInput
-      val seq: IndexedSeq[Int] = readAll(IndexedSeq)(url, parse)
+      val seq: IndexedSeq[Int] = readAllInto(IndexedSeq)(url, parse)
       assert(seq == nums)
 
-   test("readAll URL, indexed seq, default parser"):
+   test("readAllInto URL, indexed seq, default parser"):
       import io.URLIsInput
-      val seq: IndexedSeq[String] = readAll(IndexedSeq)(url)
+      val seq: IndexedSeq[String] = readAllInto(IndexedSeq)(url)
       assert(seq.length == 5)
 
-   test("readAll URL, list"):
+   test("readAll URL, seq"):
       import io.URLIsInput
-      val list: List[Int] = readAll(url, parse)
-      assert(list == nums)
+      val seq: Seq[Int] = readAll(url, parse)
+      assert(seq == nums)
 
-   test("readAll URL, list, default parser"):
+   test("readAll URL, seq, default parser"):
       import io.URLIsInput
-      val list: List[String] = readAll(url)
-      assert(list.length == 5)
-
-   test("readAll URI, indexed seq"):
-      import io.URIIsInput
-      val seq: IndexedSeq[Int] = readAll(IndexedSeq)(uri, parse)
-      assert(seq == nums)
-
-   test("readAll URI, indexed seq, default parser"):
-      import io.URIIsInput
-      val seq: IndexedSeq[String] = readAll(IndexedSeq)(uri)
+      val seq: Seq[String] = readAll(url)
       assert(seq.length == 5)
 
-   test("readAll URI, list"):
+   test("readAllInto URI, indexed seq"):
       import io.URIIsInput
-      val list: List[Int] = readAll(uri, parse)
-      assert(list == nums)
+      val seq: IndexedSeq[Int] = readAllInto(IndexedSeq)(uri, parse)
+      assert(seq == nums)
 
-   test("readAll URI, list, default parser"):
+   test("readAllInto URI, indexed seq, default parser"):
       import io.URIIsInput
-      val list: List[String] = readAll(uri)
-      assert(list.length == 5)
-
-   test("readAll name, indexed seq"):
-      import io.FileNameIsInput
-      val seq: IndexedSeq[Int] = readAll(IndexedSeq)(name, parse)
-      assert(seq == nums)
-
-   test("readAll name, indexed seq, default parser"):
-      import io.FileNameIsInput
-      val seq: IndexedSeq[String] = readAll(IndexedSeq)(name)
+      val seq: IndexedSeq[String] = readAllInto(IndexedSeq)(uri)
       assert(seq.length == 5)
 
-   test("readAll name, list"):
-      import io.FileNameIsInput
-      val list: List[Int] = readAll(name, parse)
-      assert(list == nums)
-
-   test("readAll name, list, default parser"):
-      import io.FileNameIsInput
-      val list: List[String] = readAll(name)
-      assert(list.length == 5)
-
-   test("readAll URL string, indexed seq"):
-      import io.URLStringIsInput
-      val seq: IndexedSeq[Int] = readAll(IndexedSeq)(url.toString, parse)
+   test("readAll URI, seq"):
+      import io.URIIsInput
+      val seq: Seq[Int] = readAll(uri, parse)
       assert(seq == nums)
 
-   test("readAll URL string, indexed seq, default parser"):
-      import io.URLStringIsInput
-      val seq: IndexedSeq[String] = readAll(IndexedSeq)(url.toString)
+   test("readAll URI, seq, default parser"):
+      import io.URIIsInput
+      val seq: Seq[String] = readAll(uri)
       assert(seq.length == 5)
 
-   test("readAll URL string, list"):
-      import io.URLStringIsInput
-      val list: List[Int] = readAll(url.toString, parse)
-      assert(list == nums)
-
-   test("readAll URL string, list, default parser"):
-      import io.URLStringIsInput
-      val list: List[String] = readAll(url.toString)
-      assert(list.length == 5)
-
-   test("readAll file, indexed seq"):
-      import io.FileIsInput
-      val seq: IndexedSeq[Int] = readAll(IndexedSeq)(file, parse)
+   test("readAllInto name, indexed seq"):
+      import io.FileNameIsInput
+      val seq: IndexedSeq[Int] = readAllInto(IndexedSeq)(name, parse)
       assert(seq == nums)
 
-   test("readAll file, indexed seq, default parser"):
-      import io.FileIsInput
-      val seq: IndexedSeq[String] = readAll(IndexedSeq)(file)
+   test("readAllInto name, indexed seq, default parser"):
+      import io.FileNameIsInput
+      val seq: IndexedSeq[String] = readAllInto(IndexedSeq)(name)
       assert(seq.length == 5)
 
-   test("readAll file, list"):
-      import io.FileIsInput
-      val list: List[Int] = readAll(file, parse)
-      assert(list == nums)
+   test("readAll name, seq"):
+      import io.FileNameIsInput
+      val seq: Seq[Int] = readAll(name, parse)
+      assert(seq == nums)
 
-   test("readAll file, list, default parser"):
+   test("readAll name, seq, default parser"):
+      import io.FileNameIsInput
+      val seq: Seq[String] = readAll(name)
+      assert(seq.length == 5)
+
+   test("readAllInto URL string, indexed seq"):
+      import io.URLStringIsInput
+      val seq: IndexedSeq[Int] = readAllInto(IndexedSeq)(url.toString, parse)
+      assert(seq == nums)
+
+   test("readAllInto URL string, indexed seq, default parser"):
+      import io.URLStringIsInput
+      val seq: IndexedSeq[String] = readAllInto(IndexedSeq)(url.toString)
+      assert(seq.length == 5)
+
+   test("readAll URL string, seq"):
+      import io.URLStringIsInput
+      val seq: Seq[Int] = readAll(url.toString, parse)
+      assert(seq == nums)
+
+   test("readAll URL string, seq, default parser"):
+      import io.URLStringIsInput
+      val seq: Seq[String] = readAll(url.toString)
+      assert(seq.length == 5)
+
+   test("readAllInto file, indexed seq"):
       import io.FileIsInput
-      val list: List[String] = readAll(file)
-      assert(list.length == 5)
+      val seq: IndexedSeq[Int] = readAllInto(IndexedSeq)(file, parse)
+      assert(seq == nums)
+
+   test("readAllInto file, indexed seq, default parser"):
+      import io.FileIsInput
+      val seq: IndexedSeq[String] = readAllInto(IndexedSeq)(file)
+      assert(seq.length == 5)
+
+   test("readAll file, seq"):
+      import io.FileIsInput
+      val seq: Seq[Int] = readAll(file, parse)
+      assert(seq == nums)
+
+   test("readAll file, seq, default parser"):
+      import io.FileIsInput
+      val seq: Seq[String] = readAll(file)
+      assert(seq.length == 5)
 
    test("readingAll"):
       import io.SourceIsInput

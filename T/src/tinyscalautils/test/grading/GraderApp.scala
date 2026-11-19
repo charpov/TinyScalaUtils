@@ -1,7 +1,7 @@
 package tinyscalautils.test.grading
 
 import org.scalatest.{ ConfigMap, Filter }
-import tinyscalautils.io.readAll
+import tinyscalautils.io.readAllInto
 import tinyscalautils.text.{ info, plural, timeString }
 import tinyscalautils.timing.timeOf
 
@@ -68,4 +68,4 @@ private def readFailedTests(): ConfigMap =
    import tinyscalautils.io.FileNameIsInput
    val failedTestsFile     = "failed_tests.txt"
    def parse(line: String) = Some(line.trim).filterNot(str => str.isBlank || str.startsWith("#"))
-   ConfigMap("failed" -> readAll(Set)(failedTestsFile, parse, silent = true))
+   ConfigMap("failed" -> readAllInto(Set)(failedTestsFile, parse, silent = true))

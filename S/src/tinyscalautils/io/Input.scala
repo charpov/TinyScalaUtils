@@ -3,7 +3,7 @@ package tinyscalautils.io
 import java.io.{ Closeable, File, InputStream }
 import java.net.{ URI, URL }
 import java.nio.file.{ Files, Path }
-import scala.collection.{ AbstractIterator, IterableFactory }
+import scala.collection.{ AbstractIterator, Factory, IterableFactory }
 import scala.io.Codec.UTF8
 import scala.io.{ Codec, Source }
 import scala.util.Using
@@ -62,42 +62,53 @@ given URLStringIsInput: Input[String]        = Source.fromURL(_)
   * @param silent
   *   if true, errors are ignored, and an empty collection is returned.
   *
-  * @since 1.3
+  * @since 1.10
   */
-def readAll[A, C[_], I: Input](
-    factory: IterableFactory[C]
-)(in: I, parser: String => IterableOnce[A] = nonEmpty, silent: Boolean = false): C[A] =
+def readAllInto[A, C, I: Input](
+    factory: Factory[A, C]
+)(in: I, parser: String => IterableOnce[A] = nonEmpty, silent: Boolean = false): C =
    try Using.resource(in.source)(_.getLines().flatMap(parser).to(factory))
-   catch case NonFatal(e) => if silent then factory.empty else throw e
+   catch case NonFatal(e) => if silent then factory.fromSpecific(Iterator.empty) else throw e
 
-/** Simplified form of `readAll` that uses `List` as the factory.
+/** Legacy factory-based form of `readAll`; use `readAllInto` instead.
   *
   * @since 1.3
   */
-def readAll[A, I: Input](in: I, parser: String => IterableOnce[A], silent: Boolean): List[A] =
-   readAll(List)(in, parser, silent = silent)
+@deprecated("use readAllInto instead", since = "1.10")
+def readAll[A, C[_], I: Input](
+    factory: IterableFactory[C]
+)(in: I, parser: String => IterableOnce[A] = nonEmpty, silent: Boolean = false): C[A] =
+   readAllInto(factory)(in, parser, silent)
 
-/** Simplified form of `readAll` that uses `List` as the factory and `false` for the `silent`
+/** Simplified form of `readAllInto` that uses `Seq` as the factory.
+  *
+  * @since 1.3
+  */
+def readAll[A, I: Input](in: I, parser: String => IterableOnce[A], silent: Boolean): Seq[A] =
+   readAllInto(Seq)(in, parser, silent)
+
+/** Simplified form of `readAllInto` that uses `Seq` as the factory and `false` for the `silent`
   * argument.
   *
   * @since 1.3
   */
-def readAll[A, I: Input](in: I, parser: String => IterableOnce[A]): List[A] =
-   readAll(List)(in, parser, silent = false)
+def readAll[A, I: Input](in: I, parser: String => IterableOnce[A]): Seq[A] =
+   readAllInto(Seq)(in, parser, silent = false)
 
-/** Simplified form of `readAll` that does not parse (blank lines are ignored) and uses `List` as
+/** Simplified form of `readAllInto` that does not parse (blank lines are ignored) and uses `Seq` as
   * the factory.
   *
   * @since 1.3
   */
-def readAll[I: Input](in: I, silent: Boolean): List[String] = readAll(List)(in, silent = silent)
+def readAll[I: Input](in: I, silent: Boolean): Seq[String] =
+   readAllInto(Seq)(in, silent = silent)
 
-/** Simplified form of `readAll` that does not parse (blank lines are ignored), uses `List` as the
+/** Simplified form of `readAllInto` that does not parse (blank lines are ignored), uses `Seq` as the
   * factory, and uses `false` for the `silent` argument.
   *
   * @since 1.3
   */
-def readAll[I: Input](in: I): List[String] = readAll(List)(in, silent = false)
+def readAll[I: Input](in: I): Seq[String] = readAllInto(Seq)(in, silent = false)
 
 /** Reads a text file as a single string. Encoding is UTF8.
   *

@@ -2,7 +2,7 @@ package tinyscalautils.io
 
 import org.scalatest.funsuite.AnyFunSuite
 
-import java.nio.file.{ AccessDeniedException, Files, Paths }
+import java.nio.file.{ AccessDeniedException, Files, Path, Paths }
 import java.util
 
 class FilesSuite extends AnyFunSuite:
@@ -12,6 +12,13 @@ class FilesSuite extends AnyFunSuite:
 
    test("listPaths"):
       assert(listPaths(dir).map(_.getFileName.toString).toSet == files ++ subdirs)
+
+   test("readPaths, array factory"):
+      val result: Array[Path] = readPaths(Array)(dir)
+      assert(result.iterator.map(_.getFileName.toString).toSet == files ++ subdirs)
+      val file = dir.resolve("foo.txt")
+      assertThrows[IllegalArgumentException](readPaths(Array)(file))
+      assert(readPaths(Array)(file, silent = true).isEmpty)
 
    test("listPaths, errors"):
       val perms = Files.getPosixFilePermissions(dir)
